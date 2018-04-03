@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '26.0.2'
+
+    defaultConfig {
+        applicationId "com.foxit.pdf.function_demo"
+        minSdkVersion 8
+        targetSdkVersion 21
+        versionCode 6
+        versionName "5.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['../../../libs']
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories{
+    flatDir {        dirs '../../../libs'    }
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.android:multidex:0.1'
+    compile fileTree(dir: '../../../libs', include: ['FoxitRDK.jar'])
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+task makeApp(type :Copy){
+    from('build/outputs/apk')
+    into('../../../app')
+    include('app-debug.apk')
+    rename ('app-debug.apk', 'function_demo.apk')
+}
+
+task clearApp(type :Delete){
+    delete 'build/outputs/apk/apk-debug.apk'
+    delete '../../../app/function_demo.apk'
+}
+
+makeApp.dependsOn(clearApp,build)

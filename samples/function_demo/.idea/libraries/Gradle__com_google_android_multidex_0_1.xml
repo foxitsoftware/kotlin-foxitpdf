@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.google.android:multidex-0.1">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/multidex-0.1.aar/1104d61634cba096a2c7d04543130fa7/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/multidex-0.1.aar/1104d61634cba096a2c7d04543130fa7/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.android/multidex/0.1/8f8202ac78f489e3bfe6747c3943f3e9d0540047/multidex-0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

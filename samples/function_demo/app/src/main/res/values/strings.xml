@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">function_demo</string>
+    <string name="pdf2text">pdf2txt</string>
+    <string name="pdf2textInfo">Extract text from a PDF document to a TXT file.</string>
+    <string name="outline">outline</string>
+    <string name="outlineInfo">Edit outline (aka bookmark) appearances and titles.</string>
+    <string name="addAnnotation">annotation</string>
+    <string name="addAnnotationInfo">Add annotations.</string>
+    <string name="docInfo">docinfo</string>
+    <string name="docInfoDemoInfo">Export document info to a TXT file.</string>
+    <string name="render">render</string>
+    <string name="renderInfo">Render a specified page to Bitmap.</string>
+    <string name="signature">signature</string>
+    <string name="signatureInfo">Add a signature to PDF, sign PDF and verify the signature.</string>
+</resources>

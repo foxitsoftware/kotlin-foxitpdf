@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">viewer_ctrl_demo</string>
+    <string name="MoreMenu">MoreMenu</string>
+    <string name="note">Note</string>
+    <string name="DocInfo">DocInfo</string>
+    <string name="highlight">Highlight</string>
+    <string name="underline">Underline</string>
+    <string name="strikeout">StrikeOut</string>
+    <string name="squiggly">Squiggly</string>
+    <string name="outline">Outline</string>
+    <string name="changeLayout">ChangeLayout</string>
+    <string name="search">Search</string>
+    <string name="annotations">Annotations</string>
+    <string name="thumbnail">Thumbnail</string>
+</resources>

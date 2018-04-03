@@ -1,0 +1,36 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item
+		android:id="@+id/DocInfo"
+		android:title="@string/DocInfo"/>
+	<item
+		android:id="@+id/Note"
+		android:title="@string/note"/>
+	<item
+		android:id="@+id/Highlight"
+		android:title="@string/highlight"/>
+	<item
+		android:id="@+id/Underline"
+		android:title="@string/underline"/>
+	<item
+		android:id="@+id/StrikeOut"
+		android:title="@string/strikeout"/>
+	<item
+		android:id="@+id/Squiggly"
+		android:title="@string/squiggly"/>
+	<item 
+	    android:id="@+id/Outline"
+	    android:title="@string/outline"/>
+	<item 
+	    android:id="@+id/ChangeLayout"
+	    android:title="@string/changeLayout"/>
+	<item
+		android:id="@+id/Search"
+		android:title="@string/search" />
+
+	<item
+		android:id="@+id/Annotations"
+		android:title="@string/annotations"/>
+	<item
+		android:id="@+id/Thumbnail"
+		android:title="@string/thumbnail"/>
+</menu>

@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId "com.foxit.home"
+        minSdkVersion 11
+        targetSdkVersion 23
+        versionCode 6
+        versionName "5.1"
+    }
+    signingConfigs {
+        config {
+            keyAlias 'demo'
+            keyPassword 'welcome'
+            storeFile file('demo.keystore')
+            storePassword 'welcome'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['../../../libs']
+        }
+    }
+}
+repositories{
+    flatDir {        dirs '../../../libs'    }
+    mavenCentral()
+}
+dependencies {
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile(name:'FoxitRDKUIExtensions', ext:'aar')
+    compile 'com.edmodo:cropper:1.0.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+
+task makeApp(type :Copy){
+    from('build/outputs/apk')
+    into('../../../app')
+    include('app-debug.apk')
+    rename ('app-debug.apk', 'complete_pdf_viewer.apk')
+}
+
+task clearApp(type :Delete){
+    delete 'build/outputs/apk/apk-debug.apk'
+    delete '../../../app/complete_pdf_viewer.apk'
+}
+
+makeApp.dependsOn(clearApp,build)
