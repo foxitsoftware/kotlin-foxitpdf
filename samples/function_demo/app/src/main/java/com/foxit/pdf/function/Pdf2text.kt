@@ -24,24 +24,17 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-class Pdf2text(context: Context, pdfFilePath: String) {
-    private var mFilePath = ""
-    private var mContext: Context? = null
-
-    init {
-        mFilePath = pdfFilePath
-        mContext = context
-    }
+class Pdf2text(var context: Context, var pdfFilePath: String) {
 
     fun doPdfToText() {
-        val indexPdf = mFilePath.lastIndexOf(".")
-        val indexSep = mFilePath.lastIndexOf("/")
+        val indexPdf = pdfFilePath.lastIndexOf(".")
+        val indexSep = pdfFilePath.lastIndexOf("/")
 
-        val filenameWithoutPdf = mFilePath.substring(indexSep + 1, indexPdf)
+        val filenameWithoutPdf = pdfFilePath.substring(indexSep + 1, indexPdf)
         val outputFilePath = Common.getOutputFilesFolder(Common.pdf2textModuleName) + filenameWithoutPdf + ".txt"
         var strText = ""
 
-        val doc = Common.loadPDFDoc(mContext!!, mFilePath, null) ?: return
+        val doc = Common.loadPDFDoc(context, pdfFilePath, null) ?: return
 
         var page: PDFPage? = null
         try {
@@ -49,21 +42,20 @@ class Pdf2text(context: Context, pdfFilePath: String) {
 
             //Traverse pages and get the text string.
             for (i in 0 until pageCount) {
-                page = Common.loadPage(mContext!!, doc, i, PDFPage.e_ParsePageNormal)
-                if (page == null) {
+                page = Common.loadPage(context, doc, i, PDFPage.e_ParsePageNormal)
+                if (page == null || page.isEmpty) {
                     continue
                 }
 
-                val textSelect = TextPage(page, TextPage.e_ParseTextNormal) ?: continue
+                val textSelect = TextPage(page, TextPage.e_ParseTextNormal)
+                if (textSelect == null || textSelect.isEmpty) continue
 
                 strText += textSelect.getChars(0, textSelect.charCount) + "\r\n"
                 page.delete()
             }
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Pdf to text error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Pdf to text error. " + e.message, Toast.LENGTH_LONG).show()
             return
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
         }
 
         //Output the text string to the TXT file.
@@ -75,10 +67,10 @@ class Pdf2text(context: Context, pdfFilePath: String) {
             fileWriter.flush()
             fileWriter.close()
         } catch (e: IOException) {
-            Toast.makeText(mContext, e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             return
         }
 
-        Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
     }
 }

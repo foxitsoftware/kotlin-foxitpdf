@@ -28,6 +28,7 @@ import com.foxit.pdf.function.Render
 import com.foxit.pdf.function.Signature
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Library
+import org.jetbrains.anko.find
 
 class MainActivity : FragmentActivity() {
 
@@ -52,12 +53,12 @@ class MainActivity : FragmentActivity() {
         showLibraryErrorInfo()
         Common.copyTestFiles(applicationContext)
 
-        pdf2textDemoBtn = findViewById(R.id.pdf2text) as Button
-        outlineDemoBtn = findViewById(R.id.outline) as Button
-        addAnnotationDemoBtn = findViewById(R.id.addAnnotation) as Button
-        docInfoDemoBtn = findViewById(R.id.docInfo) as Button
-        renderDemoBtn = findViewById(R.id.render) as Button
-        signatureDemoBtn = findViewById(R.id.signature) as Button
+        pdf2textDemoBtn = find(R.id.pdf2text) as Button
+        outlineDemoBtn = find(R.id.outline) as Button
+        addAnnotationDemoBtn = find(R.id.addAnnotation) as Button
+        docInfoDemoBtn = find(R.id.docInfo) as Button
+        renderDemoBtn = find(R.id.render) as Button
+        signatureDemoBtn = find(R.id.signature) as Button
 
         pdf2textDemoBtn!!.setOnClickListener(View.OnClickListener {
             if (initErrCode != Constants.e_ErrSuccess) {
@@ -65,7 +66,7 @@ class MainActivity : FragmentActivity() {
                 return@OnClickListener
             }
             val testFilePath = Common.getFixFolder() + Common.testInputFile
-            val pdf2text = Pdf2text(this@MainActivity, testFilePath)
+            val pdf2text = Pdf2text(applicationContext, testFilePath)
             pdf2text.doPdfToText()
         })
 
@@ -75,7 +76,7 @@ class MainActivity : FragmentActivity() {
                 return@OnClickListener
             }
             val testFilePath = Common.getFixFolder() + Common.outlineInputFile
-            val outline = Outline(this@MainActivity, testFilePath)
+            val outline = Outline(applicationContext, testFilePath)
             outline.modifyOutline()
         })
 
@@ -85,7 +86,7 @@ class MainActivity : FragmentActivity() {
                 return@OnClickListener
             }
             val testFilePath = Common.getFixFolder() + Common.anotationInputFile
-            val annotation = Annotation(this@MainActivity, testFilePath)
+            val annotation = Annotation(applicationContext, testFilePath)
             annotation.addAnnotation()
         })
 
@@ -96,7 +97,7 @@ class MainActivity : FragmentActivity() {
             }
 
             val testFilePath = Common.getFixFolder() + Common.testInputFile
-            val info = DocInfo(this@MainActivity, testFilePath)
+            val info = DocInfo(applicationContext, testFilePath)
             info.outputDocInfo()
         })
 
@@ -106,7 +107,7 @@ class MainActivity : FragmentActivity() {
                 return@OnClickListener
             }
             val testFilePath = Common.getFixFolder() + Common.testInputFile
-            val render = Render(this@MainActivity, testFilePath)
+            val render = Render(applicationContext, testFilePath)
             render.renderPage(0)
         })
         signatureDemoBtn!!.setOnClickListener(View.OnClickListener {
@@ -117,7 +118,7 @@ class MainActivity : FragmentActivity() {
             val testFilePath = Common.getFixFolder() + Common.signatureInputFile
             val certPath = Common.getFixFolder() + Common.signatureCertification
             val certPassword = "123456"
-            val signature = Signature(this@MainActivity, testFilePath, certPath, certPassword)
+            val signature = Signature(applicationContext, testFilePath, certPath, certPassword)
             signature.addSignature(0)
         })
     }
@@ -125,9 +126,9 @@ class MainActivity : FragmentActivity() {
     private fun showLibraryErrorInfo() {
         if (initErrCode != Constants.e_ErrSuccess) {
             if (initErrCode == Constants.e_ErrInvalidLicense) {
-                Toast.makeText(this@MainActivity, "The license is invalid!", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "The license is invalid!", Toast.LENGTH_LONG).show()
             } else {
-                Toast.makeText(this@MainActivity, "Failed to initialize the library!", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "Failed to initialize the library!", Toast.LENGTH_LONG).show()
             }
             return
         }

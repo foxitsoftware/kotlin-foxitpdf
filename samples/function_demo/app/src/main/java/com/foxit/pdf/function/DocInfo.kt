@@ -21,19 +21,12 @@ import com.foxit.sdk.pdf.Metadata
 import java.io.File
 import java.io.FileWriter
 
-class DocInfo(context: Context, path: String) {
-    private var mContext: Context? = null
-    private var mPath: String? = null
-
-    init {
-        mContext = context
-        mPath = path
-    }
+class DocInfo(var context: Context, var path: String) {
 
     fun outputDocInfo() {
-        val doc = Common.loadPDFDoc(mContext!!, mPath!!, null) ?: return
+        val doc = Common.loadPDFDoc(context, path, null) ?: return
 
-        val filenameWithoutPdf = mPath!!.substring(mPath!!.lastIndexOf("/") + 1, mPath!!.lastIndexOf("."))
+        val filenameWithoutPdf = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."))
         val outputFilePath = Common.getOutputFilesFolder(Common.docInfoModuleName) + filenameWithoutPdf + "_docinfo.txt"
         val txtFile = File(outputFilePath)
         try {
@@ -63,12 +56,10 @@ class DocInfo(context: Context, path: String) {
             fileWriter.flush()
             fileWriter.close()
         } catch (e: Exception) {
-            Toast.makeText(mContext, String.format("Failed to export doc info of %s!", mPath), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, String.format("Failed to export doc info of %s!", path), Toast.LENGTH_LONG).show()
             return
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
         }
 
-        Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
     }
 }

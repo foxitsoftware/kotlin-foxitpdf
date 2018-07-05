@@ -26,25 +26,14 @@ import com.foxit.sdk.pdf.PDFPage
 
 import java.util.Calendar
 
-class Signature(context: Context, docPath: String, certPath: String, certPassword: String) {
-    private var mContext: Context? = null
-    private var mDocPath: String? = null
-    private var mCertPath: String? = null
-    private var mCertPassword: String? = null
-
-    init {
-        mContext = context
-        mDocPath = docPath
-        mCertPath = certPath
-        mCertPassword = certPassword
-    }
+class Signature(var context: Context, var docPath: String, var certPath: String, var certPassword: String) {
 
     fun addSignature(pageIndex: Int) {
-        val indexPdf = mDocPath!!.lastIndexOf(".")
-        val indexSep = mDocPath!!.lastIndexOf("/")
-        val filenameWithoutPdf = mDocPath!!.substring(indexSep + 1, indexPdf)
+        val indexPdf = docPath.lastIndexOf(".")
+        val indexSep = docPath.lastIndexOf("/")
+        val filenameWithoutPdf = docPath.substring(indexSep + 1, indexPdf)
         val outputFilePath = Common.getOutputFilesFolder(Common.signatureModuleName) + filenameWithoutPdf + "_add.pdf"
-        val doc = Common.loadPDFDoc(mContext!!, mDocPath!!, null) ?: return
+        val doc = Common.loadPDFDoc(context, docPath, null) ?: return
 
         try {
             val filter = "Adobe.PPKLite"
@@ -76,12 +65,15 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
 
             val pageCount = doc.pageCount
             if (pageIndex > pageCount || pageIndex < 0) {
-                Toast.makeText(mContext, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            val pdfPage = Common.loadPage(mContext!!, doc, pageIndex, PDFPage.e_ParsePageNormal)
-                    ?: return
+            val pdfPage = Common.loadPage(context, doc, pageIndex, PDFPage.e_ParsePageNormal)
+            if (pdfPage == null || pdfPage.isEmpty) {
+                return
+            }
+
             var signature: com.foxit.sdk.pdf.Signature = pdfPage.addSignature(rect)
             signature.filter = filter
             signature.subFilter = subfilter
@@ -104,54 +96,45 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
             signature.bitmap = bitmap
 
             signature.appearanceFlags = flags
-            try {
-                val progressive = signature.startSign(mCertPath, mCertPassword!!.toByteArray(), com.foxit.sdk.pdf.Signature.e_DigestSHA1, outputFilePath, null, null)
-                var progress = Progressive.e_ToBeContinued
-                while (progress == Progressive.e_ToBeContinued) {
-                    progress = progressive.resume()
-                }
-                progressive.delete()
-            } catch (e: PDFException) {
+
+            var progressive = signature.startSign(certPath, certPassword.toByteArray(), com.foxit.sdk.pdf.Signature.e_DigestSHA1, outputFilePath, null, null)
+            var progress = Progressive.e_ToBeContinued
+            while (progress == Progressive.e_ToBeContinued) {
+                progress = progressive.resume()
             }
 
             state = signature.state.toLong()
             if (state != com.foxit.sdk.pdf.Signature.e_StateSigned.toLong() || !signature.isSigned) {
-                Toast.makeText(mContext, String.format("This document sign failed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("This document sign failed !!!"), Toast.LENGTH_LONG).show()
                 return
             }
-            pdfPage.delete()
 
-            val signedDoc = Common.loadPDFDoc(mContext!!, outputFilePath, null)
+            val signedDoc = Common.loadPDFDoc(context, outputFilePath, null)
             val count = signedDoc!!.signatureCount
             if (count <= 0)
                 return
             signature = signedDoc.getSignature(0)
 
             if (!signature.isSigned) {
-                Toast.makeText(mContext, String.format("This document isn`t signed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("This document isn`t signed !!!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            try {
-                val progressive = signature.startVerify(null, null)
-                var progress = Progressive.e_ToBeContinued
-                while (progress == Progressive.e_ToBeContinued) {
-                    progress = progressive.resume()
-                }
-                progressive.delete()
-            } catch (e: PDFException) {
+
+            progressive = signature.startVerify(null, null)
+            progress = Progressive.e_ToBeContinued
+            while (progress == Progressive.e_ToBeContinued) {
+                progress = progressive.resume()
             }
 
             state = signature.state.toLong()
             if (state != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
-                Toast.makeText(mContext, String.format("This document verify failed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("This document verify failed !!!"), Toast.LENGTH_LONG).show()
                 return
             }
-            Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
-            Toast.makeText(mContext, String.format("Failed to sign the page No.%d! %s", pageIndex, e.message), Toast.LENGTH_LONG).show()
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
+            Toast.makeText(context, String.format("Failed to sign the page No.%d! %s", pageIndex, e.message), Toast.LENGTH_LONG).show()
         }
     }
 }

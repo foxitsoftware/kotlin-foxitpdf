@@ -27,34 +27,27 @@ import com.foxit.sdk.pdf.annots.QuadPoints
 import com.foxit.sdk.pdf.annots.QuadPointsArray
 import com.foxit.sdk.pdf.annots.TextMarkup
 
-class Annotation(context: Context, pdfFilePath: String) {
-    private var mFilePath = ""
-    private var mContext: Context? = null
-
+class Annotation(var context: Context, var pdfFilePath: String) {
     private val searchText = arrayOf("Highlight_1", "Highlight_2", "Highlight_3", "Underline_1", "Underline_2", "Underline_3", "Strikeout_1", "Strikeout_2", "Strikeout_3", "Squiggly_1", "Squiggly_2", "Squiggly_3")
 
     private val color = intArrayOf(-0x10000, -0xff0100, -0xffff01)
     private val opacity = floatArrayOf(0.2f, 0.6f, 0.9f)
     private val textMarkupType = intArrayOf(Annot.e_Highlight, Annot.e_Underline, Annot.e_StrikeOut, Annot.e_Squiggly)
 
-    init {
-        mFilePath = pdfFilePath
-        mContext = context
-    }
-
     fun addAnnotation() {
-        val indexPdf = mFilePath.lastIndexOf(".")
-        val indexSep = mFilePath.lastIndexOf("/")
-        val filenameWithoutPdf = mFilePath.substring(indexSep + 1, indexPdf)
+        val indexPdf = pdfFilePath.lastIndexOf(".")
+        val indexSep = pdfFilePath.lastIndexOf("/")
+        val filenameWithoutPdf = pdfFilePath.substring(indexSep + 1, indexPdf)
         val outputFilePath = Common.getOutputFilesFolder(Common.annotationModuleName) + filenameWithoutPdf + "_add.pdf"
 
-        val doc = Common.loadPDFDoc(mContext!!, mFilePath, null) ?: return
+        val doc = Common.loadPDFDoc(context, pdfFilePath, null) ?: return
 
         try {
             //Add Note annotations.
             for (i in 0..2) {
                 val annot = addAnnotation(doc, 0, Annot.e_Note, RectF((100 + i * 160).toFloat(), 180f, (120 + i * 160).toFloat(), 200f))
-                val noteAnnot = Note(annot) ?: continue
+                if (annot == null || annot.isEmpty) continue
+                val noteAnnot = Note(annot)
                 noteAnnot.iconName = "Comment"
                 noteAnnot.borderColor = color[i % 3]
 
@@ -65,7 +58,7 @@ class Annotation(context: Context, pdfFilePath: String) {
             //Add the TextMarkup annotations.
             for (i in searchText.indices) {
                 val textMarkupAnnot = addTextMarkup(doc, searchText[i], textMarkupType[i / 3])
-                        ?: continue
+                if (textMarkupAnnot == null || textMarkupAnnot.isEmpty) continue
                 textMarkupAnnot.borderColor = color[i % 3]
                 textMarkupAnnot.opacity = opacity[i % 3]
 
@@ -75,13 +68,11 @@ class Annotation(context: Context, pdfFilePath: String) {
 
             doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Add annotation demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Add annotation demo run error. " + e.message, Toast.LENGTH_LONG).show()
             return
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
         }
 
-        Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
         return
     }
 
@@ -99,13 +90,13 @@ class Annotation(context: Context, pdfFilePath: String) {
         try {
             //Firstly, search the text.
             textSearch = TextSearch(doc, null)
-            if (textSearch == null) {
-                Toast.makeText(mContext, "create text search error", Toast.LENGTH_LONG).show()
+            if (textSearch == null || textSearch.isEmpty) {
+                Toast.makeText(context, "create text search error", Toast.LENGTH_LONG).show()
                 return null
             }
 
             if (!textSearch.setPattern(keywords)) {
-                Toast.makeText(mContext, "set keywords error", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "set keywords error", Toast.LENGTH_LONG).show()
                 textSearch.delete()
                 return null
             }
@@ -137,14 +128,9 @@ class Annotation(context: Context, pdfFilePath: String) {
                 textMarkupAnnot.quadPoints = quadPointsArray
             }
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Get text rect error. " + e.message, Toast.LENGTH_LONG).show()
-        } finally {
-
-            if (textSearch != null) {
-                textSearch.delete()
-            }
-            return textMarkupAnnot
+            Toast.makeText(context, "Get text rect error. " + e.message, Toast.LENGTH_LONG).show()
         }
+        return textMarkupAnnot
     }
 
     private fun addAnnotation(doc: PDFDoc, pageIndex: Int, annotType: Int, rect: RectF?): Annot? {
@@ -154,9 +140,12 @@ class Annotation(context: Context, pdfFilePath: String) {
 
         var annot: Annot? = null
         try {
-            val page = doc.getPage(pageIndex) ?: return null
+            val page = doc.getPage(pageIndex)
+            if (page == null || page.isEmpty) {
+                return null
+            }
             annot = page.addAnnot(annotType, rect)
-            if (annot != null) {
+            if (annot != null && !annot.isEmpty) {
                 //Set the unique ID to the annotation.
                 val uuid = Common.randomUUID(null)
                 annot.uniqueID = uuid
@@ -169,9 +158,8 @@ class Annotation(context: Context, pdfFilePath: String) {
                 annot.modifiedDateTime = dateTime
             }
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Add annot error. " + e.message, Toast.LENGTH_LONG)
-        } finally {
-            return annot
+            Toast.makeText(context, "Add annot error. " + e.message, Toast.LENGTH_LONG)
         }
+        return annot
     }
 }

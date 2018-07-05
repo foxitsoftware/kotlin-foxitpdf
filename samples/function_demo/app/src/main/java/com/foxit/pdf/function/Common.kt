@@ -142,11 +142,7 @@ object Common {
                 return null
             }
 
-            if (password == null) {
-                doc.load(null)
-            } else {
-                doc.load(password)
-            }
+            doc.load(password)
             return doc
         } catch (e: PDFException) {
             Toast.makeText(context, "Load document error. " + e.message, Toast.LENGTH_LONG).show()
@@ -177,7 +173,6 @@ object Common {
                     state = progressive.resume()
                 }
 
-                progressive.delete()
                 if (state == Progressive.e_Error) {
                     Toast.makeText(context, "Parse Page error!", Toast.LENGTH_LONG).show()
                     return null
@@ -189,15 +184,6 @@ object Common {
         }
 
         return page
-    }
-
-    fun releaseDoc(context: Context, doc: PDFDoc) {
-        //        try {
-        doc.delete()
-        //        } catch (PDFException e) {
-        //            e.printStackTrace();
-        //            Toast.makeText(context, "Release document error. " + e.getMessage(), Toast.LENGTH_LONG).show();
-        //        }
     }
 
     fun randomUUID(separator: String?): String {

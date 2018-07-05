@@ -20,25 +20,18 @@ import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.Bookmark
 import com.foxit.sdk.pdf.PDFDoc
 
-class Outline(context: Context, pdfFilePath: String) {
-    private var mFilePath = ""
-    private var mContext: Context? = null
-
-    init {
-        mFilePath = pdfFilePath
-        mContext = context
-    }
+class Outline(var context: Context, var pdfFilePath: String) {
 
     fun modifyOutline() {
-        val indexPdf = mFilePath.lastIndexOf(".")
-        val indexSep = mFilePath.lastIndexOf("/")
+        val indexPdf = pdfFilePath.lastIndexOf(".")
+        val indexSep = pdfFilePath.lastIndexOf("/")
 
-        val filenameWithoutPdf = mFilePath.substring(indexSep + 1, indexPdf)
+        val filenameWithoutPdf = pdfFilePath.substring(indexSep + 1, indexPdf)
         val outputFilePath = Common.getOutputFilesFolder(Common.outlineModuleName) + filenameWithoutPdf + "_edit.pdf"
 
         var doc: PDFDoc? = null
-        doc = Common.loadPDFDoc(mContext!!, mFilePath, null)
-        if (doc == null) {
+        doc = Common.loadPDFDoc(context, pdfFilePath, null)
+        if (doc == null || doc.isEmpty) {
             return
         }
         try {
@@ -47,17 +40,15 @@ class Outline(context: Context, pdfFilePath: String) {
             val firstChild = bookmarkRoot.firstChild
             modifyOutline(firstChild)
 
-            if (false == doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)) {
-                Toast.makeText(mContext, "Save document error!", Toast.LENGTH_LONG).show()
+            if (!doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)) {
+                Toast.makeText(context, "Save document error!", Toast.LENGTH_LONG).show()
                 return
             }
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
             return
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
         }
-        Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
     }
 
     private fun modifyOutline(bookmark: Bookmark) {
@@ -85,7 +76,7 @@ class Outline(context: Context, pdfFilePath: String) {
             modifyOutline(child)
 
         } catch (e: PDFException) {
-            Toast.makeText(mContext, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
         }
 
     }

@@ -24,29 +24,24 @@ import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.pdf.PDFPage
 import com.foxit.sdk.common.Renderer
 
-class Render(context: Context, path: String) {
-    private var mContext: Context? = null
-    private var mPath: String? = null
-
-    init {
-        mContext = context
-        mPath = path
-    }
+class Render(var context: Context, var path: String) {
 
     fun renderPage(index: Int) {
-        val doc = Common.loadPDFDoc(mContext!!, mPath!!, null) ?: return
+        val doc = Common.loadPDFDoc(context, path, null) ?: return
 
         try {
             val pageCount = doc.pageCount
             if (index > pageCount || index < 0) {
-                Toast.makeText(mContext, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            val name = mPath!!.substring(mPath!!.lastIndexOf("/") + 1, mPath!!.lastIndexOf("."))
+            val name = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."))
             val outputFilePath = String.format("%s_index_%d.jpg", Common.getOutputFilesFolder(Common.renderModuleName) + name, index)
-            val pdfPage = Common.loadPage(mContext!!, doc, index, PDFPage.e_ParsePageNormal)
-                    ?: return
+            val pdfPage = Common.loadPage(context, doc, index, PDFPage.e_ParsePageNormal)
+            if (pdfPage == null || pdfPage.isEmpty) {
+                return
+            }
 
             //Create the bitmap and erase its background.
             val bitmap = Bitmap.createBitmap(pdfPage.width.toInt(), pdfPage.height.toInt(), Bitmap.Config.RGB_565)
@@ -63,25 +58,21 @@ class Render(context: Context, path: String) {
             while (state == Progressive.e_ToBeContinued) {
                 state = progressive.resume()
             }
-            progressive.delete()
+
             if (state == Progressive.e_Error) {
-                Toast.makeText(mContext, String.format("Failed to render the page No.%d failed!", index), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("Failed to render the page No.%d failed!", index), Toast.LENGTH_LONG).show()
                 return
             }
 
             //Save the render result to the jpeg image.
             if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
-                Toast.makeText(mContext, String.format("Failed to Save Image File!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, String.format("Failed to Save Image File!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            renderer.delete()
-            pdfPage.delete()
-            Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
-            Toast.makeText(mContext, String.format("Failed to render the page No.%d! %s", index, e.message), Toast.LENGTH_LONG).show()
-        } finally {
-            Common.releaseDoc(mContext!!, doc)
+            Toast.makeText(context, String.format("Failed to render the page No.%d! %s", index, e.message), Toast.LENGTH_LONG).show()
         }
     }
 }
