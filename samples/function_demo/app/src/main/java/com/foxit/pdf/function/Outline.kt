@@ -16,7 +16,7 @@ package com.foxit.pdf.function
 import android.content.Context
 import android.widget.Toast
 
-import com.foxit.sdk.common.PDFException
+import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.Bookmark
 import com.foxit.sdk.pdf.PDFDoc
 
@@ -34,7 +34,7 @@ class Outline(context: Context, pdfFilePath: String) {
         val indexSep = mFilePath.lastIndexOf("/")
 
         val filenameWithoutPdf = mFilePath.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.GetOutputFilesFolder(Common.outlineModuleName) + filenameWithoutPdf + "_edit.pdf"
+        val outputFilePath = Common.getOutputFilesFolder(Common.outlineModuleName) + filenameWithoutPdf + "_edit.pdf"
 
         var doc: PDFDoc? = null
         doc = Common.loadPDFDoc(mContext!!, mFilePath, null)
@@ -42,12 +42,12 @@ class Outline(context: Context, pdfFilePath: String) {
             return
         }
         try {
-            val bookmarkRoot = doc.firstBookmark ?: return
+            val bookmarkRoot = doc.rootBookmark ?: return
 
             val firstChild = bookmarkRoot.firstChild
             modifyOutline(firstChild)
 
-            if (false == doc.saveAs(outputFilePath, PDFDoc.e_saveFlagNormal.toLong())) {
+            if (false == doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)) {
                 Toast.makeText(mContext, "Save document error!", Toast.LENGTH_LONG).show()
                 return
             }
@@ -60,17 +60,17 @@ class Outline(context: Context, pdfFilePath: String) {
         Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
     }
 
-    private fun modifyOutline(bookmark: Bookmark?) {
+    private fun modifyOutline(bookmark: Bookmark) {
         try {
-            if (bookmark == null)
+            if (bookmark.isEmpty)
                 return
 
             if (index % 2 == 0) {
                 bookmark.color = -0x10000
-                bookmark.style = Bookmark.e_bookmarkStyleBold.toLong()
+                bookmark.style = Bookmark.e_StyleBold
             } else {
                 bookmark.color = -0xff0100
-                bookmark.style = Bookmark.e_bookmarkStyleItalic.toLong()
+                bookmark.style = Bookmark.e_StyleItalic
             }
 
             bookmark.title = "foxitbookmark$index"

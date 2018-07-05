@@ -3,14 +3,14 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.foxit.pdf.function_demo"
         minSdkVersion 8
         targetSdkVersion 21
-        versionCode 6
-        versionName "5.1"
+        versionCode 7
+        versionName "6.0.0"
     }
     buildTypes {
         release {
@@ -35,10 +35,10 @@ repositories{
 }
 
 dependencies {
-    compile 'com.google.android:multidex:0.1'
-    compile fileTree(dir: '../../../libs', include: ['FoxitRDK.jar'])
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.android:multidex:0.1'
+    implementation fileTree(dir: '../../../libs', include: ['FoxitRDK.jar'])
+    implementation 'com.android.support:appcompat-v7:23.4.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 task makeApp(type :Copy){

@@ -18,10 +18,11 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
 
-import com.foxit.sdk.common.CommonDefines
-import com.foxit.sdk.common.PDFException
+import com.foxit.sdk.PDFException
+import com.foxit.sdk.common.Constants
+import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.pdf.PDFPage
-import com.foxit.sdk.pdf.Renderer
+import com.foxit.sdk.common.Renderer
 
 class Render(context: Context, path: String) {
     private var mContext: Context? = null
@@ -33,7 +34,7 @@ class Render(context: Context, path: String) {
     }
 
     fun renderPage(index: Int) {
-        val doc = Common.loadPDFDoc(mContext!!, mPath, null) ?: return
+        val doc = Common.loadPDFDoc(mContext!!, mPath!!, null) ?: return
 
         try {
             val pageCount = doc.pageCount
@@ -43,43 +44,39 @@ class Render(context: Context, path: String) {
             }
 
             val name = mPath!!.substring(mPath!!.lastIndexOf("/") + 1, mPath!!.lastIndexOf("."))
-            val outputFilePath = String.format("%s_index_%d.jpg", Common.GetOutputFilesFolder(Common.renderModuleName) + name, index)
-            val pdfPage = Common.loadPage(mContext!!, doc, index, PDFPage.e_parsePageNormal) ?: return
+            val outputFilePath = String.format("%s_index_%d.jpg", Common.getOutputFilesFolder(Common.renderModuleName) + name, index)
+            val pdfPage = Common.loadPage(mContext!!, doc, index, PDFPage.e_ParsePageNormal)
+                    ?: return
 
             //Create the bitmap and erase its background.
-            val bitmap = Bitmap.createBitmap(pdfPage.width.toInt(), pdfPage.height.toInt(), Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(pdfPage.width.toInt(), pdfPage.height.toInt(), Bitmap.Config.RGB_565)
+            bitmap.eraseColor(Color.WHITE)
 
-            //If the page has transparency, the bitmap should be erased "Color.TRANSPARENT".
-            if (pdfPage.hasTransparency()) {
-                bitmap.eraseColor(Color.TRANSPARENT)
-            } else {
-                bitmap.eraseColor(Color.WHITE)
-            }
 
-            val matrix = pdfPage.getDisplayMatrix(0, 0, pdfPage.width.toInt(), pdfPage.height.toInt(), CommonDefines.e_rotation0)
+            val matrix = pdfPage.getDisplayMatrix(0, 0, pdfPage.width.toInt(), pdfPage.height.toInt(), Constants.e_Rotation0)
 
-            val renderer = Renderer(bitmap)
+            val renderer = Renderer(bitmap, true)
 
             //Render the page to bitmap.
             val progressive = renderer.startRender(pdfPage, matrix, null)
-            var state = CommonDefines.e_progressToBeContinued
-            while (state == CommonDefines.e_progressToBeContinued) {
-                state = progressive.continueProgress()
+            var state = Progressive.e_ToBeContinued
+            while (state == Progressive.e_ToBeContinued) {
+                state = progressive.resume()
             }
-            progressive.release()
-            if (state == CommonDefines.e_progressError) {
+            progressive.delete()
+            if (state == Progressive.e_Error) {
                 Toast.makeText(mContext, String.format("Failed to render the page No.%d failed!", index), Toast.LENGTH_LONG).show()
                 return
             }
 
             //Save the render result to the jpeg image.
-            if (false == Common.SaveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
+            if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
                 Toast.makeText(mContext, String.format("Failed to Save Image File!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            renderer.release()
-            doc.closePage(index)
+            renderer.delete()
+            pdfPage.delete()
             Toast.makeText(mContext, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
             Toast.makeText(mContext, String.format("Failed to render the page No.%d! %s", index, e.message), Toast.LENGTH_LONG).show()

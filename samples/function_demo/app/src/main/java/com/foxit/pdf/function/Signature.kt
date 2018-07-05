@@ -16,13 +16,12 @@ package com.foxit.pdf.function
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.RectF
 import android.widget.Toast
 
-import com.foxit.sdk.common.CommonDefines
 import com.foxit.sdk.common.DateTime
-import com.foxit.sdk.common.Library
-import com.foxit.sdk.common.PDFException
+import com.foxit.sdk.PDFException
+import com.foxit.sdk.common.Progressive
+import com.foxit.sdk.common.fxcrt.RectF
 import com.foxit.sdk.pdf.PDFPage
 
 import java.util.Calendar
@@ -44,8 +43,8 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
         val indexPdf = mDocPath!!.lastIndexOf(".")
         val indexSep = mDocPath!!.lastIndexOf("/")
         val filenameWithoutPdf = mDocPath!!.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.GetOutputFilesFolder(Common.signatureModuleName) + filenameWithoutPdf + "_add.pdf"
-        val doc = Common.loadPDFDoc(mContext!!, mDocPath, null) ?: return
+        val outputFilePath = Common.getOutputFilesFolder(Common.signatureModuleName) + filenameWithoutPdf + "_add.pdf"
+        val doc = Common.loadPDFDoc(mContext!!, mDocPath!!, null) ?: return
 
         try {
             val filter = "Adobe.PPKLite"
@@ -58,8 +57,7 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
             val text = "text"
             var state: Long = 0
             val value: String? = null
-            val rect = RectF()
-            rect.set(100f, 300f, 300f, 100f)
+            val rect = RectF(100f, 100f, 300f, 300f)
 
             //set current time to dateTime.
             val dateTime = DateTime()
@@ -67,7 +65,7 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
             val timeZone = c.timeZone
             val offset = timeZone.rawOffset
             val tzHour = offset / (3600 * 1000)
-            val tzMinute = offset / 1000 % 3600
+            val tzMinute = offset / (1000 * 60) % 60
             val year = c.get(Calendar.YEAR)
             val month = c.get(Calendar.MONTH) + 1
             val day = c.get(Calendar.DATE)
@@ -76,34 +74,30 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
             val second = c.get(Calendar.SECOND)
             dateTime.set(year, month, day, hour, minute, second, 0, tzHour.toShort(), tzMinute)
 
-            val ret = Library.registerDefaultSignatureHandler()
-            if (ret == false)
-                return
-
-
             val pageCount = doc.pageCount
             if (pageIndex > pageCount || pageIndex < 0) {
                 Toast.makeText(mContext, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
                 return
             }
 
-            val pdfPage = Common.loadPage(mContext!!, doc, pageIndex, PDFPage.e_parsePageNormal)
+            val pdfPage = Common.loadPage(mContext!!, doc, pageIndex, PDFPage.e_ParsePageNormal)
                     ?: return
-            var signature: com.foxit.sdk.pdf.signature.Signature = pdfPage.addSignature(rect)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameFilter, filter)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameSubFilter, subfilter)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameDN, dn)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameLocation, location)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameReason, reason)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameContactInfo, contactInfo)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameSigner, signer)
-            signature.setKeyValue(com.foxit.sdk.pdf.signature.Signature.e_signatureKeyNameText, text)
-            signature.signingTime = dateTime
-            val flags = (com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagSigningTime or com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagFoxitFlag or
-                    com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagLocation or com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagBitmap or
-                    com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagReason or com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagSigner or
-                    com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagText or com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagDN
-                    or com.foxit.sdk.pdf.signature.Signature.e_signatureAPFlagLabel).toLong()
+            var signature: com.foxit.sdk.pdf.Signature = pdfPage.addSignature(rect)
+            signature.filter = filter
+            signature.subFilter = subfilter
+
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameDN, dn)
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameLocation, location)
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameReason, reason)
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameContactInfo, contactInfo)
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameSigner, signer)
+            signature.setKeyValue(com.foxit.sdk.pdf.Signature.e_KeyNameText, text)
+            signature.signTime = dateTime
+            val flags = (com.foxit.sdk.pdf.Signature.e_APFlagSigningTime or com.foxit.sdk.pdf.Signature.e_APFlagFoxitFlag or
+                    com.foxit.sdk.pdf.Signature.e_APFlagLocation or com.foxit.sdk.pdf.Signature.e_APFlagBitmap or
+                    com.foxit.sdk.pdf.Signature.e_APFlagReason or com.foxit.sdk.pdf.Signature.e_APFlagSigner or
+                    com.foxit.sdk.pdf.Signature.e_APFlagText or com.foxit.sdk.pdf.Signature.e_APFlagDN
+                    or com.foxit.sdk.pdf.Signature.e_APFlagLabel)
 
             val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
             bitmap.eraseColor(Color.BLUE)
@@ -111,21 +105,22 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
 
             signature.appearanceFlags = flags
             try {
-                val progressive = signature.startSign(mCertPath, mCertPassword!!.toByteArray(), com.foxit.sdk.pdf.signature.Signature.e_digestSHA1, null, null, outputFilePath)
-                var progress = CommonDefines.e_progressToBeContinued
-                while (progress == CommonDefines.e_progressToBeContinued) {
-                    progress = progressive.continueProgress()
+                val progressive = signature.startSign(mCertPath, mCertPassword!!.toByteArray(), com.foxit.sdk.pdf.Signature.e_DigestSHA1, outputFilePath, null, null)
+                var progress = Progressive.e_ToBeContinued
+                while (progress == Progressive.e_ToBeContinued) {
+                    progress = progressive.resume()
                 }
-                progressive.release()
+                progressive.delete()
             } catch (e: PDFException) {
             }
 
-            state = signature.state
-            if (state != com.foxit.sdk.pdf.signature.Signature.e_signatureStateSigned.toLong() || !signature.isSigned) {
+            state = signature.state.toLong()
+            if (state != com.foxit.sdk.pdf.Signature.e_StateSigned.toLong() || !signature.isSigned) {
                 Toast.makeText(mContext, String.format("This document sign failed !!!"), Toast.LENGTH_LONG).show()
                 return
             }
-            doc.closePage(pageIndex)
+            pdfPage.delete()
+
             val signedDoc = Common.loadPDFDoc(mContext!!, outputFilePath, null)
             val count = signedDoc!!.signatureCount
             if (count <= 0)
@@ -139,16 +134,16 @@ class Signature(context: Context, docPath: String, certPath: String, certPasswor
 
             try {
                 val progressive = signature.startVerify(null, null)
-                var progress = CommonDefines.e_progressToBeContinued
-                while (progress == CommonDefines.e_progressToBeContinued) {
-                    progress = progressive.continueProgress()
+                var progress = Progressive.e_ToBeContinued
+                while (progress == Progressive.e_ToBeContinued) {
+                    progress = progressive.resume()
                 }
-                progressive.release()
+                progressive.delete()
             } catch (e: PDFException) {
             }
 
-            state = signature.state
-            if (state != com.foxit.sdk.pdf.signature.Signature.e_signatureStateVerifyValid.toLong()) {
+            state = signature.state.toLong()
+            if (state != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
                 Toast.makeText(mContext, String.format("This document verify failed !!!"), Toast.LENGTH_LONG).show()
                 return
             }

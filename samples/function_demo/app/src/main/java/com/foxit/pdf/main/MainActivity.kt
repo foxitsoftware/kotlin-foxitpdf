@@ -13,8 +13,8 @@
  */
 package com.foxit.pdf.main
 
-import android.support.v4.app.FragmentActivity
 import android.os.Bundle
+import android.support.v4.app.FragmentActivity
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -22,13 +22,12 @@ import android.widget.Toast
 import com.foxit.pdf.function.Annotation
 import com.foxit.pdf.function.Common
 import com.foxit.pdf.function.DocInfo
-import com.foxit.pdf.function.Render
 import com.foxit.pdf.function.Outline
 import com.foxit.pdf.function.Pdf2text
+import com.foxit.pdf.function.Render
 import com.foxit.pdf.function.Signature
+import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Library
-import com.foxit.sdk.common.PDFError
-import com.foxit.sdk.common.PDFException
 
 class MainActivity : FragmentActivity() {
 
@@ -43,16 +42,12 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (false == Common.CheckSD()) {
+        if (!Common.checkSD()) {
             Toast.makeText(this@MainActivity, "Error: Directory of SD is not exist!", Toast.LENGTH_LONG).show()
             return
         }
 
-        try {
-            Library.init(sn, key)
-        } catch (e: PDFException) {
-            initErrCode = e.lastError
-        }
+        initErrCode = Library.initialize(sn, key)
 
         showLibraryErrorInfo()
         Common.copyTestFiles(applicationContext)
@@ -65,62 +60,62 @@ class MainActivity : FragmentActivity() {
         signatureDemoBtn = findViewById(R.id.signature) as Button
 
         pdf2textDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
-            val testFilePath = Common.GetFixFolder() + Common.testInputFile
+            val testFilePath = Common.getFixFolder() + Common.testInputFile
             val pdf2text = Pdf2text(this@MainActivity, testFilePath)
             pdf2text.doPdfToText()
         })
 
         outlineDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
-            val testFilePath = Common.GetFixFolder() + Common.outlineInputFile
+            val testFilePath = Common.getFixFolder() + Common.outlineInputFile
             val outline = Outline(this@MainActivity, testFilePath)
             outline.modifyOutline()
         })
 
         addAnnotationDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
-            val testFilePath = Common.GetFixFolder() + Common.anotationInputFile
+            val testFilePath = Common.getFixFolder() + Common.anotationInputFile
             val annotation = Annotation(this@MainActivity, testFilePath)
             annotation.addAnnotation()
         })
 
         docInfoDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
 
-            val testFilePath = Common.GetFixFolder() + Common.testInputFile
+            val testFilePath = Common.getFixFolder() + Common.testInputFile
             val info = DocInfo(this@MainActivity, testFilePath)
             info.outputDocInfo()
         })
 
         renderDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
-            val testFilePath = Common.GetFixFolder() + Common.testInputFile
+            val testFilePath = Common.getFixFolder() + Common.testInputFile
             val render = Render(this@MainActivity, testFilePath)
             render.renderPage(0)
         })
         signatureDemoBtn!!.setOnClickListener(View.OnClickListener {
-            if (initErrCode != PDFError.NO_ERROR.code) {
+            if (initErrCode != Constants.e_ErrSuccess) {
                 showLibraryErrorInfo()
                 return@OnClickListener
             }
-            val testFilePath = Common.GetFixFolder() + Common.signatureInputFile
-            val certPath = Common.GetFixFolder() + Common.signatureCertification
+            val testFilePath = Common.getFixFolder() + Common.signatureInputFile
+            val certPath = Common.getFixFolder() + Common.signatureCertification
             val certPassword = "123456"
             val signature = Signature(this@MainActivity, testFilePath, certPath, certPassword)
             signature.addSignature(0)
@@ -128,8 +123,8 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun showLibraryErrorInfo() {
-        if (initErrCode != PDFError.NO_ERROR.code) {
-            if (initErrCode == PDFError.LICENSE_INVALID.code) {
+        if (initErrCode != Constants.e_ErrSuccess) {
+            if (initErrCode == Constants.e_ErrInvalidLicense) {
                 Toast.makeText(this@MainActivity, "The license is invalid!", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(this@MainActivity, "Failed to initialize the library!", Toast.LENGTH_LONG).show()
@@ -139,10 +134,10 @@ class MainActivity : FragmentActivity() {
     }
 
     companion object {
-        private val sn = "cIwVF7AUSAakiEAihzb85vrmwVdOhUoXKg6IwosV7MwAw0FKEQyPAQ=="
-        private val key = "ezKXjt8ntBh39DvoP0WQjY5U/oy/u0HLS16ctI9QPpxzh8j1xFBGxKzpATgyxl/xG5GuEi73n6bGooc+9epFT3VUozHpJ2k/5BYfyZ9qbUDfpKrcWFOUIWeQoraXjc6hyJSmte3+YYcqS8dP6frqA4bTWWpHAYBgmG1kY5d/7if3S5ahlGj7fflXmO7a+5SvLP15L6KuMY22qzWkhRhNbtmC1sAMpIL65j4yzEv+64rxyokDDDJeP1A6JTBC5pSPJs2gFGOlhXzRe4f4J3sSe3jrrPRhsvZ6RrmVcSHyvJUq55A08pRmORZFvLvIXpxS9UZO7sg/qYn7mM2KztGQXntfM3DtKrPTXILilO/GP6PGcYI1VyZR6BzuJQ8y1RK2yuHHynjGtOrw3snn0WLpcv0XnaB86ZtuB357gEXxwUfuzYf+gxFDyVAQI8km6YPjgysbtbcWw6wTSoqBwK5c1sF8qOlj9dnSCeJzMA9ZRZNTq9kN1+Xeasgn8Rsr8Yf+vHc4QQPIF96y8g7NxAqCgo6uGCxa+b3sHtwe8McQv7muqaqvtL3+Off1o+trQIssmocVwC640o8l13+XEjydO4s8TQtv+eAsZg1uMiiLDA1M9b7PvLos19hj7xq6XEU5/gX5R4kVQ/dIPK3wQW12POaQPBiIdSz5sNKFC7wjodCMnfm7/GgC5sb2P5Y6cgAxj0Ju5vaElcq5HJywxjelU0IembiGQlq6kOBEMxakxH7gaCPmqyS3GO+kaCNbh4KkxC1hMGL2quSdMhMBhGpb/MP9zajM0ZHocb0vrKn8vrV6vn/htsuR5T+lwYGTKKo4c0/PPqPPQ+x30UkJ3wQBgAW4fCbVexhUAW6ggOvZbYoPF/HjskRxoWFG768PphebdvS/QI0QOH5E840iuyoEMFEaL0PQ534RE1NvTw0yYWPC6QgtKhFvEOT1+2JlO/7ZRqg4lBivz7UAwOlMfrcp+D2vvnjW+FsFc9mGIB+uFMsD2WZRRqRgYi/X39kF9Dh7BpAs2STmHinEKtMeRe4Bcqv7UupEfv51r6CRKiLfluFPSdyZS8ppOoz5l1XGeHQA/OSCe+vHuQhlpUG9gst5OFqj1Dy1HzsyJ/ZFgbJ0vwgrzyVMVtFZsAbhxorUQBTqaaUmRQqbJ+SGcIbV1xbQ74fPkIDsZBxroxgDZKt82fEjlYPlvlBg9g3Id3jN5y6S5Ydr/N8C"
+        private val sn = "sS1No48GllWOhaww26EpDX+mGXcYdi5zUHFRsdMSGxodGTyLDgaYWA=="
+        private val key = "ezKfjl3GtGh397voL2Xsb3l6739eBbVCXwu5VfNUsnrnlvx3zI41B75STKd59TXVpkxEbp+B3UEqUNj1KM66ujQN8Mgkr/mKJOJaqOuqngyfs4ccHXmAWTe4ajKpqKI0Y5clxoTqL8tfYrOQZN7SeznxuJdOMwrg2jDyDQc5ffNZSt8Z6nAjHlI4vjZHNrWeW9M+jFgIcaBMRE/hwgZwwQpr/74cdH/VV289PBrvsLtf+hIagpdc0l3tJJzQf00Q/0/PSPp35eeU+YrKuiXiBIm0sLahXrXBU6kdYOoZgteB9dMaH0v2Ev2EF4hzwtcwExvOI8UxUsC71UTl/KJhIiKs9PdM2fZ4AaseldOQvaHs9dGVwsI2LajSXI21IKT3vwOnMHT10V95hnStG/maORwMHDfLjlAyJepfMlP2aU5x7hTFwRKF9bJRgelGeTzn0c3zJM/GhG5YccdzRPtJZvre4RD9oOYw+vrR6/TKoZtX6Nlu5y/FPg2xlA73kLdaaEqulHtDdec25ki/h9ahvyUP30bIMJKaG5F+SPTCemor1Oy4mtaWNhjPY0cVu807luylcfAd70yu/3neiDUc1JlI424i/OLxRkBGJInLdBMgEeU6gY34Rh5QBfWdKq3lHzKsZnHqL7+MDPu16Os3JX+G4rBWVpRMOKxgGTfnp2bkChAUlzL0tX+/iLjWPyADJwpo3AtVyCckdyyQLgvWr93+6nN34YurHHKqYUTQ0oBeRb0a2DYu3fNyAzDgPZ4lXbkbwtMtS4299A4lUnVJcA21ZBEqC0/mcu/eHHd1UdBBouaD6rkXQ53OzznjMCjibCYbNurh4X0toPxSrqbRU7/LBkzNIbUD+YH1AFAG6Uxi/arFjXBV0Wg0JKCZy1WBVeIfpTW/vtOxAaSsL4FX2930kqZhbIrbTBgOwlsDJO4d5LWFZNuCqjvI8U00ilJExKXAz0w5UTUGfLZraS85ur/zHRs6d8V+psFURmcaCpkLHOE8LrSfT+kat8N6GREjuZItoGs0NOkKYvj/lL963WcRWikieGBNP9Pl/hgpdIXew7nue6U9XGoTgdz2lLR6QtC4EFuVHheMP455C7pRlKJ+7gN9L9+LdoZ1c7LgthMGNg76WWkO129/xwSSDyE7l9z/HbWiAyAtYYYJe02Zl1sInDc30jFrpkXpOocoIa9qnh8EZN859NYJqkQiqJE9CIJ66DA0DNk8eNnaJaBNAzAv2eH+lwEXckM5Re5xjo+69QB0T2Fpx7nFR/cnSw=="
 
-        private var initErrCode = PDFError.NO_ERROR.code
+        private var initErrCode = Constants.e_ErrSuccess
 
         init {
             System.loadLibrary("rdk")

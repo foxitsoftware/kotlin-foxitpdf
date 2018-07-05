@@ -16,7 +16,7 @@ package com.foxit.pdf.function
 import android.content.Context
 import android.widget.Toast
 
-import com.foxit.sdk.pdf.PDFMetadata
+import com.foxit.sdk.pdf.Metadata
 
 import java.io.File
 import java.io.FileWriter
@@ -31,10 +31,10 @@ class DocInfo(context: Context, path: String) {
     }
 
     fun outputDocInfo() {
-        val doc = Common.loadPDFDoc(mContext!!, mPath, null) ?: return
+        val doc = Common.loadPDFDoc(mContext!!, mPath!!, null) ?: return
 
         val filenameWithoutPdf = mPath!!.substring(mPath!!.lastIndexOf("/") + 1, mPath!!.lastIndexOf("."))
-        val outputFilePath = Common.GetOutputFilesFolder(Common.docInfoModuleName) + filenameWithoutPdf + "_docinfo.txt"
+        val outputFilePath = Common.getOutputFilesFolder(Common.docInfoModuleName) + filenameWithoutPdf + "_docinfo.txt"
         val txtFile = File(outputFilePath)
         try {
             val fileWriter = FileWriter(txtFile)
@@ -44,8 +44,9 @@ class DocInfo(context: Context, path: String) {
             fileWriter.write(String.format("Page Count: %d pages\r\n", pageCount))
 
             //title
-            val metadata = PDFMetadata(doc)
-            var title: String? = String.format("Title :%s\r\n", metadata.getValue("Title"))
+            val metadata = Metadata(doc)
+
+            var title: String? = String.format("Title :%s\r\n", metadata.getValues("Title").getAt(0))
             //If there is no title info in the document, it uses the file name instead.
             if (title == null && title == "") {
                 title = filenameWithoutPdf
@@ -53,11 +54,11 @@ class DocInfo(context: Context, path: String) {
             fileWriter.write(title!!)
 
             //author
-            fileWriter.write(String.format("Author: %s\r\n", metadata.getValue("Author")))
+            fileWriter.write(String.format("Author: %s\r\n", metadata.getValues("Author").getAt(0)))
             //subject
-            fileWriter.write(String.format("Subject: %s\r\n", metadata.getValue("Subject")))
+            fileWriter.write(String.format("Subject: %s\r\n", metadata.getValues("Subject").getAt(0)))
             //keywords
-            fileWriter.write(String.format("Keywords: %s\r\n", metadata.getValue("Keywords")))
+            fileWriter.write(String.format("Keywords: %s\r\n", metadata.getValues("Keywords").getAt(0)))
 
             fileWriter.flush()
             fileWriter.close()

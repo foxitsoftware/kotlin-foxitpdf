@@ -19,9 +19,9 @@ import android.os.Environment
 import android.text.format.Time
 import android.widget.Toast
 
-import com.foxit.sdk.common.CommonDefines
+import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.DateTime
-import com.foxit.sdk.common.PDFException
+import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.pdf.PDFPage
 
@@ -51,27 +51,25 @@ object Common {
 
     var externalPath: String? = null
 
-    val currentDateTime: DateTime?
+    val currentDateTime: DateTime
         get() {
             val now = Time()
             now.setToNow()
 
             var dateTime: DateTime? = null
-            try {
-                val year = now.year
-                val month = now.month + 1
-                val date = now.monthDay
-                val hour = now.hour
-                val minute = now.minute
-                val second = now.second
-                val timezone = TimeZone.getDefault().rawOffset
-                val localHour = timezone / 3600000
-                val localMinute = timezone % 3600000 / 60
 
-                dateTime = DateTime()
-                dateTime.set(year, month, date, hour, minute, second, 0, localHour.toShort(), localMinute)
-            } catch (e: PDFException) {
-            }
+            val year = now.year
+            val month = now.month + 1
+            val date = now.monthDay
+            val hour = now.hour
+            val minute = now.minute
+            val second = now.second
+            val timezone = TimeZone.getDefault().rawOffset
+            val localHour = timezone / 3600000
+            val localMinute = timezone % 3600000 / 60
+
+            dateTime = DateTime()
+            dateTime.set(year, month, date, hour, minute, second, 0, localHour.toShort(), localMinute)
 
             return dateTime
         }
@@ -83,8 +81,8 @@ object Common {
     val sdPath: String
         get() = Environment.getExternalStorageDirectory().path
 
-    fun CheckSD(): Boolean {
-        val sdExist = Environment.getExternalStorageState() == android.os.Environment.MEDIA_MOUNTED
+    fun checkSD(): Boolean {
+        val sdExist = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
         if (sdExist) {
             val sddir = Environment.getExternalStorageDirectory()
             externalPath = sddir.toString()
@@ -94,7 +92,7 @@ object Common {
         return sdExist
     }
 
-    fun GetFixFolder(): String? {
+    fun getFixFolder(): String? {
         var path = externalPath
         path += "/input_files/"
         return path
@@ -112,7 +110,7 @@ object Common {
         return true
     }
 
-    fun GetOutputFilesFolder(moduleName: String): String? {
+    fun getOutputFilesFolder(moduleName: String): String? {
         //Combine the current external path, outputting files path (fixed) and example module name together
         var outputPath = externalPath
         outputPath += "/output_files/"
@@ -121,7 +119,7 @@ object Common {
         return outputPath
     }
 
-    fun SaveImageFile(bitmap: Bitmap, picFormat: Bitmap.CompressFormat, fileName: String): Boolean {
+    fun saveImageFile(bitmap: Bitmap, picFormat: Bitmap.CompressFormat, fileName: String): Boolean {
         val file = File(fileName)
         try {
             val fos = FileOutputStream(file)
@@ -136,7 +134,7 @@ object Common {
         return true
     }
 
-    fun loadPDFDoc(context: Context, path: String?, password: ByteArray?): PDFDoc? {
+    fun loadPDFDoc(context: Context, path: String, password: ByteArray?): PDFDoc? {
         try {
             val doc = PDFDoc(path)
             if (doc == null) {
@@ -144,8 +142,11 @@ object Common {
                 return null
             }
 
-            doc.load(password)
-
+            if (password == null) {
+                doc.load(null)
+            } else {
+                doc.load(password)
+            }
             return doc
         } catch (e: PDFException) {
             Toast.makeText(context, "Load document error. " + e.message, Toast.LENGTH_LONG).show()
@@ -169,15 +170,15 @@ object Common {
             }
 
             if (!page.isParsed) {
-                val progressive = page.startParse(parseFlag.toLong(), null, false)
+                val progressive = page.startParse(parseFlag, null, false)
 
-                var state = CommonDefines.e_progressToBeContinued
-                while (state == CommonDefines.e_progressToBeContinued) {
-                    state = progressive.continueProgress()
+                var state = Progressive.e_ToBeContinued
+                while (state == Progressive.e_ToBeContinued) {
+                    state = progressive.resume()
                 }
 
-                progressive.release()
-                if (state == CommonDefines.e_progressError) {
+                progressive.delete()
+                if (state == Progressive.e_Error) {
                     Toast.makeText(context, "Parse Page error!", Toast.LENGTH_LONG).show()
                     return null
                 }
@@ -191,13 +192,12 @@ object Common {
     }
 
     fun releaseDoc(context: Context, doc: PDFDoc) {
-        try {
-            doc.release()
-        } catch (e: PDFException) {
-            e.printStackTrace()
-            Toast.makeText(context, "Release document error. " + e.message, Toast.LENGTH_LONG).show()
-        }
-
+        //        try {
+        doc.delete()
+        //        } catch (PDFException e) {
+        //            e.printStackTrace();
+        //            Toast.makeText(context, "Release document error. " + e.getMessage(), Toast.LENGTH_LONG).show();
+        //        }
     }
 
     fun randomUUID(separator: String?): String {
@@ -220,7 +220,7 @@ object Common {
 
             val buffer = ByteArray(1 shl 13)
             for (f in files) {
-                if (exist(GetFixFolder() + f))
+                if (exist(getFixFolder() + f))
                     continue
                 os = FileOutputStream(outDir + f)
                 val `is` = context.assets.open(f)
@@ -253,7 +253,7 @@ object Common {
             val file = File(sdPath + File.separator + "input_files")
             if (!file.exists())
                 file.mkdirs()
-            mergeFiles(context, GetFixFolder(), testFiles)
+            mergeFiles(context, getFixFolder(), testFiles)
         }
     }
 }

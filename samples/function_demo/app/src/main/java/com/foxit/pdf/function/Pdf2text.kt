@@ -16,9 +16,9 @@ package com.foxit.pdf.function
 import android.content.Context
 import android.widget.Toast
 
-import com.foxit.sdk.common.PDFException
+import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.PDFPage
-import com.foxit.sdk.pdf.PDFTextSelect
+import com.foxit.sdk.pdf.TextPage
 
 import java.io.File
 import java.io.FileWriter
@@ -38,7 +38,7 @@ class Pdf2text(context: Context, pdfFilePath: String) {
         val indexSep = mFilePath.lastIndexOf("/")
 
         val filenameWithoutPdf = mFilePath.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.GetOutputFilesFolder(Common.pdf2textModuleName) + filenameWithoutPdf + ".txt"
+        val outputFilePath = Common.getOutputFilesFolder(Common.pdf2textModuleName) + filenameWithoutPdf + ".txt"
         var strText = ""
 
         val doc = Common.loadPDFDoc(mContext!!, mFilePath, null) ?: return
@@ -49,18 +49,18 @@ class Pdf2text(context: Context, pdfFilePath: String) {
 
             //Traverse pages and get the text string.
             for (i in 0 until pageCount) {
-                page = Common.loadPage(mContext!!, doc, i, PDFPage.e_parsePageNormal)
+                page = Common.loadPage(mContext!!, doc, i, PDFPage.e_ParsePageNormal)
                 if (page == null) {
                     continue
                 }
 
-                val textSelect = PDFTextSelect(page) ?: continue
+                val textSelect = TextPage(page, TextPage.e_ParseTextNormal) ?: continue
 
                 strText += textSelect.getChars(0, textSelect.charCount) + "\r\n"
-                doc.closePage(i)
+                page.delete()
             }
         } catch (e: PDFException) {
-            Toast.makeText(mContext!!, "Pdf to text error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(mContext, "Pdf to text error. " + e.message, Toast.LENGTH_LONG).show()
             return
         } finally {
             Common.releaseDoc(mContext!!, doc)
