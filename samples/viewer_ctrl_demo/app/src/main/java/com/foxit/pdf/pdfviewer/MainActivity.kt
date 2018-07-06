@@ -16,7 +16,6 @@ package com.foxit.pdf.pdfviewer
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -26,24 +25,17 @@ import android.os.StrictMode
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
-import android.text.InputType
 import android.view.ActionMode
 import android.view.KeyEvent
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
-import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
-import android.widget.RelativeLayout
 
 import com.foxit.sdk.PDFViewCtrl
+import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Library
-import com.foxit.sdk.common.PDFError
-import com.foxit.sdk.common.PDFException
-import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.uiextensions.Module
 import com.foxit.uiextensions.UIExtensionsManager
 import com.foxit.uiextensions.annots.note.NoteModule
@@ -51,24 +43,16 @@ import com.foxit.uiextensions.annots.textmarkup.highlight.HighlightModule
 import com.foxit.uiextensions.annots.textmarkup.squiggly.SquigglyModule
 import com.foxit.uiextensions.annots.textmarkup.strikeout.StrikeoutModule
 import com.foxit.uiextensions.annots.textmarkup.underline.UnderlineModule
-import com.foxit.uiextensions.controls.dialog.UITextEditDialog
 import com.foxit.uiextensions.modules.DocInfoModule
-import com.foxit.uiextensions.modules.DocInfoView
 import com.foxit.uiextensions.modules.OutlineModule
 import com.foxit.uiextensions.modules.SearchModule
-import com.foxit.uiextensions.modules.SearchView
 import com.foxit.uiextensions.modules.panel.annot.AnnotPanelModule
-import com.foxit.uiextensions.modules.signature.SignatureToolHandler
 import com.foxit.uiextensions.modules.thumbnail.ThumbnailModule
 import com.foxit.uiextensions.utils.UIToast
-
-import java.util.Timer
-import java.util.TimerTask
 
 class MainActivity : FragmentActivity() {
 
     private var pdfViewCtrl: PDFViewCtrl? = null
-    private var parent: RelativeLayout? = null
     private var uiExtensionsManager: UIExtensionsManager? = null
     private var layoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
     private var searchModule: SearchModule? = null
@@ -84,7 +68,7 @@ class MainActivity : FragmentActivity() {
     private var thumbnailModule: ThumbnailModule? = null
 
     private var isUnlock = false
-    private var mPasswordError = false
+    private val mPasswordError = false
     private var mContext: Context? = null
     private var mActionMode: ActionMode? = null
     internal var mPath = String()
@@ -92,85 +76,12 @@ class MainActivity : FragmentActivity() {
     private val storageDirectory: String?
         get() {
             var path: String? = null
-            val sdExist = Environment.getExternalStorageState() == android.os.Environment.MEDIA_MOUNTED
+            val sdExist = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
             if (sdExist) {
                 path = Environment.getExternalStorageDirectory().absolutePath + "/"
             }
             return path
         }
-
-
-    internal var docListener: PDFViewCtrl.IDocEventListener = object : PDFViewCtrl.IDocEventListener {
-        override fun onDocWillOpen() {}
-
-        override fun onDocOpened(pdfDoc: PDFDoc, errCode: Int) {
-            //switch case require constant value
-            if (errCode == PDFError.NO_ERROR.code) {
-                mPasswordError = false
-            } else if (errCode == PDFError.PASSWORD_INVALID.code) {
-                var tips: String? = null
-                if (mPasswordError) {
-                    tips = "The password is incorrect, please try again"
-                } else {
-                    tips = "This file is password protected, please enter password below"
-                }
-                val uiTextEditDialog = UITextEditDialog(this@MainActivity)
-                uiTextEditDialog.dialog.setCanceledOnTouchOutside(false)
-                uiTextEditDialog.inputEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                uiTextEditDialog.setTitle("Please Input password")
-                uiTextEditDialog.promptTextView.text = tips
-                uiTextEditDialog.show()
-                uiTextEditDialog.okButton.setOnClickListener { v ->
-                    uiTextEditDialog.dismiss()
-                    val inputManager = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    inputManager.hideSoftInputFromWindow(v.windowToken, 0)
-                    val pw = uiTextEditDialog.inputEditText.text.toString()
-                    pdfViewCtrl!!.openDoc(mPath, pw.toByteArray())
-                    mPasswordError = true
-                }
-
-                uiTextEditDialog.cancelButton.setOnClickListener { v ->
-                    uiTextEditDialog.dismiss()
-                    val inputManager = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    inputManager.hideSoftInputFromWindow(v.windowToken, 0)
-                    onExit()
-                }
-
-                uiTextEditDialog.dialog.setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        uiTextEditDialog.dialog.cancel()
-                        onExit()
-                        return@OnKeyListener true
-                    }
-                    false
-                })
-                uiTextEditDialog.show()
-            } else {
-                showDialog(PDFException.getErrorMessage(errCode))
-            }
-
-        }
-
-        override fun onDocWillClose(pdfDoc: PDFDoc?) {}
-
-        override fun onDocClosed(pdfDoc: PDFDoc?, i: Int) {
-            try {
-                Library.release()
-            } catch (e: PDFException) {
-                e.printStackTrace()
-            }
-
-        }
-
-        override fun onDocWillSave(pdfDoc: PDFDoc?) {}
-
-        override fun onDocSaved(pdfDoc: PDFDoc?, i: Int) {}
-
-        override fun onDocModified(pdfDoc: PDFDoc?) {
-
-        }
-    }
-
 
     private val mActionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -193,72 +104,84 @@ class MainActivity : FragmentActivity() {
             if (itemId == R.id.Note || itemId == R.id.Highlight
                     || itemId == R.id.Squiggly || itemId == R.id.Underline
                     || itemId == R.id.StrikeOut) {
-                if (false == uiExtensionsManager!!.canAddAnnot()) {
+                if (!uiExtensionsManager!!.canAddAnnot()) {
                     UIToast.getInstance(applicationContext).show("The current document is protected,You can't modify it")
                     return false
                 }
             }
 
-            if (itemId == R.id.Outline) {
-                if (outlineModule != null)
-                    outlineModule!!.show()
-            } else if (itemId == R.id.ChangeLayout) {
-                if (layoutMode == PDFViewCtrl.PAGELAYOUTMODE_SINGLE) {
-                    pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
-                    layoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
-                } else {
-                    pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
-                    layoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
+            when (itemId) {
+                R.id.Outline -> {
+                    if (outlineModule != null)
+                        outlineModule!!.show()
                 }
-            } else if (itemId == R.id.Search) {
-                if (searchModule == null) {
-
-                    searchModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_SEARCH) as SearchModule
-                    if (searchModule == null) {
-                        searchModule = SearchModule(mContext!!, parent!!, pdfViewCtrl!!, uiExtensionsManager)
-                        searchModule!!.loadModule()
+                R.id.ChangeLayout -> {
+                    if (layoutMode == PDFViewCtrl.PAGELAYOUTMODE_SINGLE) {
+                        pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
+                        layoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
+                    } else {
+                        pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
+                        layoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
                     }
                 }
-                val searchView = searchModule!!.searchView
-                searchView.show()
-            } else if (itemId == R.id.Note) {
-                if (noteModule == null) {
-                    noteModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_NOTE) as NoteModule
-                }
-                uiExtensionsManager!!.currentToolHandler = noteModule!!.toolHandler
-            } else if (itemId == R.id.DocInfo) {
-                if (docInfoModule == null) {
-                    docInfoModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_DOCINFO) as DocInfoModule
-                }
+                R.id.Search -> {
+                    if (searchModule == null) {
 
-                val docInfoView = docInfoModule!!.view
-                docInfoView?.show()
-            } else if (itemId == R.id.Highlight) {
-                if (highlightModule == null)
-                    highlightModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_HIGHLIGHT) as HighlightModule
-                uiExtensionsManager!!.currentToolHandler = highlightModule!!.toolHandler
-            } else if (itemId == R.id.Underline) {
-                if (underlineModule == null) {
-                    underlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_UNDERLINE) as UnderlineModule
+                        searchModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_SEARCH) as SearchModule
+                        if (searchModule == null) {
+                            searchModule = SearchModule(mContext!!, uiExtensionsManager!!.rootView, pdfViewCtrl!!, uiExtensionsManager)
+                            searchModule!!.loadModule()
+                        }
+                    }
+                    val searchView = searchModule!!.searchView
+                    searchView.show()
                 }
-                uiExtensionsManager!!.currentToolHandler = underlineModule!!.toolHandler
-            } else if (itemId == R.id.StrikeOut) {
-                if (strikeoutModule == null) {
-                    strikeoutModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_STRIKEOUT) as StrikeoutModule
+                R.id.Note -> {
+                    if (noteModule == null) {
+                        noteModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_NOTE) as NoteModule
+                    }
+                    uiExtensionsManager!!.currentToolHandler = noteModule!!.toolHandler
                 }
-                uiExtensionsManager!!.currentToolHandler = strikeoutModule!!.toolHandler
-            } else if (itemId == R.id.Squiggly) {
-                if (squigglyModule == null) {
-                    squigglyModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_SQUIGGLY) as SquigglyModule
+                R.id.DocInfo -> {
+                    if (docInfoModule == null) {
+                        docInfoModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_DOCINFO) as DocInfoModule
+                    }
+
+                    val docInfoView = docInfoModule!!.view
+                    docInfoView?.show()
                 }
-                uiExtensionsManager!!.currentToolHandler = squigglyModule!!.toolHandler
-            } else if (itemId == R.id.Annotations) {
-                if (annotPanelModule != null) {
-                    annotPanelModule!!.show()
+                R.id.Highlight -> {
+                    if (highlightModule == null)
+                        highlightModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_HIGHLIGHT) as HighlightModule
+                    uiExtensionsManager!!.currentToolHandler = highlightModule!!.toolHandler
                 }
-            } else if (itemId == R.id.Thumbnail) {
-                if (thumbnailModule != null) {
-                    thumbnailModule!!.show()
+                R.id.Underline -> {
+                    if (underlineModule == null) {
+                        underlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_UNDERLINE) as UnderlineModule
+                    }
+                    uiExtensionsManager!!.currentToolHandler = underlineModule!!.toolHandler
+                }
+                R.id.StrikeOut -> {
+                    if (strikeoutModule == null) {
+                        strikeoutModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_STRIKEOUT) as StrikeoutModule
+                    }
+                    uiExtensionsManager!!.currentToolHandler = strikeoutModule!!.toolHandler
+                }
+                R.id.Squiggly -> {
+                    if (squigglyModule == null) {
+                        squigglyModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_SQUIGGLY) as SquigglyModule
+                    }
+                    uiExtensionsManager!!.currentToolHandler = squigglyModule!!.toolHandler
+                }
+                R.id.Annotations -> {
+                    if (annotPanelModule != null) {
+                        annotPanelModule!!.show()
+                    }
+                }
+                R.id.Thumbnail -> {
+                    if (thumbnailModule != null) {
+                        thumbnailModule!!.show()
+                    }
                 }
             }
 
@@ -277,53 +200,18 @@ class MainActivity : FragmentActivity() {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        setContentView(R.layout.activity_main)
+        val errorCode = Library.initialize(sn, key)
+        isUnlock = true
 
-        try {
-            Library.init(sn, key)
-            isUnlock = true
-        } catch (e: PDFException) {
-            if (e.lastError == PDFError.LICENSE_INVALID.code) {
-                UIToast.getInstance(applicationContext).show("The license is invalid!")
-            } else {
-                UIToast.getInstance(applicationContext).show("Failed to initialize the library!")
-            }
+        if (errorCode != Constants.e_ErrSuccess) {
             isUnlock = false
+
+            val errorMsg = if (errorCode == Constants.e_ErrInvalidLicense) "The license is invalid!" else "Failed to initialize the library!"
+            UIToast.getInstance(applicationContext).show(errorMsg)
             return
         }
 
-        pdfViewCtrl = findViewById(R.id.pdfviewer) as PDFViewCtrl
-        parent = findViewById(R.id.rd_main_id) as RelativeLayout
-        uiExtensionsManager = UIExtensionsManager(this.applicationContext, parent, pdfViewCtrl!!)
-        uiExtensionsManager!!.attachedActivity = this
-        pdfViewCtrl!!.uiExtensionsManager = uiExtensionsManager!!
-
-        // Note: Here, filePath will be set with the total path of file.
-        val sdcardPath = storageDirectory
-        val filePath = sdcardPath!! + "FoxitSDK/Sample.pdf"
-
-        mPath = filePath
-        parent = findViewById(R.id.rd_main_id) as RelativeLayout
-
-        outlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule
-        if (outlineModule == null) {
-            outlineModule = OutlineModule(this, parent, pdfViewCtrl, uiExtensionsManager)
-            outlineModule!!.loadModule()
-        }
-        annotPanelModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_ANNOTPANEL) as AnnotPanelModule
-        if (annotPanelModule == null) {
-            annotPanelModule = AnnotPanelModule(mContext!!, pdfViewCtrl!!, uiExtensionsManager)
-            annotPanelModule!!.loadModule()
-        }
-        thumbnailModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_THUMBNAIL) as ThumbnailModule
-        if (thumbnailModule == null) {
-            thumbnailModule = ThumbnailModule(mContext, pdfViewCtrl, uiExtensionsManager)
-            thumbnailModule!!.loadModule()
-        }
-
-        pdfViewCtrl!!.registerDocEventListener(docListener)
-        pdfViewCtrl!!.openDoc(filePath, null)
-
+        pdfViewCtrl = PDFViewCtrl(this)
         pdfViewCtrl!!.registerDoubleTapEventListener(object : PDFViewCtrl.IDoubleTapEventListener {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                 if (mActionMode == null) {
@@ -344,6 +232,34 @@ class MainActivity : FragmentActivity() {
             }
         })
 
+        uiExtensionsManager = UIExtensionsManager(this.applicationContext, pdfViewCtrl!!)
+        uiExtensionsManager!!.enableBottomToolbar(false)
+        uiExtensionsManager!!.enableTopToolbar(false)
+        uiExtensionsManager!!.attachedActivity = this
+        uiExtensionsManager!!.onCreate(this, pdfViewCtrl, savedInstanceState)
+        pdfViewCtrl!!.uiExtensionsManager = uiExtensionsManager!!
+
+        // Note: Here, filePath will be set with the total path of file.
+        val sdcardPath = storageDirectory
+        val filePath = sdcardPath!! + "FoxitSDK/Sample.pdf"
+        mPath = filePath
+        uiExtensionsManager!!.openDocument(filePath, null)
+
+        outlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule
+        if (outlineModule == null) {
+            outlineModule = OutlineModule(this, uiExtensionsManager!!.rootView, pdfViewCtrl, uiExtensionsManager)
+            outlineModule!!.loadModule()
+        }
+        annotPanelModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_ANNOTPANEL) as AnnotPanelModule
+        if (annotPanelModule == null) {
+            annotPanelModule = AnnotPanelModule(mContext!!, pdfViewCtrl!!, uiExtensionsManager)
+            annotPanelModule!!.loadModule()
+        }
+        thumbnailModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_THUMBNAIL) as ThumbnailModule
+        if (thumbnailModule == null) {
+            thumbnailModule = ThumbnailModule(mContext, pdfViewCtrl, uiExtensionsManager)
+            thumbnailModule!!.loadModule()
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val permission = ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -356,6 +272,8 @@ class MainActivity : FragmentActivity() {
             val builder = StrictMode.VmPolicy.Builder()
             StrictMode.setVmPolicy(builder.build())
         }
+
+        setContentView(uiExtensionsManager!!.contentView)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -366,83 +284,56 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    private fun showDialog(msg: String) {
-        val uiTextEditDialog = UITextEditDialog(this)
-        uiTextEditDialog.dialog.setCanceledOnTouchOutside(false)
-        uiTextEditDialog.inputEditText.inputType = InputType.TYPE_CLASS_TEXT
-        uiTextEditDialog.setTitle("Warning")
-        uiTextEditDialog.inputEditText.visibility = View.GONE
-        uiTextEditDialog.cancelButton.visibility = View.GONE
-        uiTextEditDialog.promptTextView.text = "Faile to open $mPath.\n$msg"
-        uiTextEditDialog.okButton.isEnabled = true
-        uiTextEditDialog.okButton.setOnClickListener { onExit() }
+    public override fun onStart() {
+        if (uiExtensionsManager != null) {
+            uiExtensionsManager!!.onStart(this)
+        }
+        super.onStart()
+    }
 
-        uiTextEditDialog.dialog.setOnKeyListener(DialogInterface.OnKeyListener { dialog, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                uiTextEditDialog.dialog.cancel()
-                onExit()
-                return@OnKeyListener true
-            }
-            false
-        })
+    public override fun onStop() {
+        if (uiExtensionsManager != null) {
+            uiExtensionsManager!!.onStop(this)
+        }
+        super.onStop()
+    }
 
-        uiTextEditDialog.show()
+    public override fun onPause() {
+        if (uiExtensionsManager != null) {
+            uiExtensionsManager!!.onPause(this)
+        }
+        super.onPause()
+    }
+
+    public override fun onResume() {
+        if (uiExtensionsManager != null) {
+            uiExtensionsManager!!.onResume(this)
+        }
+        super.onResume()
     }
 
     override fun onDestroy() {
+        if (uiExtensionsManager != null) {
+            uiExtensionsManager!!.onDestroy(this)
+        }
         super.onDestroy()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onConfigurationChanged(newConfig)
+            uiExtensionsManager!!.onConfigurationChanged(this, newConfig)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (pdfViewCtrl != null)
-            pdfViewCtrl!!.requestLayout()
-    }
-
-    private fun onExit() {
-        if (isUnlock) {
-            pdfViewCtrl!!.closeDoc()
-        }
-        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if ((pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager).currentToolHandler is SignatureToolHandler) {
-                (pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager).currentToolHandler = null
-                pdfViewCtrl!!.invalidate()
-                return true
-            }
-            var timer: Timer? = null
-            if (isExit == false) {
-                isExit = true
-                UIToast.getInstance(this).show("Press again to exit.")
-                timer = Timer()
-                timer.schedule(object : TimerTask() {
-                    override fun run() {
-                        isExit = false
-                    }
-                }, 2000)
-
-            } else {
-                onExit()
-            }
-        }
-        return false
+        return if (uiExtensionsManager != null && uiExtensionsManager!!.onKeyDown(this, keyCode, event)) true else super.onKeyDown(keyCode, event)
     }
 
     companion object {
 
-        private val sn = "cIwVF7AUSAakiEAihzb85vrmwVdOhUoXKg6IwosV7MwAw0FKEQyPAQ=="
-        private val key = "ezKXjt8ntBh39DvoP0WQjY5U/oy/u0HLS16ctI9QPpxzh8j1xFBGxKzpATgyxl/xG5GuEi73n6bGooc+9epFT3VUozHpJ2k/5BYfyZ9qbUDfpKrcWFOUIWeQoraXjc6hyJSmte3+YYcqS8dP6frqA4bTWWpHAYBgmG1kY5d/7if3S5ahlGj7fflXmO7a+5SvLP15L6KuMY22qzWkhRhNbtmC1sAMpIL65j4yzEv+64rxyokDDDJeP1A6JTBC5pSPJs2gFGOlhXzRe4f4J3sSe3jrrPRhsvZ6RrmVcSHyvJUq55A08pRmORZFvLvIXpxS9UZO7sg/qYn7mM2KztGQXntfM3DtKrPTXILilO/GP6PGcYI1VyZR6BzuJQ8y1RK2yuHHynjGtOrw3snn0WLpcv0XnaB86ZtuB357gEXxwUfuzYf+gxFDyVAQI8km6YPjgysbtbcWw6wTSoqBwK5c1sF8qOlj9dnSCeJzMA9ZRZNTq9kN1+Xeasgn8Rsr8Yf+vHc4QQPIF96y8g7NxAqCgo6uGCxa+b3sHtwe8McQv7muqaqvtL3+Off1o+trQIssmocVwC640o8l13+XEjydO4s8TQtv+eAsZg1uMiiLDA1M9b7PvLos19hj7xq6XEU5/gX5R4kVQ/dIPK3wQW12POaQPBiIdSz5sNKFC7wjodCMnfm7/GgC5sb2P5Y6cgAxj0Ju5vaElcq5HJywxjelU0IembiGQlq6kOBEMxakxH7gaCPmqyS3GO+kaCNbh4KkxC1hMGL2quSdMhMBhGpb/MP9zajM0ZHocb0vrKn8vrV6vn/htsuR5T+lwYGTKKo4c0/PPqPPQ+x30UkJ3wQBgAW4fCbVexhUAW6ggOvZbYoPF/HjskRxoWFG768PphebdvS/QI0QOH5E840iuyoEMFEaL0PQ534RE1NvTw0yYWPC6QgtKhFvEOT1+2JlO/7ZRqg4lBivz7UAwOlMfrcp+D2vvnjW+FsFc9mGIB+uFMsD2WZRRqRgYi/X39kF9Dh7BpAs2STmHinEKtMeRe4Bcqv7UupEfv51r6CRKiLfluFPSdyZS8ppOoz5l1XGeHQA/OSCe+vHuQhlpUG9gst5OFqj1Dy1HzsyJ/ZFgbJ0vwgrzyVMVtFZsAbhxorUQBTqaaUmRQqbJ+SGcIbV1xbQ74fPkIDsZBxroxgDZKt82fEjlYPlvlBg9g3Id3jN5y6S5Ydr/N8C"
-
+        private val sn = "sS1No48GllWOhaww26EpDX+mGXcYdi5zUHFRsdMSGxodGTyLDgaYWA=="
+        private val key = "ezKfjl3GtGh397voL2Xsb3l6739eBbVCXwu5VfNUsnrnlvx3zI41B75STKd59TXVpkxEbp+B3UEqUNj1KM66ujQN8Mgkr/mKJOJaqOuqngyfs4ccHXmAWTe4ajKpqKI0Y5clxoTqL8tfYrOQZN7SeznxuJdOMwrg2jDyDQc5ffNZSt8Z6nAjHlI4vjZHNrWeW9M+jFgIcaBMRE/hwgZwwQpr/74cdH/VV289PBrvsLtf+hIagpdc0l3tJJzQf00Q/0/PSPp35eeU+YrKuiXiBIm0sLahXrXBU6kdYOoZgteB9dMaH0v2Ev2EF4hzwtcwExvOI8UxUsC71UTl/KJhIiKs9PdM2fZ4AaseldOQvaHs9dGVwsI2LajSXI21IKT3vwOnMHT10V95hnStG/maORwMHDfLjlAyJepfMlP2aU5x7hTFwRKF9bJRgelGeTzn0c3zJM/GhG5YccdzRPtJZvre4RD9oOYw+vrR6/TKoZtX6Nlu5y/FPg2xlA73kLdaaEqulHtDdec25ki/h9ahvyUP30bIMJKaG5F+SPTCemor1Oy4mtaWNhjPY0cVu807luylcfAd70yu/3neiDUc1JlI424i/OLxRkBGJInLdBMgEeU6gY34Rh5QBfWdKq3lHzKsZnHqL7+MDPu16Os3JX+G4rBWVpRMOKxgGTfnp2bkChAUlzL0tX+/iLjWPyADJwpo3AtVyCckdyyQLgvWr93+6nN34YurHHKqYUTQ0oBeRb0a2DYu3fNyAzDgPZ4lXbkbwtMtS4299A4lUnVJcA21ZBEqC0/mcu/eHHd1UdBBouaD6rkXQ53OzznjMCjibCYbNurh4X0toPxSrqbRU7/LBkzNIbUD+YH1AFAG6Uxi/arFjXBV0Wg0JKCZy1WBVeIfpTW/vtOxAaSsL4FX2930kqZhbIrbTBgOwlsDJO4d5LWFZNuCqjvI8U00ilJExKXAz0w5UTUGfLZraS85ur/zHRs6d8V+psFURmcaCpkLHOE8LrSfT+kat8N6GREjuZItoGs0NOkKYvj/lL963WcRWikieGBNP9Pl/hgpdIXew7nue6U9XGoTgdz2lLR6QtC4EFuVHheMP455C7pRlKJ+7gN9L9+LdoZ1c7LgthMGNg76WWkO129/xwSSDyE7l9z/HbWiAyAtYYYJe02Zl1sInDc30jFrpkXpOocoIa9qnh8EZN859NYJqkQiqJE9CIJ66DA0DNk8eNnaJaBNAzAv2eH+lwEXckM5Re5xjo+69QB0T2Fpx7nFR/cnSw=="
 
         val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -450,7 +341,5 @@ class MainActivity : FragmentActivity() {
         init {
             System.loadLibrary("rdk")
         }
-
-        private var isExit: Boolean? = false
     }
 }
