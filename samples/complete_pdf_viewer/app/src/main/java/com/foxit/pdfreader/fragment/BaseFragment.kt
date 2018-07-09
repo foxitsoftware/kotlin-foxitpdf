@@ -19,11 +19,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import com.foxit.uiextensions.pdfreader.impl.PDFReader
+import com.foxit.uiextensions.UIExtensionsManager
 
 open class BaseFragment : Fragment() {
-
-    var mPDFReader: PDFReader? = null
 
     open var name: String = ""
 
@@ -31,40 +29,52 @@ open class BaseFragment : Fragment() {
 
     var fId: Long = 0
 
-    var onFinishListener: PDFReader.OnFinishListener? = null
+    var isOpenSuccess = false
+    var onFinishListener: UIExtensionsManager.OnFinishListener? = null
+
+    var mUiExtensionsManager: UIExtensionsManager? = null
+    var filter: String = ""
 
     override fun onStart() {
         super.onStart()
-        if (mPDFReader != null)
-            mPDFReader!!.onStart(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onStart(activity)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        if (mPDFReader != null) {
-            mPDFReader!!.onStop(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onStop(activity)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (mPDFReader != null)
-            mPDFReader!!.onPause(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onPause(activity)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (mPDFReader != null)
-            mPDFReader!!.onResume(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onResume(activity)
+        }
     }
 
     override fun onDetach() {
         super.onDetach()
-        if (mPDFReader != null)
-            mPDFReader!!.onDestroy(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onDestroy(activity)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
+    interface IFragmentEvent {
+        fun onRemove()
     }
 }

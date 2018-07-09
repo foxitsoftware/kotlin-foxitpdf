@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.RUN_INSTRUMENTATION"/>
     <uses-permission android:name="com.android.email.permission.READ_ATTACHMENT"/>
@@ -23,24 +24,32 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale|layoutDirection"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"></action>
+                <!--<action android:name="android.intent.action.MAIN"></action>-->
+                <category android:name="android.intent.category.DEFAULT"></category>
+                <data android:mimeType="application/pdf"></data>
             </intent-filter>
         </activity>
         <activity
             android:name="com.foxit.pdfreader.PDFReaderActivity"
             android:configChanges="keyboardHidden|orientation|locale|layoutDirection|screenSize"
-            android:launchMode="singleTask"
             android:screenOrientation="fullSensor">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"></action>
-                <action android:name="android.intent.action.MAIN"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
-                <data android:mimeType="application/pdf"></data>
-            </intent-filter>
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.VIEW"></action>-->
+                <!--<action android:name="android.intent.action.MAIN"></action>-->
+                <!--<category android:name="android.intent.category.DEFAULT"></category>-->
+                <!--<data android:mimeType="application/pdf"></data>-->
+            <!--</intent-filter>-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"></meta-data>
         </activity>
 
         <service android:name="com.foxit.uiextensions.modules.panzoom.floatwindow.service.FloatWindowService"/>

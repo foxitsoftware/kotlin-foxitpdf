@@ -18,10 +18,12 @@
             "eraser": true,
             "typewriter": true,
             "textbox": true,
+            "callout": true,
             "note": true,
             "stamp": true,
             "polygon": true,
             "cloud":true,
+            "polyline":true,
             "distance":true,
             "image":true
         },

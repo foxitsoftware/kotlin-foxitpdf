@@ -22,8 +22,6 @@ import com.foxit.home.R
 
 class EmptyViewFragment : BaseFragment() {
 
-    private var myView: View? = null
-
     override var name: String
         get() = "Error page."
         set(value: String) {
@@ -31,12 +29,11 @@ class EmptyViewFragment : BaseFragment() {
         }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        myView = inflater!!.inflate(R.layout.fragment_empty, container, false)
-        return myView
+        return inflater!!.inflate(R.layout.fragment_empty, container, false)
     }
 
     companion object {
 
-        private val TAG = EmptyViewFragment::class.java!!.getSimpleName()
+        private val TAG = EmptyViewFragment::class.java.simpleName
     }
 }

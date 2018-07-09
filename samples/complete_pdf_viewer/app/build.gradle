@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.foxit.home"
-        minSdkVersion 11
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 6
         versionName "5.1"
@@ -42,11 +42,11 @@ repositories{
     mavenCentral()
 }
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:design:23.4.0'
-    compile(name:'FoxitRDKUIExtensions', ext:'aar')
-    compile 'com.edmodo:cropper:1.0.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:23.4.0'
+    implementation 'com.android.support:design:23.4.0'
+    implementation(name:'FoxitRDKUIExtensions', ext:'aar')
+    implementation 'com.edmodo:cropper:1.0.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 task makeApp(type :Copy){
