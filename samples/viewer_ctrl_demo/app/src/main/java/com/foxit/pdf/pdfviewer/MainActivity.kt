@@ -7,7 +7,7 @@
  *
  *
  * The following code is copyrighted and is the proprietary of Foxit Software Inc.. It is not allowed to
- * distribute any parts of Foxit Mobile PDF SDK to third party or public without permission unless an agreement
+ * distribute any parts of Foxit PDF SDK to third party or public without permission unless an agreement
  * is signed between Foxit Software Inc. and customers to explicitly grant customers permissions.
  * Review legal.txt for additional license and legal information.
  */
@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat
 import android.view.ActionMode
 import android.view.KeyEvent
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.Window
@@ -44,8 +45,10 @@ import com.foxit.uiextensions.annots.textmarkup.squiggly.SquigglyModule
 import com.foxit.uiextensions.annots.textmarkup.strikeout.StrikeoutModule
 import com.foxit.uiextensions.annots.textmarkup.underline.UnderlineModule
 import com.foxit.uiextensions.modules.DocInfoModule
+import com.foxit.uiextensions.modules.DocInfoView
 import com.foxit.uiextensions.modules.OutlineModule
 import com.foxit.uiextensions.modules.SearchModule
+import com.foxit.uiextensions.modules.SearchView
 import com.foxit.uiextensions.modules.panel.annot.AnnotPanelModule
 import com.foxit.uiextensions.modules.thumbnail.ThumbnailModule
 import com.foxit.uiextensions.utils.UIToast
@@ -68,10 +71,8 @@ class MainActivity : FragmentActivity() {
     private var thumbnailModule: ThumbnailModule? = null
 
     private var isUnlock = false
-    private val mPasswordError = false
     private var mContext: Context? = null
     private var mActionMode: ActionMode? = null
-    internal var mPath = String()
 
     private val storageDirectory: String?
         get() {
@@ -184,7 +185,6 @@ class MainActivity : FragmentActivity() {
                     }
                 }
             }
-
             mode.finish()
             return true
         }
@@ -239,11 +239,16 @@ class MainActivity : FragmentActivity() {
         uiExtensionsManager!!.onCreate(this, pdfViewCtrl, savedInstanceState)
         pdfViewCtrl!!.uiExtensionsManager = uiExtensionsManager!!
 
-        // Note: Here, filePath will be set with the total path of file.
-        val sdcardPath = storageDirectory
-        val filePath = sdcardPath!! + "FoxitSDK/Sample.pdf"
-        mPath = filePath
-        uiExtensionsManager!!.openDocument(filePath, null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            val permission = ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
+            } else {
+                openDocument()
+            }
+        } else {
+            openDocument()
+        }
 
         outlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule
         if (outlineModule == null) {
@@ -261,13 +266,6 @@ class MainActivity : FragmentActivity() {
             thumbnailModule!!.loadModule()
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val permission = ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
-            }
-        }
-
         if (Build.VERSION.SDK_INT >= 24) {
             val builder = StrictMode.VmPolicy.Builder()
             StrictMode.setVmPolicy(builder.build())
@@ -277,11 +275,20 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_EXTERNAL_STORAGE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            openDocument()
         } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            UIToast.getInstance(applicationContext).show(getString(R.string.permission_denied))
+            finish()
         }
+    }
+
+    private fun openDocument() {
+        // Note: Here, filePath will be set with the total path of file.
+        val sdcardPath = storageDirectory
+        val filePath = sdcardPath!! + "FoxitSDK/Sample.pdf"
+        uiExtensionsManager!!.openDocument(filePath, null)
     }
 
     public override fun onStart() {
@@ -332,14 +339,11 @@ class MainActivity : FragmentActivity() {
 
     companion object {
 
-        private val sn = "sS1No48GllWOhaww26EpDX+mGXcYdi5zUHFRsdMSGxodGTyLDgaYWA=="
-        private val key = "ezKfjl3GtGh397voL2Xsb3l6739eBbVCXwu5VfNUsnrnlvx3zI41B75STKd59TXVpkxEbp+B3UEqUNj1KM66ujQN8Mgkr/mKJOJaqOuqngyfs4ccHXmAWTe4ajKpqKI0Y5clxoTqL8tfYrOQZN7SeznxuJdOMwrg2jDyDQc5ffNZSt8Z6nAjHlI4vjZHNrWeW9M+jFgIcaBMRE/hwgZwwQpr/74cdH/VV289PBrvsLtf+hIagpdc0l3tJJzQf00Q/0/PSPp35eeU+YrKuiXiBIm0sLahXrXBU6kdYOoZgteB9dMaH0v2Ev2EF4hzwtcwExvOI8UxUsC71UTl/KJhIiKs9PdM2fZ4AaseldOQvaHs9dGVwsI2LajSXI21IKT3vwOnMHT10V95hnStG/maORwMHDfLjlAyJepfMlP2aU5x7hTFwRKF9bJRgelGeTzn0c3zJM/GhG5YccdzRPtJZvre4RD9oOYw+vrR6/TKoZtX6Nlu5y/FPg2xlA73kLdaaEqulHtDdec25ki/h9ahvyUP30bIMJKaG5F+SPTCemor1Oy4mtaWNhjPY0cVu807luylcfAd70yu/3neiDUc1JlI424i/OLxRkBGJInLdBMgEeU6gY34Rh5QBfWdKq3lHzKsZnHqL7+MDPu16Os3JX+G4rBWVpRMOKxgGTfnp2bkChAUlzL0tX+/iLjWPyADJwpo3AtVyCckdyyQLgvWr93+6nN34YurHHKqYUTQ0oBeRb0a2DYu3fNyAzDgPZ4lXbkbwtMtS4299A4lUnVJcA21ZBEqC0/mcu/eHHd1UdBBouaD6rkXQ53OzznjMCjibCYbNurh4X0toPxSrqbRU7/LBkzNIbUD+YH1AFAG6Uxi/arFjXBV0Wg0JKCZy1WBVeIfpTW/vtOxAaSsL4FX2930kqZhbIrbTBgOwlsDJO4d5LWFZNuCqjvI8U00ilJExKXAz0w5UTUGfLZraS85ur/zHRs6d8V+psFURmcaCpkLHOE8LrSfT+kat8N6GREjuZItoGs0NOkKYvj/lL963WcRWikieGBNP9Pl/hgpdIXew7nue6U9XGoTgdz2lLR6QtC4EFuVHheMP455C7pRlKJ+7gN9L9+LdoZ1c7LgthMGNg76WWkO129/xwSSDyE7l9z/HbWiAyAtYYYJe02Zl1sInDc30jFrpkXpOocoIa9qnh8EZN859NYJqkQiqJE9CIJ66DA0DNk8eNnaJaBNAzAv2eH+lwEXckM5Re5xjo+69QB0T2Fpx7nFR/cnSw=="
+        private val sn = "DW6QUNWzT4IF0JluGTcsD/OOs12XAfWdNkVPejrfj72Mi6P3xjaElw=="
+        private val key = "ezJvj18mvB539PsXZqX8Iklssh9qvOZTXwsIO/MBC0bmgJ1qz4F0lwleIbZghw4SQD11gx1jqOJvZixkxBpuX+IYO08ZheJYkMQumnRHZ+eSysccHXuESTewCCK1K/MgHY/k54IqDvVbkdKIJu9QmzmxEJhP8zrulCE5v/XtHRKbNVNsvDpNop2HE1XwRtNon3s6YQ+j+c8BACgApAsRalO9SQP2GlkkBEAYqvY2JrrnRhfeZngd25kw9CZGd9p3QToervqkj64UV/3I4sqU/0arSotj32QPFCYAt9roaKCzAYoTeaE/l7zlnpd3dcZwf7NiYwSSrQ2LNpD+r2lHGi8WGr2hO7hwWtX9vdklMHOf/YFo+/05XxoVlnVAtYXRxx7S3MVeSEnhswujY+AswVbBgKGJRGRWzKnv7py3803X3DH5PGqRRayjTceiRq0ddSf7GiNtRQittqcRQSBYet43Rvyca+NyBxa5DddneG1VbBaVtM12C2Xv02/8HNLAf5AF3Vua/6O1gRi2ofIm0dqpk59lj19OiyqBIV6Ma/HZ93SwKLycOxDOHIcn2cVM1UtY+pF7ptUGz4Mq2V9YBaB2wxFB7I3mUEBjGOx1Y1ZAyvpWclWebMpIUct3ku4PmLsuSeX1uAd4iGOggcIFXPiUdYu7RytAbIlnWLtd5FZnwAfsyN/norSSmAtdZMHEv0xmh865YCFDkyo7Lw5ilhUICpZV2qJqqg6n757PdZcyO+M57r5bdcMto40q3M+lmiqOV8Wj/ui9v1h+UHOKQBvCti5TYvI5FWN/biCleETDEXUV1aMvVm/Zcyuu4njBWgL+0FMzCx72Lv0oIHsSl3THc2TS95YL9/3QpYQTAue6VpXdEAN1s3u4rzQVJCmT2QPK4FP/pznBYEP289VheUd1I521v93LZf9TWFDeIUIjE83bEGdtlJRdbqPR2fXccdtLWUeG+Ky97MqncQHy4REqjmBqNxjlo/gvEshBV7VOntNcUmpCLHKyZF+IupSlQ5zO0lJ9RaPShX+VkaI9rx17Oif8q0qvz29nA9s5XyBe87VjQm6BjA7b5hZnixsuZlv+R7ZhyWU5jaTh1BuLbz3zIDAO90rK9qnMP2hm5AFRmy962CqDi/vW0nyQISpgMlSJsGkPUxpg5TuhiGe13TEHMQyHVdBodOcMUBaO1sk4mdeYk7qUm78ek2VL4PhgZHZO3KE+B1ASiVG4iqGAbYiM"
+
 
         val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        init {
-            System.loadLibrary("rdk")
-        }
     }
 }

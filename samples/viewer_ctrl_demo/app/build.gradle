@@ -2,25 +2,20 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "com.foxit.pdf.pdfviewer"
         minSdkVersion 16
-        targetSdkVersion 21
-        versionCode 7
-        versionName "6.0.0"
+        targetSdkVersion 27
+        versionCode 8
+        versionName "6.1.0"
         }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['../../../libs']
         }
     }
 
@@ -31,13 +26,13 @@ android {
 
 repositories{
     flatDir {        dirs '../../../libs'    }
-    mavenCentral()
 }
 
 dependencies {
     implementation 'com.google.android:multidex:0.1'
-    implementation 'com.android.support:appcompat-v7:23.4.0'
-    implementation 'com.android.support:design:23.4.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation (name: 'FoxitRDK', ext: 'aar')
     implementation(name:'FoxitRDKUIExtensions', ext:'aar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
