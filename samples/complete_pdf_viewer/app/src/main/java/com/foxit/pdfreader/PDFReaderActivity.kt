@@ -7,7 +7,7 @@
  *
  *
  * The following code is copyrighted and is the proprietary of Foxit Software Inc.. It is not allowed to
- * distribute any parts of Foxit Mobile PDF SDK to third party or public without permission unless an agreement
+ * distribute any parts of Foxit PDF SDK to third party or public without permission unless an agreement
  * is signed between Foxit Software Inc. and customers to explicitly grant customers permissions.
  * Review legal.txt for additional license and legal information.
  */
@@ -18,7 +18,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -30,7 +29,6 @@ import com.foxit.home.R
 import com.foxit.pdfreader.fragment.BaseFragment
 import com.foxit.pdfreader.fragment.EmptyViewFragment
 import com.foxit.pdfreader.fragment.PDFReaderFragment
-import com.foxit.uiextensions.ToolHandler
 import com.foxit.uiextensions.UIExtensionsManager
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.modules.signature.SignatureToolHandler
@@ -45,7 +43,7 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
     private var filePath: String? = null
     internal var filter: String = ""
 
-    private val mTabEventListener = object : MultiTabView.ITabEventListener {
+    private var mTabEventListener: MultiTabView.ITabEventListener? = object : MultiTabView.ITabEventListener {
         override fun onTabChanged(oldTabInfo: MultiTabView.TabInfo, newTabInfo: MultiTabView.TabInfo) {
             val fragment = App.instance().getTabsManager(filter).fragmentMap[oldTabInfo.tabTarget] as PDFReaderFragment?
             changeViewerState(fragment!!)
@@ -63,25 +61,25 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
             val fragment = App.instance().getTabsManager(filter).fragmentMap[removedTab.tabTarget] as PDFReaderFragment?
             if (removedTab.tabTarget == App.instance().getTabsManager(filter).filePath) {
                 changeViewerState(fragment!!)
-                if (showTab != null) {
-                    filePath = showTab.tabTarget
-                    App.instance().getTabsManager(filter).filePath = filePath
-
-                    val newfragment = App.instance().getTabsManager(filter).fragmentMap[filePath] as PDFReaderFragment?
-                    newfragment!!.mUiExtensionsManager!!.documentManager.resetActionCallback()
-                } else { // only one tab
-                    App.instance().getTabsManager(filter).filePath = null
-                }
 
                 fragment.doClose(object : BaseFragment.IFragmentEvent {
                     override fun onRemove() {
                         App.instance().getMultiTabView(filter).removeTab(removedTab)
                         if (showTab != null) {
+                            filePath = showTab.tabTarget
+                            App.instance().getTabsManager(filter).filePath = filePath
+
+                            val newfragment = App.instance().getTabsManager(filter).fragmentMap[filePath] as PDFReaderFragment
+                            newfragment!!.mUiExtensionsManager!!.documentManager.resetActionCallback()
+
                             openDocView(true)
                             resetTabView(false)
                             App.instance().getTabsManager(filter).fragmentMap.remove(removedTab.tabTarget)
                             App.instance().getMultiTabView(filter).refreshTopBar(showTab.tabTarget!!)
-                        } else { // only one tab
+                        } else {
+                            App.instance().getTabsManager(filter).filePath = null
+
+                            // only one tab
                             removeFragment(fragment)
                             App.instance().getTabsManager(filter).fragmentMap.remove(removedTab.tabTarget)
 
@@ -91,7 +89,6 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
                             startActivity(intent)
                         }
                     }
-
                 })
             } else {
                 fragment!!.doClose(object : BaseFragment.IFragmentEvent {
@@ -101,7 +98,6 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
                         App.instance().getTabsManager(filter).fragmentMap.remove(removedTab.tabTarget)
                         App.instance().getMultiTabView(filter).refreshTopBar(showTab!!.tabTarget!!)
                     }
-
                 })
             }
         }
@@ -122,7 +118,7 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
         } else {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
             if (App.instance().isMultiTab) {
-                App.instance().getMultiTabView(filter).registerTabEventListener(mTabEventListener)
+                App.instance().getMultiTabView(filter).registerTabEventListener(this.mTabEventListener!!)
             }
             openDocument(intent)
         }
@@ -212,7 +208,7 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
             return true
         }
 
-        return if (currentFrag!!.mUiExtensionsManager != null && currentFrag.mUiExtensionsManager!!.onKeyDown(this, keyCode, event)) true else super.onKeyDown(keyCode, event)
+        return if (currentFrag != null && currentFrag!!.mUiExtensionsManager != null && currentFrag!!.mUiExtensionsManager!!.onKeyDown(this, keyCode, event)) true else super.onKeyDown(keyCode, event)
     }
 
     override fun onFinish() {
@@ -228,7 +224,11 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
 
     override fun onDestroy() {
         super.onDestroy()
-        App.instance().getMultiTabView(filter).unregisterTabEventListener(mTabEventListener)
+        if (App.instance().isMultiTab) {
+            App.instance().getMultiTabView(filter).unregisterTabEventListener(mTabEventListener!!)
+        }
+
+        mTabEventListener = null
     }
 
     override fun onNewIntent(intent: Intent) {

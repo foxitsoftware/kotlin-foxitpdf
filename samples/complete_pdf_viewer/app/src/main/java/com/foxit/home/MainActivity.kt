@@ -7,7 +7,7 @@
  *
  *
  * The following code is copyrighted and is the proprietary of Foxit Software Inc.. It is not allowed to
- * distribute any parts of Foxit Mobile PDF SDK to third party or public without permission unless an agreement
+ * distribute any parts of Foxit PDF SDK to third party or public without permission unless an agreement
  * is signed between Foxit Software Inc. and customers to explicitly grant customers permissions.
  * Review legal.txt for additional license and legal information.
  */
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
 
         App.instance().copyGuideFiles(App.instance().getLocalModule(filter))
-        App.instance().getLocalModule(filter).setFileItemEventListener(IHomeModule.onFileItemEventListener { fileExtra, filePath -> onFileSelected(fileExtra, filePath) })
+        App.instance().getLocalModule(filter).setFileItemEventListener { fileExtra, filePath -> onFileSelected(fileExtra, filePath) }
         AccountModule.getInstance().onCreate(this, savedInstanceState)
 
         val view = App.instance().getLocalModule(filter).getContentView(this.applicationContext)
@@ -132,10 +132,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             startActivity(launcherIntent)
             return true
         }
+        App.instance().onBack()
         return super.onKeyDown(keyCode, event)
     }
 
-    //    BaseItemImpl mSingleMultiBtn = null;
     private fun initTabsButton(localModule: LocalModule, activity: Activity) {
         var singleMultiBtn: BaseItemImpl? = App.instance().getTabsButton(filter) as BaseItemImpl?
         if (singleMultiBtn != null) {
@@ -180,6 +180,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                                 }
                                 fragmentTransaction.commitAllowingStateLoss()
                             }
+                            if (App.instance().getTabsManager(filter).currentFragment != null && App.instance().getTabsManager(filter).currentFragment!!.getActivity() != null) {
+                                App.instance().getTabsManager(filter).currentFragment!!.getActivity()!!.finish()
+                            }
                             App.instance().getTabsManager(filter).currentFragment = null
                             App.instance().getTabsManager(filter).clearFragment()
                         }
@@ -195,7 +198,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     companion object {
-
         val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }

@@ -52,7 +52,6 @@
                 android:value=".MainActivity"></meta-data>
         </activity>
 
-        <service android:name="com.foxit.uiextensions.modules.panzoom.floatwindow.service.FloatWindowService"/>
     </application>
 
 </manifest>

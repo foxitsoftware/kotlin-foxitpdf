@@ -7,7 +7,7 @@
  *
  *
  * The following code is copyrighted and is the proprietary of Foxit Software Inc.. It is not allowed to
- * distribute any parts of Foxit Mobile PDF SDK to third party or public without permission unless an agreement
+ * distribute any parts of Foxit PDF SDK to third party or public without permission unless an agreement
  * is signed between Foxit Software Inc. and customers to explicitly grant customers permissions.
  * Review legal.txt for additional license and legal information.
  */
@@ -65,12 +65,13 @@ open class BaseFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
+        onFinishListener = null
         if (mUiExtensionsManager != null) {
             mUiExtensionsManager!!.onDestroy(activity)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 

@@ -7,7 +7,7 @@
  *
  *
  * The following code is copyrighted and is the proprietary of Foxit Software Inc.. It is not allowed to
- * distribute any parts of Foxit Mobile PDF SDK to third party or public without permission unless an agreement
+ * distribute any parts of Foxit PDF SDK to third party or public without permission unless an agreement
  * is signed between Foxit Software Inc. and customers to explicitly grant customers permissions.
  * Review legal.txt for additional license and legal information.
  */
@@ -17,8 +17,6 @@ import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
@@ -46,8 +44,6 @@ import com.foxit.uiextensions.utils.AppUtil
 import com.foxit.uiextensions.utils.UIToast
 
 import java.io.File
-import java.io.FileFilter
-import java.io.InputStream
 
 import com.foxit.sdk.common.Constants.e_ErrSuccess
 
@@ -64,7 +60,7 @@ class PDFReaderFragment : BaseFragment() {
     private var mDocPath: String? = null
     private var isCloseDocAfterSaving = false
 
-    internal var mDocEventListener: PDFViewCtrl.IDocEventListener = object : PDFViewCtrl.IDocEventListener {
+    internal var mDocEventListener: PDFViewCtrl.IDocEventListener? = object : PDFViewCtrl.IDocEventListener {
         override fun onDocWillOpen() {
 
         }
@@ -152,7 +148,7 @@ class PDFReaderFragment : BaseFragment() {
     }
 
 
-    private val mBackEventListener = IPDFReader.BackEventListener {
+    private var mBackEventListener: IPDFReader.BackEventListener? = IPDFReader.BackEventListener {
         if (App.instance().isMultiTab) {
             val intent = Intent()
             intent.setClass(context, MainActivity::class.java)
@@ -175,15 +171,15 @@ class PDFReaderFragment : BaseFragment() {
             return currentFileCachePath!!
         }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (mUiExtensionsManager != null) {
             return mUiExtensionsManager!!.contentView
         }
-        val stream = activity.applicationContext.resources.openRawResource(R.raw.uiextensions_config)
+        val stream = activity!!.applicationContext.resources.openRawResource(R.raw.uiextensions_config)
         val config = UIExtensionsManager.Config(stream)
 
-        pdfViewCtrl = PDFViewCtrl(activity.applicationContext)
-        mUiExtensionsManager = UIExtensionsManager(activity.applicationContext, pdfViewCtrl!!, config)
+        pdfViewCtrl = PDFViewCtrl(activity!!.applicationContext)
+        mUiExtensionsManager = UIExtensionsManager(activity!!.applicationContext, pdfViewCtrl!!, config)
 
         if (App.instance().isMultiTab) {
             pdfViewCtrl!!.registerDocEventListener(mDocEventListener)
@@ -212,6 +208,9 @@ class PDFReaderFragment : BaseFragment() {
 
             mUiExtensionsManager!!.backEventListener = null
         }
+
+        mDocEventListener = null
+        mBackEventListener = null
     }
 
     fun doClose(callback: BaseFragment.IFragmentEvent) {
@@ -225,7 +224,7 @@ class PDFReaderFragment : BaseFragment() {
 
 
         val hideSave = !(pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager).canModifyContents()
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(this!!.activity!!)
         val items: Array<String>
         if (hideSave) {
             items = arrayOf("Save to a new file", "Discard all changes")
