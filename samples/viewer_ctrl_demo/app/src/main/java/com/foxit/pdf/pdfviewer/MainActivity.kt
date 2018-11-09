@@ -49,6 +49,7 @@ import com.foxit.uiextensions.modules.DocInfoView
 import com.foxit.uiextensions.modules.OutlineModule
 import com.foxit.uiextensions.modules.SearchModule
 import com.foxit.uiextensions.modules.SearchView
+import com.foxit.uiextensions.modules.connectpdf.account.AccountModule
 import com.foxit.uiextensions.modules.panel.annot.AnnotPanelModule
 import com.foxit.uiextensions.modules.thumbnail.ThumbnailModule
 import com.foxit.uiextensions.utils.UIToast
@@ -250,6 +251,8 @@ class MainActivity : FragmentActivity() {
             openDocument()
         }
 
+        AccountModule.getInstance().onCreate(this, savedInstanceState)
+
         outlineModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule
         if (outlineModule == null) {
             outlineModule = OutlineModule(this, uiExtensionsManager!!.rootView, pdfViewCtrl, uiExtensionsManager)
@@ -323,6 +326,7 @@ class MainActivity : FragmentActivity() {
         if (uiExtensionsManager != null) {
             uiExtensionsManager!!.onDestroy(this)
         }
+        AccountModule.getInstance().onDestroy(this)
         super.onDestroy()
     }
 
