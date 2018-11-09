@@ -25,7 +25,9 @@
             "cloud":true,
             "polyline":true,
             "distance":true,
-            "image":true
+            "image":true,
+            "audio":true,
+            "video":true
         },
         "thumbnail" : true,
         "attachment": true,

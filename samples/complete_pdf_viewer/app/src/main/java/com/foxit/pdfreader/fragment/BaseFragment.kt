@@ -56,6 +56,13 @@ open class BaseFragment : Fragment() {
         }
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onHiddenChanged(hidden)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (mUiExtensionsManager != null) {

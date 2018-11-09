@@ -194,18 +194,18 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
         var currentFrag: BaseFragment? = supportFragmentManager.findFragmentById(R.id.reader_container) as BaseFragment?
 
         if (App.instance().isMultiTab) {
-            if (keyCode == KeyEvent.KEYCODE_DEL) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                currentFrag = App.instance().getTabsManager(filter).currentFragment
+                if (currentFrag!!.mUiExtensionsManager != null
+                        && currentFrag.mUiExtensionsManager!!.backToNormalState()) {
+                    return true
+                } else {
+                    backToMainActivity()
+                    return true
+                }
+            } else {
                 return super.onKeyDown(keyCode, event)
             }
-
-            currentFrag = App.instance().getTabsManager(filter).currentFragment
-            if (keyCode == KeyEvent.KEYCODE_BACK && currentFrag!!.mUiExtensionsManager != null
-                    && currentFrag.mUiExtensionsManager!!.backToNormalState()) {
-                return true
-            }
-
-            backToMainActivity()
-            return true
         }
 
         return if (currentFrag != null && currentFrag!!.mUiExtensionsManager != null && currentFrag!!.mUiExtensionsManager!!.onKeyDown(this, keyCode, event)) true else super.onKeyDown(keyCode, event)

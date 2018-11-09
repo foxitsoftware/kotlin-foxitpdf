@@ -46,6 +46,7 @@ import com.foxit.uiextensions.utils.UIToast
 import java.io.File
 
 import com.foxit.sdk.common.Constants.e_ErrSuccess
+import com.foxit.uiextensions.modules.DynamicXFA.DynamicXFAModule
 
 class PDFReaderFragment : BaseFragment() {
     var pdfViewCtrl: PDFViewCtrl? = null
@@ -216,6 +217,11 @@ class PDFReaderFragment : BaseFragment() {
     fun doClose(callback: BaseFragment.IFragmentEvent) {
         if (pdfViewCtrl == null) return
 
+        if (pdfViewCtrl!!.isDynamicXFA) {
+            val dynamicXFAModule = mUiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_DYNAMICXFA) as DynamicXFAModule
+            if (dynamicXFAModule.currentXFAWidget != null) dynamicXFAModule.currentXFAWidget = null
+        }
+
         if (pdfViewCtrl!!.doc == null || !mUiExtensionsManager!!.documentManager.isDocModified) {
             mProgressMsg = "Closing"
             closeAndSaveDoc(callback)
@@ -223,7 +229,7 @@ class PDFReaderFragment : BaseFragment() {
         }
 
 
-        val hideSave = !(pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager).canModifyContents()
+        val hideSave = pdfViewCtrl!!.isDynamicXFA && !(pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager).canModifyContents()
         val builder = AlertDialog.Builder(this!!.activity!!)
         val items: Array<String>
         if (hideSave) {
