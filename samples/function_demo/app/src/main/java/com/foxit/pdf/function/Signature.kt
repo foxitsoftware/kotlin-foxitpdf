@@ -128,7 +128,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
             }
 
             state = signature.state.toLong()
-            if (state != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
+            if (state and com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong() != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
                 Toast.makeText(context, String.format("This document verify failed !!!"), Toast.LENGTH_LONG).show()
                 return
             }
