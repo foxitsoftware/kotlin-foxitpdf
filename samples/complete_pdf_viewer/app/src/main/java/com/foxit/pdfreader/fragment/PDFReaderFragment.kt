@@ -187,6 +187,7 @@ class PDFReaderFragment : BaseFragment() {
         }
 
         pdfViewCtrl!!.uiExtensionsManager = mUiExtensionsManager!!
+        pdfViewCtrl!!.attachedActivity = activity
         mUiExtensionsManager!!.attachedActivity = activity
         mUiExtensionsManager!!.registerModule(App.instance().getLocalModule(filter)) // use to refresh file list
 
@@ -392,6 +393,10 @@ class PDFReaderFragment : BaseFragment() {
         if (module != null && path != null) {
             module.updateThumbnail(path)
         }
+    }
+
+    override fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        mUiExtensionsManager!!.handleActivityResult(activity, requestCode, resultCode, data)
     }
 
     companion object {

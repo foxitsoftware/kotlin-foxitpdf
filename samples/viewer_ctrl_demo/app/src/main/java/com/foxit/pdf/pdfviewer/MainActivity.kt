@@ -16,6 +16,7 @@ package com.foxit.pdf.pdfviewer
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -212,7 +213,8 @@ class MainActivity : FragmentActivity() {
             return
         }
 
-        pdfViewCtrl = PDFViewCtrl(this)
+        pdfViewCtrl = PDFViewCtrl(this.applicationContext)
+        pdfViewCtrl!!.attachedActivity = this
         pdfViewCtrl!!.registerDoubleTapEventListener(object : PDFViewCtrl.IDoubleTapEventListener {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                 if (mActionMode == null) {
@@ -260,12 +262,12 @@ class MainActivity : FragmentActivity() {
         }
         annotPanelModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_ANNOTPANEL) as AnnotPanelModule
         if (annotPanelModule == null) {
-            annotPanelModule = AnnotPanelModule(mContext!!, pdfViewCtrl!!, uiExtensionsManager)
+            annotPanelModule = AnnotPanelModule(this.applicationContext, pdfViewCtrl!!, uiExtensionsManager)
             annotPanelModule!!.loadModule()
         }
         thumbnailModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_THUMBNAIL) as ThumbnailModule
         if (thumbnailModule == null) {
-            thumbnailModule = ThumbnailModule(mContext, pdfViewCtrl, uiExtensionsManager)
+            thumbnailModule = ThumbnailModule(this.applicationContext, pdfViewCtrl, uiExtensionsManager)
             thumbnailModule!!.loadModule()
         }
 
@@ -339,6 +341,11 @@ class MainActivity : FragmentActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         return if (uiExtensionsManager != null && uiExtensionsManager!!.onKeyDown(this, keyCode, event)) true else super.onKeyDown(keyCode, event)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        pdfViewCtrl!!.handleActivityResult(requestCode, resultCode, data);
     }
 
     companion object {

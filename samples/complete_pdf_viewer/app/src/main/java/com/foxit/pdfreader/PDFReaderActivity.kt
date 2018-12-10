@@ -300,16 +300,27 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         var currentFrag: BaseFragment? = supportFragmentManager.findFragmentById(R.id.reader_container) as BaseFragment?
-                ?: return
+
         if (App.instance().isMultiTab) {
             currentFrag = App.instance().getTabsManager(filter).currentFragment
-            if (currentFrag!!.isOpenSuccess) {
+            if (currentFrag != null && currentFrag!!.isOpenSuccess) {
                 App.instance().getMultiTabView(filter).refreshTopBar(currentFrag.path!!)
             }
         }
 
+        if (currentFrag == null) return
         if (currentFrag!!.mUiExtensionsManager != null) {
             currentFrag.mUiExtensionsManager!!.onConfigurationChanged(this, newConfig)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        super.onActivityResult(requestCode, resultCode, data)
+        var currentFrag: BaseFragment? = supportFragmentManager.findFragmentById(R.id.reader_container) as BaseFragment
+        if (App.instance().isMultiTab) {
+            currentFrag = App.instance().getTabsManager(filter).currentFragment
+        }
+        if (currentFrag == null) return
+        currentFrag!!.handleActivityResult(requestCode, resultCode, data)
     }
 }

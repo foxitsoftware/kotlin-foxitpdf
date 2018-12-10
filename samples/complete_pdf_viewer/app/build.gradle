@@ -9,8 +9,8 @@ android {
         applicationId "com.foxit.home"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 9
-        versionName "6.2.0"
+        versionCode 10
+        versionName "6.2.1"
     }
     signingConfigs {
         config {
@@ -42,6 +42,9 @@ dependencies {
     implementation(name: 'FoxitRDK', ext: 'aar')
     implementation(name: 'FoxitRDKUIExtensions', ext: 'aar')
     implementation 'com.edmodo:cropper:1.0.1'
+    implementation('com.microsoft.aad:adal:1.1.16') {}
+    implementation(name: 'RMSSDK-4.2-release', ext: 'aar')
+    implementation(name: 'rms-sdk-ui', ext: 'aar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
