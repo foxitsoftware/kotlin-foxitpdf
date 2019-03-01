@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2018, Foxit Software Inc..
+ * Copyright (C) 2003-2019, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
