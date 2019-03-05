@@ -1,17 +1,12 @@
 <resources>
     <string name="app_name">viewer_ctrl_demo</string>
-    <string name="MoreMenu">MoreMenu</string>
-    <string name="note">Note</string>
-    <string name="DocInfo">DocInfo</string>
-    <string name="highlight">Highlight</string>
-    <string name="underline">Underline</string>
-    <string name="strikeout">StrikeOut</string>
-    <string name="squiggly">Squiggly</string>
-    <string name="outline">Outline</string>
-    <string name="changeLayout">ChangeLayout</string>
-    <string name="search">Search</string>
-    <string name="annotations">Annotations</string>
-    <string name="thumbnail">Thumbnail</string>
 
-    <string name="permission_denied">Permission Denied</string>
+    <string name="docInfo">DocInfo</string>
+    <string name="search">Search</string>
+    <string name="changeLayout">ChangeLayout</string>
+
+    <string name="fx_the_license_is_invalid">The license is invalid!</string>
+    <string name="fx_failed_to_initialize_the_library">Failed to initialize the library!</string>
+    <string name="fx_unlock_library_failed">Initialization in progress, please wait a moment!</string>
+    <string name="fx_the_document_cannot_modify">The current document is protected,You can\'t modify it</string>
 </resources>

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">viewer_ctrl_demo</string>
+
+    <string name="docInfo">Dateiinformationen</string>
+    <string name="search">Suche</string>
+    <string name="changeLayout">Layout ändern</string>
+
+    <string name="fx_the_license_is_invalid">Die Lizenz ist ungültig!</string>
+    <string name="fx_failed_to_initialize_the_library">Die Initialisierungsbibliothek ist fehlgeschlagen!</string>
+    <string name="fx_unlock_library_failed">Initialisierung läuft, bitte warten Sie einen Moment!</string>
+    <string name="fx_the_document_cannot_modify">Das aktuelle Dokument ist geschützt, Sie können es nicht ändern</string>
+</resources>

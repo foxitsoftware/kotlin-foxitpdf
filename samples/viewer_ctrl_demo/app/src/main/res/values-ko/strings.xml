@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">viewer_ctrl_demo</string>
+
+    <string name="docInfo">파일 정보</string>
+    <string name="search">검색</string>
+    <string name="changeLayout">레이아웃 변경</string>
+
+    <string name="fx_the_license_is_invalid">라이센스가 유효하지 않습니다.</string>
+    <string name="fx_failed_to_initialize_the_library">라이브러리를 초기화하지 못했습니다.</string>
+    <string name="fx_unlock_library_failed">초기화 중입니다. 잠시만 기다려주세요.</string>
+    <string name="fx_the_document_cannot_modify">현재 문서가 보호되어 있으며 수정할 수 없습니다.</string>
+</resources>

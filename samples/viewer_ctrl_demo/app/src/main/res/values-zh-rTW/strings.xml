@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">viewer_ctrl_demo</string>
+
+    <string name="docInfo">檔案資訊</string>
+    <string name="changeLayout">顯示模式</string>
+    <string name="search">搜索</string>
+
+    <string name="fx_the_license_is_invalid">許可證無效!</string>
+    <string name="fx_failed_to_initialize_the_library">庫初始化失敗!</string>
+    <string name="fx_unlock_library_failed">正在初始化，請稍後</string>
+    <string name="fx_the_document_cannot_modify">當前檔案受保護，不能修改</string>
+</resources>

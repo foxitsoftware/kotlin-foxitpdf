@@ -1,25 +1,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 	<item
 		android:id="@+id/DocInfo"
-		android:title="@string/DocInfo"/>
+		android:title="@string/docInfo"/>
 	<item
 		android:id="@+id/Note"
-		android:title="@string/note"/>
+		android:title="@string/annot_text_note"/>
 	<item
 		android:id="@+id/Highlight"
-		android:title="@string/highlight"/>
+		android:title="@string/fx_string_highlight"/>
 	<item
 		android:id="@+id/Underline"
-		android:title="@string/underline"/>
+		android:title="@string/fx_string_underline"/>
 	<item
 		android:id="@+id/StrikeOut"
-		android:title="@string/strikeout"/>
+		android:title="@string/fx_string_strikeout"/>
 	<item
 		android:id="@+id/Squiggly"
-		android:title="@string/squiggly"/>
+		android:title="@string/fx_string_squiggly"/>
 	<item 
 	    android:id="@+id/Outline"
-	    android:title="@string/outline"/>
+	    android:title="@string/rv_panel_phone_top_outline"/>
 	<item 
 	    android:id="@+id/ChangeLayout"
 	    android:title="@string/changeLayout"/>
@@ -29,8 +29,8 @@
 
 	<item
 		android:id="@+id/Annotations"
-		android:title="@string/annotations"/>
+		android:title="@string/rv_panel_annot_title"/>
 	<item
 		android:id="@+id/Thumbnail"
-		android:title="@string/thumbnail"/>
+		android:title="@string/rv_page_present_thumbnail"/>
 </menu>
