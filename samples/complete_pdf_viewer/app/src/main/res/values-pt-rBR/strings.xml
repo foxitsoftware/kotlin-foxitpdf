@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">complete_pdf_viewer</string>
+
+    <string name="fx_the_license_is_invalid">A licença é inválida!</string>
+    <string name="fx_failed_to_initialize_the_library">Falha ao inicializar a biblioteca!</string>
+
+    <string name="fx_single_reader_mode">Modo de documento único</string>
+    <string name="fx_tabs_reader_mode">Modo multi-documento</string>
+    <string name="fx_swith_reader_mode_toast">Você tem certeza de mudar para o %1$s?</string>
+</resources>

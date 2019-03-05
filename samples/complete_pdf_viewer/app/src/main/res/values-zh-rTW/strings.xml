@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">complete_pdf_viewer</string>
+
+    <string name="fx_the_license_is_invalid">許可證無效!</string>
+    <string name="fx_failed_to_initialize_the_library">庫初始化失敗!</string>
+
+    <string name="fx_single_reader_mode">單頁</string>
+    <string name="fx_tabs_reader_mode">標籤頁</string>
+    <string name="fx_swith_reader_mode_toast">您確定要切換到%1$s模式嗎?</string>
+</resources>

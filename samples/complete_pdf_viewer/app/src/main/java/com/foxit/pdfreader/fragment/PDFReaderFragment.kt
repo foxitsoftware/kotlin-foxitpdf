@@ -46,7 +46,8 @@ import com.foxit.uiextensions.utils.UIToast
 import java.io.File
 
 import com.foxit.sdk.common.Constants.e_ErrSuccess
-import com.foxit.uiextensions.modules.DynamicXFA.DynamicXFAModule
+import com.foxit.uiextensions.config.Config
+import com.foxit.uiextensions.modules.dynamicxfa.DynamicXFAModule
 
 class PDFReaderFragment : BaseFragment() {
     var pdfViewCtrl: PDFViewCtrl? = null
@@ -117,9 +118,9 @@ class PDFReaderFragment : BaseFragment() {
                 if (file.exists()) {
                     docFile.delete()
                     if (!file.renameTo(docFile))
-                        UIToast.getInstance(context).show("Save document failed!")
+                        UIToast.getInstance(context).show(context!!.getString(R.string.fx_save_file_failed))
                 } else {
-                    UIToast.getInstance(context).show("Save document failed!")
+                    UIToast.getInstance(context).show(context!!.getString(R.string.fx_save_file_failed))
                 }
 
             }
@@ -177,7 +178,7 @@ class PDFReaderFragment : BaseFragment() {
             return mUiExtensionsManager!!.contentView
         }
         val stream = activity!!.applicationContext.resources.openRawResource(R.raw.uiextensions_config)
-        val config = UIExtensionsManager.Config(stream)
+        val config = Config(stream)
 
         pdfViewCtrl = PDFViewCtrl(activity!!.applicationContext)
         mUiExtensionsManager = UIExtensionsManager(activity!!.applicationContext, pdfViewCtrl!!, config)
@@ -224,7 +225,7 @@ class PDFReaderFragment : BaseFragment() {
         }
 
         if (pdfViewCtrl!!.doc == null || !mUiExtensionsManager!!.documentManager.isDocModified) {
-            mProgressMsg = "Closing"
+            mProgressMsg = context!!.getString(R.string.fx_string_closing)
             closeAndSaveDoc(callback)
             return
         }
@@ -234,9 +235,12 @@ class PDFReaderFragment : BaseFragment() {
         val builder = AlertDialog.Builder(this!!.activity!!)
         val items: Array<String>
         if (hideSave) {
-            items = arrayOf("Save to a new file", "Discard all changes")
+            items = arrayOf(context!!.getString(R.string.rv_back_save_to_new_file),
+                    context!!.getString(R.string.rv_back_discard_modify))
         } else {
-            items = arrayOf("Save to the original file", "Save to a new file", "Discard all changes")
+            items = arrayOf(context!!.getString(R.string.rv_back_save_to_original_file),
+                    context!!.getString(R.string.rv_back_save_to_new_file),
+                    context!!.getString(R.string.rv_back_discard_modify))
         }
 
         builder.setItems(items, object : DialogInterface.OnClickListener {
@@ -265,18 +269,18 @@ class PDFReaderFragment : BaseFragment() {
                             pdfViewCtrl!!.saveDoc(cacheFile, mUiExtensionsManager!!.saveDocFlag)
                         }
                         isSaveDocInCurPath = true
-                        mProgressMsg = "Saving"
+                        mProgressMsg = context!!.getString(R.string.fx_string_saving)
                         mFragmentEvent = callback
                         showProgressDialog()
                     }
                     1 // save as
                     -> {
-                        mProgressMsg = "Saving"
+                        mProgressMsg = context!!.getString(R.string.fx_string_saving)
                         onSaveAsClicked()
                     }
                     2 // discard modify
                     -> {
-                        mProgressMsg = "Closing"
+                        mProgressMsg = context!!.getString(R.string.fx_string_closing)
                         closeAndSaveDoc(callback)
                     }
                     else -> {

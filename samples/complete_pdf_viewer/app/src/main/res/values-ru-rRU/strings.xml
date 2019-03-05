@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">complete_pdf_viewer</string>
+
+    <string name="fx_the_license_is_invalid">Лицензия недействительна!</string>
+    <string name="fx_failed_to_initialize_the_library">Ошибка инициализации библиотеки!</string>
+
+    <string name="fx_single_reader_mode">Режим одного документа</string>
+    <string name="fx_tabs_reader_mode">Многодокументный режим</string>
+    <string name="fx_swith_reader_mode_toast">Вы уверены, что хотите перейти в %1$s?</string>
+</resources>

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">complete_pdf_viewer</string>
+
+    <string name="fx_the_license_is_invalid">라이센스가 유효하지 않습니다!</string>
+    <string name="fx_failed_to_initialize_the_library">라이브러리를 초기화하지 못하였니다.</string>
+
+    <string name="fx_single_reader_mode">단일 문서 페이지</string>
+    <string name="fx_tabs_reader_mode">탭 페이지</string>
+    <string name="fx_swith_reader_mode_toast">%1$s읽기모드로 전환 하시겠습니까?</string>
+</resources>

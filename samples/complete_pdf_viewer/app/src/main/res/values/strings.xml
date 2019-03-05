@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">complete_pdf_viewer</string>
 
+    <string name="fx_the_license_is_invalid">The License is invalid!</string>
+    <string name="fx_failed_to_initialize_the_library">Failed to initialize the library!</string>
+
+    <string name="fx_single_reader_mode">single</string>
+    <string name="fx_tabs_reader_mode">tabs</string>
+    <string name="fx_swith_reader_mode_toast">Do you want to switch to %1$s reader mode?</string>
 </resources>

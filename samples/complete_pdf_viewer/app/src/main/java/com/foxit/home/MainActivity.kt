@@ -157,11 +157,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         val finalSingleMultiBtn = singleMultiBtn
         singleMultiBtn.setOnClickListener { v ->
-            val stringBuilder = StringBuilder("Do you want to switch to ").append(if (!App.instance().isMultiTab) "tabs" else "single").append(" reader mode?")
+            val readerMode = if (!App.instance().isMultiTab) getString(R.string.fx_tabs_reader_mode) else getString(R.string.fx_single_reader_mode)
+            val msg = getString(R.string.fx_swith_reader_mode_toast, readerMode)
             val title = ""
             val dialog = AlertDialog.Builder(activity).setCancelable(true).setTitle(title)
-                    .setMessage(stringBuilder.toString())
-                    .setPositiveButton("Yes"
+                    .setMessage(msg)
+                    .setPositiveButton(getString(R.string.fx_string_yes)
                     ) { dialog, which ->
                         if (v.id == R.id.rd_single_tab) {
                             finalSingleMultiBtn.setImageResource(R.drawable.rd_multi_tab_selector)
@@ -190,7 +191,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         App.instance().getMultiTabView(filter).resetData()
 
                         dialog.dismiss()
-                    }.setNegativeButton("No"
+                    }.setNegativeButton(getString(R.string.fx_string_no)
                     ) { dialog, which -> dialog.dismiss() }.create()
             dialog.show()
         }

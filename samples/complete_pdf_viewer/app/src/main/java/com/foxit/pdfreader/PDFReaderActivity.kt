@@ -81,7 +81,8 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
 
                             // only one tab
                             removeFragment(fragment)
-                            App.instance().getTabsManager(filter).fragmentMap.remove(removedTab.tabTarget)
+                            App.instance().getTabsManager(filter).currentFragment = null
+                            App.instance().getTabsManager(filter).clearFragment()
 
                             val intent = Intent()
                             intent.setClass(applicationContext, MainActivity::class.java)

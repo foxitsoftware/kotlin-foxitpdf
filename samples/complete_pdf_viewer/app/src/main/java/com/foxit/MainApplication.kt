@@ -14,13 +14,21 @@
 package com.foxit
 
 import android.app.Application
+import android.content.res.Configuration
+import com.foxit.uiextensions.utils.LocalizationUtil
 
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         App.instance().applicationContext = this
+        LocalizationUtil.enableLocale(this, true);
         if (!App.instance().checkLicense()) {
             return
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        LocalizationUtil.enableLocale(this, true)
     }
 }
