@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Annotation -->
+    <string name="fx_add_annotation_failed">Add annotation demo run error. %1$s</string>
+    <string name="fx_create_text_search_error">Create text search error</string>
+    <string name="fx_set_keywords_error">Set keywords error</string>
+    <string name="fx_get_text_rect_error">Get text rect error. %1$s</string>
+    <string name="fx_add_annot_error">Add annot error. %1$s</string>
+
+    <!-- Common -->
+    <string name="fx_the_path_not_exist_error">The path %1$s does not exist!</string>
+    <string name="fx_load_document_error">Load document error. %1$s</string>
+    <string name="fx_the_document_is_null">The document is null!</string>
+    <string name="fx_the_page_is_null">The Page is null!</string>
+    <string name="fx_parse_page_error">Parse Page error!</string>
+    <string name="fx_load_page_error">Load Page error. %1$s</string>
+    <string name="fx_file_saved_successd">Successfully! The generated file was saved to %1$s</string>
+
+    <!-- DocInfo -->
+    <string name="fx_failed_to_export_doc_error">Failed to export doc info of %1$s!</string>
+
+    <!-- Outline -->
+    <string name="fx_outline_run_error">Outline demo run error. %1$s</string>
+    <string name="fx_save_doc_error">Save document error</string>
+
+    <!-- Pdf2text -->
+    <string name="fx_pdf_to_text_error">Pdf to text error. %1$s</string>
+
+    <!-- Render -->
+    <string name="fx_failed_to_render_the_page">Failed to render the page No.%1$d! %2$s</string>
+    <string name="fx_failed_to_save_image_file">Failed to Save Image File!</string>
+    <string name="fx_the_page_index_out_of_range">The page index is out of range!</string>
+
+    <!-- Signature -->
+    <string name="fx_failed_to_sign_the_page">Failed to sign the page No.%1$d! %2$s</string>
+    <string name="fx_verify_failed">This document verify failed !!!</string>
+    <string name="fx_sign_failed">This document sign failed !!!</string>
+    <string name="fx_doc_not_signed">This document isn\'t signed !!!</string>
+
+    <string name="fx_permission_denied">Permission Denied</string>
+    <string name="fx_the_license_is_invalid">The license is invalid!</string>
+    <string name="fx_failed_to_initalize">Failed to initialize the library!</string>
+    <string name="fx_the_sdcard_not_exist">Please confirm that the SD card has been inserted</string>
+</resources>

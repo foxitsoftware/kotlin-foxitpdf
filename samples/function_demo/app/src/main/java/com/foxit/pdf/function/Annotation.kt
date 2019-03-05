@@ -15,6 +15,7 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.fxcrt.PointF
@@ -68,11 +69,11 @@ class Annotation(var context: Context, var pdfFilePath: String) {
 
             doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)
         } catch (e: PDFException) {
-            Toast.makeText(context, "Add annotation demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_add_annotation_failed,  e.message), Toast.LENGTH_LONG).show()
             return
         }
 
-        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
         return
     }
 
@@ -91,12 +92,12 @@ class Annotation(var context: Context, var pdfFilePath: String) {
             //Firstly, search the text.
             textSearch = TextSearch(doc, null)
             if (textSearch == null || textSearch.isEmpty) {
-                Toast.makeText(context, "create text search error", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_create_text_search_error), Toast.LENGTH_LONG).show()
                 return null
             }
 
             if (!textSearch.setPattern(keywords)) {
-                Toast.makeText(context, "set keywords error", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_set_keywords_error), Toast.LENGTH_LONG).show()
                 textSearch.delete()
                 return null
             }
@@ -128,7 +129,7 @@ class Annotation(var context: Context, var pdfFilePath: String) {
                 textMarkupAnnot.quadPoints = quadPointsArray
             }
         } catch (e: PDFException) {
-            Toast.makeText(context, "Get text rect error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_get_text_rect_error, e.message), Toast.LENGTH_LONG).show()
         }
         return textMarkupAnnot
     }
@@ -158,7 +159,7 @@ class Annotation(var context: Context, var pdfFilePath: String) {
                 annot.modifiedDateTime = dateTime
             }
         } catch (e: PDFException) {
-            Toast.makeText(context, "Add annot error. " + e.message, Toast.LENGTH_LONG)
+            Toast.makeText(context, context.getString(R.string.fx_add_annot_error, e.message), Toast.LENGTH_LONG)
         }
         return annot
     }

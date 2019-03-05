@@ -15,6 +15,7 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.PDFPage
@@ -54,7 +55,7 @@ class Pdf2text(var context: Context, var pdfFilePath: String) {
                 page.delete()
             }
         } catch (e: PDFException) {
-            Toast.makeText(context, "Pdf to text error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_pdf_to_text_error, e.message), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -71,6 +72,6 @@ class Pdf2text(var context: Context, var pdfFilePath: String) {
             return
         }
 
-        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
     }
 }

@@ -15,6 +15,7 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.Bookmark
@@ -41,14 +42,14 @@ class Outline(var context: Context, var pdfFilePath: String) {
             modifyOutline(firstChild)
 
             if (!doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)) {
-                Toast.makeText(context, "Save document error!", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_save_doc_error), Toast.LENGTH_LONG).show()
                 return
             }
         } catch (e: PDFException) {
-            Toast.makeText(context, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_outline_run_error, e.message), Toast.LENGTH_LONG).show()
             return
         }
-        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
     }
 
     private fun modifyOutline(bookmark: Bookmark) {
@@ -76,7 +77,7 @@ class Outline(var context: Context, var pdfFilePath: String) {
             modifyOutline(child)
 
         } catch (e: PDFException) {
-            Toast.makeText(context, "Outline demo run error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_outline_run_error, e.message), Toast.LENGTH_LONG).show()
         }
 
     }

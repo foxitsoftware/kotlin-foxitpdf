@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">function_demo</string>
+
     <string name="pdf2text">pdf2txt</string>
     <string name="pdf2textInfo">Extract text from a PDF document to a TXT file.</string>
     <string name="outline">outline</string>

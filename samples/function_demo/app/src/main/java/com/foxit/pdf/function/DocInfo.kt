@@ -15,6 +15,7 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.pdf.Metadata
 
@@ -56,10 +57,10 @@ class DocInfo(var context: Context, var path: String) {
             fileWriter.flush()
             fileWriter.close()
         } catch (e: Exception) {
-            Toast.makeText(context, String.format("Failed to export doc info of %s!", path), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_failed_to_export_doc_error, path), Toast.LENGTH_LONG).show()
             return
         }
 
-        Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
     }
 }

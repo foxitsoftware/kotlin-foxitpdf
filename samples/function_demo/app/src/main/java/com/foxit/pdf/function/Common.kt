@@ -18,6 +18,7 @@ import android.graphics.Bitmap
 import android.os.Environment
 import android.text.format.Time
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.DateTime
@@ -47,7 +48,9 @@ object Common {
     val signatureInputFile = "Sample.pdf"
     val signatureCertification = "foxit_all.pfx"
 
-    val runSuccesssInfo = "Successfully! The generated file was saved to "
+    fun getSuccessInfo(context: Context, path: String): String {
+        return context.getString(R.string.fx_file_saved_successd, path)
+    }
 
     var externalPath: String? = null
 
@@ -137,15 +140,15 @@ object Common {
     fun loadPDFDoc(context: Context, path: String, password: ByteArray?): PDFDoc? {
         try {
             val doc = PDFDoc(path)
-            if (doc == null) {
-                Toast.makeText(context, String.format("The path %s does not exist!", path), Toast.LENGTH_LONG).show()
+            if (doc.isEmpty) {
+                Toast.makeText(context, context.getString(R.string.fx_the_path_not_exist_error, path), Toast.LENGTH_LONG).show()
                 return null
             }
 
             doc.load(password)
             return doc
         } catch (e: PDFException) {
-            Toast.makeText(context, "Load document error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_load_document_error, e.message), Toast.LENGTH_LONG).show()
         }
 
         return null
@@ -153,15 +156,15 @@ object Common {
 
     fun loadPage(context: Context, doc: PDFDoc?, index: Int, parseFlag: Int): PDFPage? {
         var page: PDFPage? = null
-        if (doc == null) {
-            Toast.makeText(context, "The document is null!", Toast.LENGTH_LONG).show()
+        if (doc == null || doc.isEmpty) {
+            Toast.makeText(context, context.getString(R.string.fx_the_document_is_null), Toast.LENGTH_LONG).show()
             return page
         }
 
         try {
             page = doc.getPage(index)
-            if (page == null) {
-                Toast.makeText(context, "Get Page error", Toast.LENGTH_LONG).show()
+            if (page == null || page.isEmpty) {
+                Toast.makeText(context, context.getString(R.string.fx_the_page_is_null), Toast.LENGTH_LONG).show()
                 return page
             }
 
@@ -174,13 +177,13 @@ object Common {
                 }
 
                 if (state == Progressive.e_Error) {
-                    Toast.makeText(context, "Parse Page error!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.fx_parse_page_error), Toast.LENGTH_LONG).show()
                     return null
                 }
             }
 
         } catch (e: PDFException) {
-            Toast.makeText(context, "Load Page error. " + e.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_load_page_error, e.message), Toast.LENGTH_LONG).show()
         }
 
         return page

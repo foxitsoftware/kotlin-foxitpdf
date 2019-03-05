@@ -17,6 +17,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.Constants
@@ -32,7 +33,7 @@ class Render(var context: Context, var path: String) {
         try {
             val pageCount = doc.pageCount
             if (index > pageCount || index < 0) {
-                Toast.makeText(context, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_the_page_index_out_of_range), Toast.LENGTH_LONG).show()
                 return
             }
 
@@ -60,19 +61,19 @@ class Render(var context: Context, var path: String) {
             }
 
             if (state == Progressive.e_Error) {
-                Toast.makeText(context, String.format("Failed to render the page No.%d failed!", index), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_failed_to_render_the_page, index, ""), Toast.LENGTH_LONG).show()
                 return
             }
 
             //Save the render result to the jpeg image.
             if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
-                Toast.makeText(context, String.format("Failed to Save Image File!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_failed_to_save_image_file), Toast.LENGTH_LONG).show()
                 return
             }
 
-            Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
-            Toast.makeText(context, String.format("Failed to render the page No.%d! %s", index, e.message), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_failed_to_render_the_page, index, e.message), Toast.LENGTH_LONG).show()
         }
     }
 }

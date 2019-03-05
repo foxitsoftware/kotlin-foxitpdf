@@ -17,6 +17,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
+import com.foxit.pdf.main.R
 
 import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.PDFException
@@ -65,7 +66,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
 
             val pageCount = doc.pageCount
             if (pageIndex > pageCount || pageIndex < 0) {
-                Toast.makeText(context, String.format("The page index is out of range!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_the_page_index_out_of_range), Toast.LENGTH_LONG).show()
                 return
             }
 
@@ -105,7 +106,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
 
             state = signature.state.toLong()
             if (state != com.foxit.sdk.pdf.Signature.e_StateSigned.toLong() || !signature.isSigned) {
-                Toast.makeText(context, String.format("This document sign failed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_sign_failed), Toast.LENGTH_LONG).show()
                 return
             }
 
@@ -116,7 +117,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
             signature = signedDoc.getSignature(0)
 
             if (!signature.isSigned) {
-                Toast.makeText(context, String.format("This document isn`t signed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_doc_not_signed), Toast.LENGTH_LONG).show()
                 return
             }
 
@@ -129,12 +130,12 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
 
             state = signature.state.toLong()
             if (state and com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong() != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
-                Toast.makeText(context, String.format("This document verify failed !!!"), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.fx_verify_failed), Toast.LENGTH_LONG).show()
                 return
             }
-            Toast.makeText(context, Common.runSuccesssInfo + outputFilePath, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
-            Toast.makeText(context, String.format("Failed to sign the page No.%d! %s", pageIndex, e.message), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_failed_to_sign_the_page, pageIndex, e.message), Toast.LENGTH_LONG).show()
         }
     }
 }
