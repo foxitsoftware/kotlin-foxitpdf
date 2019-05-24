@@ -249,6 +249,12 @@ class PDFReaderActivity : FragmentActivity(), UIExtensionsManager.OnFinishListen
     private fun openDocument(intent: Intent) {
         filePath = App.instance().getTabsManager(filter).filePath
         val oldPath = filePath
+        if (oldPath != null) {
+            val oldFragment = App.instance().getTabsManager(filter).fragmentMap[oldPath] as PDFReaderFragment?
+            if (oldFragment != null && oldFragment.isOpenSuccess) {
+                oldFragment.mUiExtensionsManager!!.stopHideToolbarsTimer()
+            }
+        }
 
         filePath = AppFileUtil.getFilePath(this, intent, IHomeModule.FILE_EXTRA)
         App.instance().getTabsManager(filter).filePath = filePath
