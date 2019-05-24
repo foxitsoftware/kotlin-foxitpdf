@@ -45,11 +45,7 @@ import com.foxit.uiextensions.annots.textmarkup.highlight.HighlightModule
 import com.foxit.uiextensions.annots.textmarkup.squiggly.SquigglyModule
 import com.foxit.uiextensions.annots.textmarkup.strikeout.StrikeoutModule
 import com.foxit.uiextensions.annots.textmarkup.underline.UnderlineModule
-import com.foxit.uiextensions.modules.DocInfoModule
-import com.foxit.uiextensions.modules.DocInfoView
-import com.foxit.uiextensions.modules.OutlineModule
-import com.foxit.uiextensions.modules.SearchModule
-import com.foxit.uiextensions.modules.SearchView
+import com.foxit.uiextensions.modules.*
 import com.foxit.uiextensions.modules.connectpdf.account.AccountModule
 import com.foxit.uiextensions.modules.panel.annot.AnnotPanelModule
 import com.foxit.uiextensions.modules.thumbnail.ThumbnailModule
@@ -71,6 +67,8 @@ class MainActivity : FragmentActivity() {
     private var annotPanelModule: AnnotPanelModule? = null
     private var outlineModule: OutlineModule? = null
     private var thumbnailModule: ThumbnailModule? = null
+
+    private var pageNavigationModule: PageNavigationModule? = null
 
     private var isUnlock = false
     private var mContext: Context? = null
@@ -217,11 +215,16 @@ class MainActivity : FragmentActivity() {
         pdfViewCtrl!!.attachedActivity = this
         pdfViewCtrl!!.registerDoubleTapEventListener(object : PDFViewCtrl.IDoubleTapEventListener {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                if (pageNavigationModule == null)
+                    pageNavigationModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_PAGENAV) as PageNavigationModule?
+
                 if (mActionMode == null) {
                     mActionMode = (mContext as Activity).startActionMode(mActionModeCallback)
+                    pageNavigationModule!!.changPageNumberState(true)
                 } else {
                     mActionMode!!.finish()
                     mActionMode = null
+                    pageNavigationModule!!.changPageNumberState(false)
                 }
                 return true
             }
@@ -350,8 +353,8 @@ class MainActivity : FragmentActivity() {
 
     companion object {
 
-        private val sn = "qgVK5jS3KYEa5d/7a0aCJpZHuXc1ite9LBERoywRU5LQyMZNcXzL2A=="
-        private val key = "ezJvj18mvB539PsXZqXcIklssh9qveZTXwsIO7MBC0bmgMUWD2d+2vk18zJ02pl+5NZ0I/5z+SGPshNpVNR/9bK/6rzAqEiIcptvrDVZFBf8BtPD3DiHacfAC+00W06fFZsc8/upASquVGTB2AE5+vQ7QLOyoYjnLOnKIXprWJ13ieiZTd+dgwEc7qx4AwPm3KohdnBIau1l7ezggBr4ToFyIph4b9kc//TTKBZVmO/naXjUkOXHux8hw1MxsiY3Y3ITf/U41yP50zPDqS71fiuhceUd0uRV1MJ8BE5Fa/DNw1V9EvOvy9nJsml14OAajxnzq7EVB3OkTaZv7hU392bHZJFQm7nrgOFlC0GL9Kpt6LvJJk0nOKe9KIW0OVZuPd5TfOoNTIiPV5RzohOwxBWs0MHhTox48O8rSnETDmyidPUpQpK04i7fMZxIn56MCD5dPkjtS+lwv1aYcVaZCB5eIpcDyvnIZZnvIrFu+DcYhSw6Tj2VfLTwwLlJ6/ImQZAHxVua/6O7hRi2ofImEVOkqhkkj1hOiyIBGW689ZGaKa2MLTbNVmj+EIkmxyXPrSfvkq6LMZRLqLasmFDc5OB+RCldbgzmIFifk5yxTC81HFNBHKYq1l2LcSUTDS5gZGBwv89QNVpjnYK1qzMKxdW2DJb8vsXE+7uXq4vpzfOofjtAp7V4QlLTXXLIrB2V5exBHWxAU9BdxSTviIsjthEICncV0mbrigYj7r7b7oIRlOYBJr1ZRMstI0or0Esl2jbC2da/gFsbiyWy5iNzcYwVevRCS4eL5DTGkSyaPs3sjOfGb4WBxZ03f7BL+S9eiK1Dv14ytEWa9Z/6EApXCsHgCJYzJW13EvkA9bziaden0OzIPBdfk7i9mdklH80BPcI0J5sC1lB2XCRGqmQr8QkCL5/JZY+xoGAh10GHafhXnhpSHZ9qaBSZzhTArIu8h6PEd2UhFSLYkfoXto8/N/6r8/YLBsOqVhMrq/5WoD6cJQQdGm1KLbqQvRnSui7VafTGZ6QbwkcVMzJV7w9hVR/q7hqRo2ZPi1olraM8kVnD+SSpeK6qkD2sgmoTfYzqAEz2AWq8XlNSEEoGTyJzgGzEPgfmpMvHmpkhtGONOKCSA/R36VuOR3GG9psBS4god2Q3gN4+v0guQV+BqFyu9EcsxnV7bEJ1Slr9o+TtUvs6PiP7Reg7rekObp485zQyuRmOZfIbycg7kBC575myg4h1"
+        private val sn = "BW3CdOL9RzR/4rAyb2+Ze4s5sP8katpRwE+DOEB3k2rQZtFD5HJG5Q=="
+        private val key = "ezJvj93HvBh39LusL0W0ja4g+PQUKROlWYrFaqfVeOP9qnxzhL01J+KHAmohNqVQ+DF+mvMHx0afiHvfYfpythLfEBEraoB6ODghaWXcBpU1+RmsaTiEau5SSVXbEg1tGbao3l6g7DLOSO3p4qazFrs/TvSy39FzXlmnGAGYf5vY3S4eKTqaRBYgzlJ526WedxUbq1BYK8+QZYjA6GPncrqOGH5OAW6Pz0NpDLpoJG+ZHeDTdOR9QP05XiVwBWW6ol+/hO7lHNGNu20rXf1GpMxkDLscPoFG4+N9kLtThf2Z4KCEtOphI7v4Zb92eSOdT0LEoCv/NgCvbXzwHzbSvE6MqM+s6IWYN/KBVXqZQIcfQatk3+KT2EP2RUXb9QBDBD1rDa8b0YD8HJ9QF4Ip/oN7aiu9kaD7Ih9+oVv40WbIllNZVbtreEpw0fBGb9OsS1RFrGl33JbgO6MgPQSTziyTE6VaFvjFjVgsuQUeaRfAF+x51hTKqEpQCxR9RQWF/SL9DcWhpOc5gO7JfWv8ZXYh41TthV8TBmg+2MTtUHY7Jbug+lAsMZd8qTpcviwYGzbAroqbinxaxOprGK7sGnRKHw79JYhKKjpvli6xpaaXw6aggjEaC/DQ633pmWrETK2aWXBRBrfnjHRky7urcjkuzg6TIDjxQ9Gl4mV0Ue8V/I4FXmqSBd3km6p9yn7oMgrcxXtbznW547+uyE11h12exYlwlkGCFf/tHtH39l7LJ6wIJDY67arTMmafyIAEYDKABvje7oYkUZzFUM4Uei7My/Nx4aAjTNFWuIZrJUAfVa0EbSeOjhJfxi8tIDVmF0lDQfj9AKKu686SzzosAw97LO62iA+00fysyxby10xLTITnGb/wuwIElKXo3e+6rN3q+7hfj85iM7csgvD9im2JHTIZj6TV9xN0MsevzHzqEO2VMhdukPkdDp5EiGhDsPn4KS4oLekRL148IhN21oEA03tb/WVvWmkFzMIxsspvpg+HcBiwPYm6ahvcSf83fJjmRb+Gk0LOTMYLCXqRiGKQSOVD12X9Uu2VueKnIKoPRo46it0EJAR/YKlWrZY0DlICsLRsYXDg/lmOS2BFu+nyPRi9V9ND0WxjqbNWieEJmf4wz1TR3VTL1BSBcqBq+SXVXLnuDjbuzulrjtIXS3UG5VPpwAX+/wVN3F5gUklRr5DJ7KiG7MM997QsTQpMwPe++zlVDmucBJ24HzuIhVw="
 
 
         val REQUEST_EXTERNAL_STORAGE = 1
