@@ -46,7 +46,6 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
             val signer = "signer"
             val text = "text"
             var state: Long = 0
-            val value: String? = null
             val rect = RectF(100f, 100f, 300f, 300f)
 
             //set current time to dateTime.
@@ -129,7 +128,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
             }
 
             state = signature.state.toLong()
-            if (state and com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong() != com.foxit.sdk.pdf.Signature.e_StateVerifyValid.toLong()) {
+            if (state and com.foxit.sdk.pdf.Signature.e_StateVerifyNoChange.toLong() != com.foxit.sdk.pdf.Signature.e_StateVerifyNoChange.toLong()) {
                 Toast.makeText(context, context.getString(R.string.fx_verify_failed), Toast.LENGTH_LONG).show()
                 return
             }
