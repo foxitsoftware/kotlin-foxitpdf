@@ -55,7 +55,6 @@ class MainActivity : FragmentActivity() {
 
     private var pdfViewCtrl: PDFViewCtrl? = null
     private var uiExtensionsManager: UIExtensionsManager? = null
-    private var layoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
     private var searchModule: SearchModule? = null
     private var docInfoModule: DocInfoModule? = null
     private var noteModule: NoteModule? = null
@@ -117,13 +116,8 @@ class MainActivity : FragmentActivity() {
                         outlineModule!!.show()
                 }
                 R.id.ChangeLayout -> {
-                    if (layoutMode == PDFViewCtrl.PAGELAYOUTMODE_SINGLE) {
-                        pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
-                        layoutMode = PDFViewCtrl.PAGELAYOUTMODE_CONTINUOUS
-                    } else {
-                        pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
-                        layoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
-                    }
+                    pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
+                    pdfViewCtrl!!.isContinuous = !pdfViewCtrl!!.isContinuous
                 }
                 R.id.Search -> {
                     if (searchModule == null) {
