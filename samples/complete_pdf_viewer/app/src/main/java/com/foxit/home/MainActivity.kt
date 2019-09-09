@@ -14,50 +14,41 @@
 package com.foxit.home
 
 import android.Manifest
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
 
 import com.foxit.App
-import com.foxit.pdfreader.PDFReaderActivity
-import com.foxit.pdfreader.fragment.BaseFragment
-import com.foxit.uiextensions.controls.toolbar.BaseBar
-import com.foxit.uiextensions.controls.toolbar.impl.BaseItemImpl
+import com.foxit.pdfreader.fragment.PDFReaderTabsFragment
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.local.LocalModule
-import com.foxit.uiextensions.modules.connectpdf.account.AccountModule
 import com.foxit.uiextensions.utils.AppFileUtil
+import com.foxit.uiextensions.utils.AppTheme
 
-class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback, IHomeModule.onFileItemEventListener, LocalModule.ICompareListener {
 
+    private var mReaderState = READER_STATE_HOME
     private var mLicenseValid = false
-    internal var filter: String = App.FILTER_DEFAULT
+    private var filter: String? = App.FILTER_DEFAULT
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mLicenseValid = App.instance().checkLicense()
-        if (!mLicenseValid)
+        if (!mLicenseValid) {
             return
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE)
-
-        if (intent != null) {
-            filter = intent.action
         }
 
-        initTabsButton(App.instance().getLocalModule(filter), this)
+        AppTheme.setThemeFullScreen(this)
+        AppTheme.setThemeNeedMenuKey(this)
+        setContentView(R.layout.activity_reader)
 
         if (Build.VERSION.SDK_INT >= 23) {
             val permission = ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -66,140 +57,175 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             }
         }
 
-        App.instance().copyGuideFiles(App.instance().getLocalModule(filter))
-        App.instance().getLocalModule(filter).setFileItemEventListener { fileExtra, filePath -> onFileSelected(fileExtra, filePath) }
-        AccountModule.getInstance().onCreate(this, savedInstanceState)
+        val intent = intent
+        if (intent != null) {
+            filter = intent.action
+        }
+        val fm = supportFragmentManager
+        val ft = fm.beginTransaction()
+        var homeFragment = getHomeFragment(fm)
+        var readerFragment = getReaderFragment(fm)
 
-        val view = App.instance().getLocalModule(filter).getContentView(this.applicationContext)
-        val parent = view.parent as ViewGroup?
-        parent?.removeView(view)
-        setContentView(view)
-
-        handleIntent(intent)
+        if (homeFragment == null) {
+            homeFragment = HomeFragment.newInstance(filter!!)
+            ft.add(R.id.reader_container, homeFragment, HomeFragment.FRAGMENT_NAME)
+        }
+        if (readerFragment == null) {
+            readerFragment = PDFReaderTabsFragment.newInstance(filter!!)
+            ft.add(R.id.reader_container, readerFragment, PDFReaderTabsFragment.FRAGMENT_NAME)
+        }
+        if (mReaderState == READER_STATE_HOME) {
+            ft.hide(readerFragment)
+            ft.show(homeFragment)
+        } else {
+            ft.hide(homeFragment)
+            ft.show(readerFragment)
+        }
+        ft.commit()
     }
 
-    override fun onDestroy() {
-        if (mLicenseValid) {
-            App.instance().unloadLocalModule(filter)
-            AccountModule.getInstance().onDestroy(this)
-        }
+    private fun getHomeFragment(fm: FragmentManager): HomeFragment? {
+        val fragment = fm.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
+        return if (fragment != null) {
+            fragment as HomeFragment
+        } else null
+    }
 
-        super.onDestroy()
+    private fun getReaderFragment(fm: FragmentManager): PDFReaderTabsFragment? {
+        val fragment = fm.findFragmentByTag(PDFReaderTabsFragment.FRAGMENT_NAME)
+        return if (fragment != null) {
+            fragment as PDFReaderTabsFragment
+        } else null
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (!mLicenseValid) {
+            return
+        }
         setIntent(intent)
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent?) {
         if (intent != null) {
-            val path = AppFileUtil.getFilePath(this, intent, IHomeModule.FILE_EXTRA)
+            val path = AppFileUtil.getFilePath(App.instance().applicationContext, intent, IHomeModule.FILE_EXTRA)
             if (path != null) {
-                onFileSelected(IHomeModule.FILE_EXTRA, path)
+                onFileItemClicked(IHomeModule.FILE_EXTRA, path)
             }
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (mLicenseValid && requestCode == REQUEST_EXTERNAL_STORAGE
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            App.instance().copyGuideFiles(App.instance().getLocalModule(filter))
-            App.instance().getLocalModule(filter).updateStoragePermissionGranted()
-            initTabsButton(App.instance().getLocalModule(filter), this)
+        if (mLicenseValid && requestCode == REQUEST_EXTERNAL_STORAGE) {
+            if (verifyPermissions(grantResults)) {
+                val fragment = supportFragmentManager.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
+                if (fragment is HomeFragment) {
+                    fragment.onRequestPermissionsResult(requestCode, permissions, grantResults)
+                }
+            }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun onFileSelected(fileExtra: String, filePath: String) {
+    private fun verifyPermissions(grantResults: IntArray): Boolean {
+        if (grantResults.size < 1) {
+            return false
+        }
+        for (grantResult in grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
+    }
+
+    override fun onFileItemClicked(fileExtra: String, filePath: String) {
+        mReaderState = READER_STATE_READ
+
+        val fm = supportFragmentManager
+        val ft = fm.beginTransaction()
+        val homeFragment = getHomeFragment(fm)
+        val readerFragment = getReaderFragment(fm)
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+
         val intent = Intent()
         intent.putExtra(fileExtra, filePath)
-        intent.putExtra("filter", filter)
-        intent.setClass(this.applicationContext, PDFReaderActivity::class.java)
-
-        if (App.instance().isMultiTab) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        intent.putExtra(HomeFragment.BUNDLE_KEY_FILTER, filter)
+        if (homeFragment != null) {
+            ft.hide(homeFragment)
         }
-        this.startActivity(intent)
+        if (readerFragment != null) {
+            readerFragment.openDocument(intent)
+            ft.show(readerFragment)
+        }
+        ft.commitAllowingStateLoss()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && App.instance().isMultiTab) {
-            val launcherIntent = Intent(Intent.ACTION_MAIN)
-            launcherIntent.addCategory(Intent.CATEGORY_HOME)
-            startActivity(launcherIntent)
-            return true
+        val fm = supportFragmentManager
+        if (mReaderState == READER_STATE_HOME) {
+            val homeFragment = getHomeFragment(fm)
+            if (homeFragment != null && homeFragment.onKeyDown(this, keyCode, event)) {
+                return true
+            }
+        } else {
+            val readerFragment = getReaderFragment(fm)
+            if (readerFragment != null && readerFragment.onKeyDown(this, keyCode, event)) {
+                return true
+            }
         }
-        App.instance().onBack()
         return super.onKeyDown(keyCode, event)
     }
 
-    private fun initTabsButton(localModule: LocalModule, activity: Activity) {
-        var singleMultiBtn: BaseItemImpl? = App.instance().getTabsButton(filter) as BaseItemImpl?
-        if (singleMultiBtn != null) {
-            if (singleMultiBtn.contentView.parent == null) {
-                localModule.topToolbar.addView(singleMultiBtn, BaseBar.TB_Position.Position_RB)
+    fun changeReaderState(state: Int) {
+        mReaderState = state
+        val fm = supportFragmentManager
+        val ft = fm.beginTransaction()
+        val homeFragment = getHomeFragment(fm)
+        val readerFragment = getReaderFragment(fm)
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+
+        if (mReaderState == READER_STATE_HOME) {
+            if (readerFragment != null) {
+                ft.hide(readerFragment)
             }
-            return
-        }
-        singleMultiBtn = BaseItemImpl(this.applicationContext)
-        App.instance().setTabsButton(filter, singleMultiBtn)
-
-        if (App.instance().isMultiTab) {
-            singleMultiBtn.setImageResource(R.drawable.rd_multi_tab_selector)
-            singleMultiBtn.id = R.id.rd_multi_tab
+            if (homeFragment != null) {
+                ft.show(homeFragment)
+            }
         } else {
-            singleMultiBtn.setImageResource(R.drawable.rd_single_tab_selector)
-            singleMultiBtn.id = R.id.rd_single_tab
+            if (homeFragment != null) {
+                ft.hide(homeFragment)
+            }
+            if (readerFragment != null) {
+                ft.show(readerFragment)
+            }
         }
+        ft.commitAllowingStateLoss()
+    }
 
-        val finalSingleMultiBtn = singleMultiBtn
-        singleMultiBtn.setOnClickListener { v ->
-            val readerMode = if (!App.instance().isMultiTab) getString(R.string.fx_tabs_reader_mode) else getString(R.string.fx_single_reader_mode)
-            val msg = getString(R.string.fx_swith_reader_mode_toast, readerMode)
-            val title = ""
-            val dialog = AlertDialog.Builder(activity).setCancelable(true).setTitle(title)
-                    .setMessage(msg)
-                    .setPositiveButton(getString(R.string.fx_string_yes)
-                    ) { dialog, which ->
-                        if (v.id == R.id.rd_single_tab) {
-                            finalSingleMultiBtn.setImageResource(R.drawable.rd_multi_tab_selector)
-                            finalSingleMultiBtn.id = R.id.rd_multi_tab
-                            App.instance().setMultiTabFlag(true)
-                        } else if (v.id == R.id.rd_multi_tab) {
-                            finalSingleMultiBtn.setImageResource(R.drawable.rd_single_tab_selector)
-                            finalSingleMultiBtn.id = R.id.rd_single_tab
-                            App.instance().setMultiTabFlag(false)
-
-                            val mFragmentManager = App.instance().getTabsManager(filter).fragmentManager
-                            if (mFragmentManager != null) {
-                                val fragmentTransaction = mFragmentManager.beginTransaction()
-                                for ((_, value) in App.instance().getTabsManager(filter).fragmentMap) {
-                                    fragmentTransaction.remove(value)
-                                }
-                                fragmentTransaction.commitAllowingStateLoss()
-                            }
-                            if (App.instance().getTabsManager(filter).currentFragment != null && App.instance().getTabsManager(filter).currentFragment!!.getActivity() != null) {
-                                App.instance().getTabsManager(filter).currentFragment!!.getActivity()!!.finish()
-                            }
-                            App.instance().getTabsManager(filter).currentFragment = null
-                            App.instance().getTabsManager(filter).clearFragment()
-                        }
-                        App.instance().getTabsManager(filter).fragmentManager = null
-                        App.instance().getMultiTabView(filter).resetData()
-
-                        dialog.dismiss()
-                    }.setNegativeButton(getString(R.string.fx_string_no)
-                    ) { dialog, which -> dialog.dismiss() }.create()
-            dialog.show()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val fm = supportFragmentManager
+        val fragment = getHomeFragment(fm)
+        fragment?.handleActivityResult(requestCode, resultCode, data)
+        val readerFragment = getReaderFragment(fm)
+        if (readerFragment != null) {
+            readerFragment.handleActivityResult(requestCode, resultCode, data)
         }
-        localModule.topToolbar.addView(singleMultiBtn, BaseBar.TB_Position.Position_RB)
+    }
+
+    override fun onCompareClicked(state: Int, filePath: String) {
+        if (state == LocalModule.ICompareListener.STATE_SUCCESS) {
+            onFileItemClicked(IHomeModule.FILE_EXTRA, filePath)
+        }
     }
 
     companion object {
         val REQUEST_EXTERNAL_STORAGE = 1
+        val READER_STATE_HOME = 1
+        val READER_STATE_READ = 2
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 }

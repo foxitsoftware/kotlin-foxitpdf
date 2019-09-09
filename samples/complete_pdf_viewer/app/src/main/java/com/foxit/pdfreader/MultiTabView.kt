@@ -53,7 +53,9 @@ class MultiTabView {
     }
 
     fun registerTabEventListener(listener: ITabEventListener) {
-        mTabEventListeners.add(listener)
+        if (!mTabEventListeners.contains(listener)){
+            mTabEventListeners.add(listener);
+        }
     }
 
     fun unregisterTabEventListener(listener: ITabEventListener) {

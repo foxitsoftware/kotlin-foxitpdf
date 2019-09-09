@@ -39,20 +39,6 @@
                 <data android:mimeType="application/pdf"></data>
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.foxit.pdfreader.PDFReaderActivity"
-            android:configChanges="keyboardHidden|orientation|locale|layoutDirection|screenSize|screenLayout"
-            android:screenOrientation="fullSensor">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.VIEW"></action>-->
-                <!--<action android:name="android.intent.action.MAIN"></action>-->
-                <!--<category android:name="android.intent.category.DEFAULT"></category>-->
-                <!--<data android:mimeType="application/pdf"></data>-->
-            <!--</intent-filter>-->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"></meta-data>
-        </activity>
 
     </application>
 

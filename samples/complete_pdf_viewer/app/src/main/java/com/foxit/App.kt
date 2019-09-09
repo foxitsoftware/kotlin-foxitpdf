@@ -42,7 +42,7 @@ class App private constructor() {
 
     internal var mTabsManagers = HashMap<String, AppTabsManager>()
 
-    internal var mTabsButtons = HashMap<String, IBaseItem>()
+    internal var mTabsButtons = HashMap<String, IBaseItem?>()
 
     init {
         errCode = Library.initialize(sn, key)
@@ -130,7 +130,7 @@ class App private constructor() {
         }
     }
 
-    fun setTabsButton(filter: String, button: IBaseItem) {
+    fun setTabsButton(filter: String, button: IBaseItem?) {
         mTabsButtons[filter] = button
     }
 
@@ -145,8 +145,8 @@ class App private constructor() {
     }
 
     companion object {
-        private val sn = "BW3CdOL9RzR/4rAyb2+Ze4s5sP8katpRwE+DOEB3k2rQZtFD5HJG5Q=="
-        private val key = "ezJvj93HvBh39LusL0W0ja4g+PQUKROlWYrFaqfVeOP9qnxzhL01J+KHAmohNqVQ+DF+mvMHx0afiHvfYfpythLfEBEraoB6ODghaWXcBpU1+RmsaTiEau5SSVXbEg1tGbao3l6g7DLOSO3p4qazFrs/TvSy39FzXlmnGAGYf5vY3S4eKTqaRBYgzlJ526WedxUbq1BYK8+QZYjA6GPncrqOGH5OAW6Pz0NpDLpoJG+ZHeDTdOR9QP05XiVwBWW6ol+/hO7lHNGNu20rXf1GpMxkDLscPoFG4+N9kLtThf2Z4KCEtOphI7v4Zb92eSOdT0LEoCv/NgCvbXzwHzbSvE6MqM+s6IWYN/KBVXqZQIcfQatk3+KT2EP2RUXb9QBDBD1rDa8b0YD8HJ9QF4Ip/oN7aiu9kaD7Ih9+oVv40WbIllNZVbtreEpw0fBGb9OsS1RFrGl33JbgO6MgPQSTziyTE6VaFvjFjVgsuQUeaRfAF+x51hTKqEpQCxR9RQWF/SL9DcWhpOc5gO7JfWv8ZXYh41TthV8TBmg+2MTtUHY7Jbug+lAsMZd8qTpcviwYGzbAroqbinxaxOprGK7sGnRKHw79JYhKKjpvli6xpaaXw6aggjEaC/DQ633pmWrETK2aWXBRBrfnjHRky7urcjkuzg6TIDjxQ9Gl4mV0Ue8V/I4FXmqSBd3km6p9yn7oMgrcxXtbznW547+uyE11h12exYlwlkGCFf/tHtH39l7LJ6wIJDY67arTMmafyIAEYDKABvje7oYkUZzFUM4Uei7My/Nx4aAjTNFWuIZrJUAfVa0EbSeOjhJfxi8tIDVmF0lDQfj9AKKu686SzzosAw97LO62iA+00fysyxby10xLTITnGb/wuwIElKXo3e+6rN3q+7hfj85iM7csgvD9im2JHTIZj6TV9xN0MsevzHzqEO2VMhdukPkdDp5EiGhDsPn4KS4oLekRL148IhN21oEA03tb/WVvWmkFzMIxsspvpg+HcBiwPYm6ahvcSf83fJjmRb+Gk0LOTMYLCXqRiGKQSOVD12X9Uu2VueKnIKoPRo46it0EJAR/YKlWrZY0DlICsLRsYXDg/lmOS2BFu+nyPRi9V9ND0WxjqbNWieEJmf4wz1TR3VTL1BSBcqBq+SXVXLnuDjbuzulrjtIXS3UG5VPpwAX+/wVN3F5gUklRr5DJ7KiG7MM997QsTQpMwPe++zlVDmucBJ24HzuIhVw="
+        private val sn = "ptdYvfJKfJI06xrDhS1piwU+L1J8HIojWN350Cmyhj5hR8byu+uRVQ=="
+        private val key = "ezJvjl3GtGh397voL2Xkb3kutv+31UPMKx4UUPMGs3rntpNxieh6l2mC/z+riZ22Dv2cwp8pAAIvGQDbBE5R7wdG50qvdPq6gDSL+bHZNSqWEJEc/HmGcW93mzbwpxkqO0fn54buD6tHAhTw2gfMhbJRInGo0pFzRk/zJYd2Bi/rSZCwqvAij9SIX25bM7WeRxX7qPFYK5/ApEzBCh9ndbqOeH5PgW+Pz0PvTLJoJG+ZnQ7tsb596qrt07ngxqcAikoIwWq+hgstTljeDTV+GVEGSD81T0cdru18Gx8rus3wsCOXfTQmYZ3kZnCi5MG/f/Ams0vYFUe5lYIreT46cmFDbQUKtXg/p8yoQw+DECqciJKdT3MZXAx0s2wFOvNMJ7Z5Gxlxjb3MUrx5lPIdIZDQ9zO882Co+uECQEewioovulJWLoSHsFskCXvGSOgsTMRCrml3wJ1mOt3hT8T8CmsMsKfgdDqYbjrZOTpSUImq2EPjVS3KsrxIxorh7awh9nloRyFsrohXOW19+azLobZauEwCncrWdXpLhe8/zzaxQ9vyy5gJEAG820+vFpToDW03L2sWR1dDKC13wg5r1zIwZ9Xdfmpd1sFgGFa/VGUd3835gfd/QcURM2mWBbPqtxB0HRHOL9repYaoky3dme3Rot6C0TEKZyOMYXtuLVgnAweVUkoh4Lcb3Q3UVPzd0lv5fVvcLRHUFbJAZRnc4lwMhb3EeUjyGdZ5ADQqrwvOpFg40KRo3BZYM/iabF5Cd3UYUkMFF+Pq4m+9ZHGu9xgzxce9NEyuAz3DVThIJGVv+a4PQdLhLAvHLkUBrBvgXmS2WVuvxIMyK+rNCbnS25i45cek31nmoHVFB6GBuZO4KFCzMxrRBEOto5Fv/7OO4105+s39jUGnupqRkYIGm/aRDbUiExprG6tW3NsCqaxG+1guO+LIz6QJcklOiEY+Z43itg9uSSAicn7KteoPuqJ3+S6xxhjaa0wmLRmQXcQgdHu52om08yKmYsIf65VUlTf/kw3T6ay4lpnpBXl5PgtZg6cJq+peJhJXl0CukMQtHAQPgWbGgUkFHY/qthm7UoqSbv1lIW1v7Sva7KT3ZzG2XyY9PKr47Jks3rrexuyzh+zHFEAx+HTAnrPWts57T5yvvJE3AvWltKwpM4HVpta9Y+EouAT50uSIJnkR7uwP+E2fh44/jH+rw9LVu28me6HnhHUOoCIWJ+zeaunoRP8pdtWV7y/MgF1VYcql3og7I+/Uyg=="
         private val INSTANCE = App()
         fun instance(): App {
             return INSTANCE
