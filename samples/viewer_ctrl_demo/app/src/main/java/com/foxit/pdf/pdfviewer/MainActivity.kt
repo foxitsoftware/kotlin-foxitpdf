@@ -47,6 +47,7 @@ import com.foxit.uiextensions.annots.textmarkup.strikeout.StrikeoutModule
 import com.foxit.uiextensions.annots.textmarkup.underline.UnderlineModule
 import com.foxit.uiextensions.modules.*
 import com.foxit.uiextensions.modules.connectpdf.account.AccountModule
+import com.foxit.uiextensions.modules.doc.docinfo.DocInfoModule
 import com.foxit.uiextensions.modules.panel.annot.AnnotPanelModule
 import com.foxit.uiextensions.modules.thumbnail.ThumbnailModule
 import com.foxit.uiextensions.utils.UIToast

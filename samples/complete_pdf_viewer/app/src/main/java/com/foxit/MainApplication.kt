@@ -14,21 +14,28 @@
 package com.foxit
 
 import android.app.Application
+import android.content.Context
 import android.content.res.Configuration
+import android.support.multidex.MultiDex
 import com.foxit.sdk.Localization
 
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         App.instance().applicationContext = this
-        Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this));
+        Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this))
         if (!App.instance().checkLicense()) {
-            return;
+            return
         }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this));
+        Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this))
+    }
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
     }
 }
