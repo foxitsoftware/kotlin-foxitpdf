@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2018, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -17,12 +17,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 
 import com.foxit.pdf.function.Annotation
 import com.foxit.pdf.function.Common
@@ -198,8 +198,8 @@ class MainActivity : FragmentActivity() {
     }
 
     companion object {
-        private val sn = "BW3CdOL9RzR/4rAyb2+Ze4s5sP8katpRwE+DOEB3k2rQZtFD5HJG5Q=="
-        private val key = "ezJvj93HvBh39LusL0W0ja4g+PQUKROlWYrFaqfVeOP9qnxzhL01J+KHAmohNqVQ+DF+mvMHx0afiHvfYfpythLfEBEraoB6ODghaWXcBpU1+RmsaTiEau5SSVXbEg1tGbao3l6g7DLOSO3p4qazFrs/TvSy39FzXlmnGAGYf5vY3S4eKTqaRBYgzlJ526WedxUbq1BYK8+QZYjA6GPncrqOGH5OAW6Pz0NpDLpoJG+ZHeDTdOR9QP05XiVwBWW6ol+/hO7lHNGNu20rXf1GpMxkDLscPoFG4+N9kLtThf2Z4KCEtOphI7v4Zb92eSOdT0LEoCv/NgCvbXzwHzbSvE6MqM+s6IWYN/KBVXqZQIcfQatk3+KT2EP2RUXb9QBDBD1rDa8b0YD8HJ9QF4Ip/oN7aiu9kaD7Ih9+oVv40WbIllNZVbtreEpw0fBGb9OsS1RFrGl33JbgO6MgPQSTziyTE6VaFvjFjVgsuQUeaRfAF+x51hTKqEpQCxR9RQWF/SL9DcWhpOc5gO7JfWv8ZXYh41TthV8TBmg+2MTtUHY7Jbug+lAsMZd8qTpcviwYGzbAroqbinxaxOprGK7sGnRKHw79JYhKKjpvli6xpaaXw6aggjEaC/DQ633pmWrETK2aWXBRBrfnjHRky7urcjkuzg6TIDjxQ9Gl4mV0Ue8V/I4FXmqSBd3km6p9yn7oMgrcxXtbznW547+uyE11h12exYlwlkGCFf/tHtH39l7LJ6wIJDY67arTMmafyIAEYDKABvje7oYkUZzFUM4Uei7My/Nx4aAjTNFWuIZrJUAfVa0EbSeOjhJfxi8tIDVmF0lDQfj9AKKu686SzzosAw97LO62iA+00fysyxby10xLTITnGb/wuwIElKXo3e+6rN3q+7hfj85iM7csgvD9im2JHTIZj6TV9xN0MsevzHzqEO2VMhdukPkdDp5EiGhDsPn4KS4oLekRL148IhN21oEA03tb/WVvWmkFzMIxsspvpg+HcBiwPYm6ahvcSf83fJjmRb+Gk0LOTMYLCXqRiGKQSOVD12X9Uu2VueKnIKoPRo46it0EJAR/YKlWrZY0DlICsLRsYXDg/lmOS2BFu+nyPRi9V9ND0WxjqbNWieEJmf4wz1TR3VTL1BSBcqBq+SXVXLnuDjbuzulrjtIXS3UG5VPpwAX+/wVN3F5gUklRr5DJ7KiG7MM997QsTQpMwPe++zlVDmucBJ24HzuIhVw="
+        private val sn = "XmE4UnLG/IaLL6QwTqHtLVMGcBiJTeRm4fPIWPmzcWt3+hhXfbW5vg=="
+        private val key = "ezJvjl3GtGh397voL2Xkb3kutv9oSAOWRQ7cbJfN3y7VglVhz0T2xqzpSWcuWyR+pNaUYD3bs8Es82uVUUh2hXdnXA5MhQD0zlTI5AEgPxpHT7x+TEiQKeeTPfdOfea8Sw9sPPuasmPH8XtcKkdbgcgQQGgcz3CCZIAQdC9YKlNdKtIUTHp9VOeRKXFHWulsn3GyYQ+b2c8V1BjQJHFR+AXpQj1sxykcFQrbCrGGzZtupm2Sn9uxotXtJIpUOokx1y+XZeJ1ZeY72C/3/LlJvZ7EVtyx6agWuyjOqOLTah+Y0KC0quoBrJbTgvebddnygxHXwbBI8oyCNSaTzI4f41KxFnYA0YqfvLOAVOra434F4xQSXeGT2EPwRU279QBDFDxrDa8X0QD8HJ+wUN/+/+OMTZ7GXVeBZNFbUFTt4H5P7cTvdBxTxFCXJdaO54QvW5PLQ6tAUIh3ojOxalTNsBSM8KzTdHX774Q+uD6HWysE2rP0WW3qkjBDXRSniT2H5N32CcUXKa/M/avpHV6AXAOW7hi7fFQWRuV8Bz74wYU/oACWx1TteyVd0ukcd/LnTqoSPDILBftp35KdMYIJmqiCeFSqGdKfoQ6SRe1B9PA77ZFqzQWuzWVtrn9owEnb6Z8yEFHxmHucggf8veSsCWOY6JBvUpHhR/QabOI2GJ6xfb4NFojBdrSZwQrUVvwdb3ThYyx4+Kv2c0SpyQiv9dp1i+bqa//g5xX3p+wsyWKr3k9HXoGSicgDv9ShIgv8t6ekr264EeLvp0muL42ulEsRATz+8I2/rZcfCnLNv4lIgvgLTIQYalV3BIumgRvAoiXWCOBFpjUhpg8nL5IAZdjI5cWkn/x86+380oc8p86IKCCvIx7xBEesYxBg/7EO0123iDbDONxxI2MSM0AJ7Y/HgNiORyPNBWfcgV78pH8A6/dFwUq/Lz7igqpLHy2npaPCVg9+SSciQn7NtfULusJXRpJ9uqzHU2und1t3vZgaEm6o7yeaw/s5NwGWg8J92P0kOV/JyZHhsI5T69Ht0wyPjKLDDSAwOEfnKaHvSx7gx+X42uUGg8e5MLu6BWlCJk2qru5+V4pt7SvYLKP3JbG5XSY9PKjt8wilb6qFHCnRTaI4bZNT7uPI35/rVu0ts7AWlNCbA/3lVK+qNcF8LvUHQlP60QNOPVO6jzsR0g5bGdUTmec2pdW66G0CffmcvC57K9RldfHl1w4bo8sxNFhmi/SpnDDydG/XRzI6D/LE81pZ"
 
         private val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
