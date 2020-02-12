@@ -2,16 +2,17 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.foxit.pdf.pdfviewer"
         minSdkVersion 16
-        targetSdkVersion 27
-        versionCode 14
-        versionName "7.1.0"
-        }
+        targetSdkVersion 28
+        versionCode 15
+        versionName "7.2.0"
+        multiDexEnabled true
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -29,15 +30,17 @@ repositories{
 }
 
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation (name: 'FoxitRDK', ext: 'aar')
     implementation(name:'FoxitRDKUIExtensions', ext:'aar')
     implementation 'com.edmodo:cropper:1.0.1'
-    implementation('com.microsoft.aad:adal:1.1.16') {}
+    implementation('com.microsoft.aad:adal:1.16.3') {}
     implementation(name: 'RMSSDK-4.2-release', ext: 'aar')
     implementation(name: 'rms-sdk-ui', ext: 'aar')
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.64'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
