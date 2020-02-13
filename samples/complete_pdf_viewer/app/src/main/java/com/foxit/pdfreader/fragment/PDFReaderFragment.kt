@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -18,11 +18,11 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 
 import com.foxit.App
 import com.foxit.home.HomeFragment
@@ -165,7 +165,7 @@ class PDFReaderFragment : BaseFragment() {
             val fragmentManager = App.instance().getTabsManager(filter).fragmentManager
             val fragmentTransaction = fragmentManager!!.beginTransaction()
             val currentFrag = App.instance().getTabsManager(filter).currentFragment
-            fragmentTransaction.hide(currentFrag).commitAllowingStateLoss()
+            fragmentTransaction.hide(currentFrag!!).commitAllowingStateLoss()
 
             (activity as MainActivity).changeReaderState(MainActivity.READER_STATE_HOME)
             return@BackEventListener true
@@ -424,11 +424,11 @@ class PDFReaderFragment : BaseFragment() {
         }
     }
 
-    override fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         mUiExtensionsManager!!.handleActivityResult(activity, requestCode, resultCode, data)
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (mFolderSelectDialog != null && mFolderSelectDialog!!.isShowing) {
             mFolderSelectDialog!!.setHeight(mFolderSelectDialog!!.dialogHeight)

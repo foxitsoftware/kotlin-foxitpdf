@@ -14,13 +14,13 @@
 package com.foxit.pdfreader.fragment
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import com.foxit.uiextensions.UIExtensionsManager
 import android.content.Intent
+import androidx.fragment.app.Fragment
 
 open class BaseFragment : Fragment() {
 
@@ -83,7 +83,7 @@ open class BaseFragment : Fragment() {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    open fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    open fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
     }
 

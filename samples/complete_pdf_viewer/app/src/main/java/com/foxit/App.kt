@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -145,8 +145,8 @@ class App private constructor() {
     }
 
     companion object {
-        private val sn = "ptdYvfJKfJI06xrDhS1piwU+L1J8HIojWN350Cmyhj5hR8byu+uRVQ=="
-        private val key = "ezJvjl3GtGh397voL2Xkb3kutv+31UPMKx4UUPMGs3rntpNxieh6l2mC/z+riZ22Dv2cwp8pAAIvGQDbBE5R7wdG50qvdPq6gDSL+bHZNSqWEJEc/HmGcW93mzbwpxkqO0fn54buD6tHAhTw2gfMhbJRInGo0pFzRk/zJYd2Bi/rSZCwqvAij9SIX25bM7WeRxX7qPFYK5/ApEzBCh9ndbqOeH5PgW+Pz0PvTLJoJG+ZnQ7tsb596qrt07ngxqcAikoIwWq+hgstTljeDTV+GVEGSD81T0cdru18Gx8rus3wsCOXfTQmYZ3kZnCi5MG/f/Ams0vYFUe5lYIreT46cmFDbQUKtXg/p8yoQw+DECqciJKdT3MZXAx0s2wFOvNMJ7Z5Gxlxjb3MUrx5lPIdIZDQ9zO882Co+uECQEewioovulJWLoSHsFskCXvGSOgsTMRCrml3wJ1mOt3hT8T8CmsMsKfgdDqYbjrZOTpSUImq2EPjVS3KsrxIxorh7awh9nloRyFsrohXOW19+azLobZauEwCncrWdXpLhe8/zzaxQ9vyy5gJEAG820+vFpToDW03L2sWR1dDKC13wg5r1zIwZ9Xdfmpd1sFgGFa/VGUd3835gfd/QcURM2mWBbPqtxB0HRHOL9repYaoky3dme3Rot6C0TEKZyOMYXtuLVgnAweVUkoh4Lcb3Q3UVPzd0lv5fVvcLRHUFbJAZRnc4lwMhb3EeUjyGdZ5ADQqrwvOpFg40KRo3BZYM/iabF5Cd3UYUkMFF+Pq4m+9ZHGu9xgzxce9NEyuAz3DVThIJGVv+a4PQdLhLAvHLkUBrBvgXmS2WVuvxIMyK+rNCbnS25i45cek31nmoHVFB6GBuZO4KFCzMxrRBEOto5Fv/7OO4105+s39jUGnupqRkYIGm/aRDbUiExprG6tW3NsCqaxG+1guO+LIz6QJcklOiEY+Z43itg9uSSAicn7KteoPuqJ3+S6xxhjaa0wmLRmQXcQgdHu52om08yKmYsIf65VUlTf/kw3T6ay4lpnpBXl5PgtZg6cJq+peJhJXl0CukMQtHAQPgWbGgUkFHY/qthm7UoqSbv1lIW1v7Sva7KT3ZzG2XyY9PKr47Jks3rrexuyzh+zHFEAx+HTAnrPWts57T5yvvJE3AvWltKwpM4HVpta9Y+EouAT50uSIJnkR7uwP+E2fh44/jH+rw9LVu28me6HnhHUOoCIWJ+zeaunoRP8pdtWV7y/MgF1VYcql3og7I+/Uyg=="
+        private val sn = "XmE4UnLG/IaLL6QwTqHtLVMGcBiJTeRm4fPIWPmzcWt3+hhXfbW5vg=="
+        private val key = "ezJvjl3GtGh397voL2Xkb3kutv9oSAOWRQ7cbJfN3y7VglVhz0T2xqzpSWcuWyR+pNaUYD3bs8Es82uVUUh2hXdnXA5MhQD0zlTI5AEgPxpHT7x+TEiQKeeTPfdOfea8Sw9sPPuasmPH8XtcKkdbgcgQQGgcz3CCZIAQdC9YKlNdKtIUTHp9VOeRKXFHWulsn3GyYQ+b2c8V1BjQJHFR+AXpQj1sxykcFQrbCrGGzZtupm2Sn9uxotXtJIpUOokx1y+XZeJ1ZeY72C/3/LlJvZ7EVtyx6agWuyjOqOLTah+Y0KC0quoBrJbTgvebddnygxHXwbBI8oyCNSaTzI4f41KxFnYA0YqfvLOAVOra434F4xQSXeGT2EPwRU279QBDFDxrDa8X0QD8HJ+wUN/+/+OMTZ7GXVeBZNFbUFTt4H5P7cTvdBxTxFCXJdaO54QvW5PLQ6tAUIh3ojOxalTNsBSM8KzTdHX774Q+uD6HWysE2rP0WW3qkjBDXRSniT2H5N32CcUXKa/M/avpHV6AXAOW7hi7fFQWRuV8Bz74wYU/oACWx1TteyVd0ukcd/LnTqoSPDILBftp35KdMYIJmqiCeFSqGdKfoQ6SRe1B9PA77ZFqzQWuzWVtrn9owEnb6Z8yEFHxmHucggf8veSsCWOY6JBvUpHhR/QabOI2GJ6xfb4NFojBdrSZwQrUVvwdb3ThYyx4+Kv2c0SpyQiv9dp1i+bqa//g5xX3p+wsyWKr3k9HXoGSicgDv9ShIgv8t6ekr264EeLvp0muL42ulEsRATz+8I2/rZcfCnLNv4lIgvgLTIQYalV3BIumgRvAoiXWCOBFpjUhpg8nL5IAZdjI5cWkn/x86+380oc8p86IKCCvIx7xBEesYxBg/7EO0123iDbDONxxI2MSM0AJ7Y/HgNiORyPNBWfcgV78pH8A6/dFwUq/Lz7igqpLHy2npaPCVg9+SSciQn7NtfULusJXRpJ9uqzHU2und1t3vZgaEm6o7yeaw/s5NwGWg8J92P0kOV/JyZHhsI5T69Ht0wyPjKLDDSAwOEfnKaHvSx7gx+X42uUGg8e5MLu6BWlCJk2qru5+V4pt7SvYLKP3JbG5XSY9PKjt8wilb6qFHCnRTaI4bZNT7uPI35/rVu0ts7AWlNCbA/3lVK+qNcF8LvUHQlP60QNOPVO6jzsR0g5bGdUTmec2pdW66G0CffmcvC57K9RldfHl1w4bo8sxNFhmi/SpnDDydG/XRzI6D/LE81pZ"
         private val INSTANCE = App()
         fun instance(): App {
             return INSTANCE

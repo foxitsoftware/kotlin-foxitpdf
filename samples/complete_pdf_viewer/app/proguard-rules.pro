@@ -15,3 +15,21 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-dontwarn com.foxit.sdk.**
+-keep class com.foxit.sdk.**{ *;}
+
+-dontwarn com.microsoft.rightsmanagement.**
+-keep class com.microsoft.rightsmanagement.** {*;}
+
+-keep public class com.microsoft.rightsmanagement.R$* {
+    public static final int *;
+}
+
+-dontwarn com.microsoft.aad.adal.**
+-keep class com.microsoft.aad.adal.** {*;}
+
+-dontwarn com.edmodo.cropper.**
+-keep class com.edmodo.cropper.** {*;}
+
+-dontwarn org.bouncycastle.**
+-keep class org.bouncycastle.** {*;}

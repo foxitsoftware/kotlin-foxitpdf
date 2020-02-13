@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.foxit.home">
 
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -23,7 +24,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:largeHeap="true"
-        android:theme="@style/AppTheme">
+        tools:replace="android:theme"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale|layoutDirection|screenLayout"
             android:launchMode="singleTop"

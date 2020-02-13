@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -18,22 +18,23 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.foxit.App
 import com.foxit.pdfreader.fragment.PDFReaderTabsFragment
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.local.LocalModule
+import com.foxit.uiextensions.modules.scan.IPDFScanManagerListener
 import com.foxit.uiextensions.utils.AppFileUtil
 import com.foxit.uiextensions.utils.AppTheme
 
-class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback, IHomeModule.onFileItemEventListener, LocalModule.ICompareListener {
+
+class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback,
+        IHomeModule.onFileItemEventListener, LocalModule.ICompareListener, IPDFScanManagerListener {
 
     private var mReaderState = READER_STATE_HOME
     private var mLicenseValid = false
@@ -205,20 +206,25 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         ft.commitAllowingStateLoss()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val fm = supportFragmentManager
         val fragment = getHomeFragment(fm)
         fragment?.handleActivityResult(requestCode, resultCode, data)
         val readerFragment = getReaderFragment(fm)
-        if (readerFragment != null) {
-            readerFragment.handleActivityResult(requestCode, resultCode, data)
-        }
+        readerFragment?.handleActivityResult(requestCode, resultCode, data)
+
     }
 
     override fun onCompareClicked(state: Int, filePath: String) {
         if (state == LocalModule.ICompareListener.STATE_SUCCESS) {
             onFileItemClicked(IHomeModule.FILE_EXTRA, filePath)
+        }
+    }
+
+    override fun onDocumentAdded(errorCode: Int, path: String?) {
+        if (errorCode == IPDFScanManagerListener.e_ErrSuccess) {
+            onFileItemClicked(IHomeModule.FILE_EXTRA, path!!)
         }
     }
 

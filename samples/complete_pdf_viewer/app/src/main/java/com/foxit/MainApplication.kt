@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -16,7 +16,7 @@ package com.foxit
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
-import android.support.multidex.MultiDex
+import androidx.multidex.MultiDex
 import com.foxit.sdk.Localization
 
 class MainApplication : Application() {

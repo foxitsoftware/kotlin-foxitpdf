@@ -21,27 +21,37 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentTransaction
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
+import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 
 import com.foxit.App
+import com.foxit.uiextensions.controls.dialog.AppDialogManager
 import com.foxit.uiextensions.controls.toolbar.BaseBar
 import com.foxit.uiextensions.controls.toolbar.impl.BaseItemImpl
 import com.foxit.uiextensions.home.IHomeModule
+import com.foxit.uiextensions.home.IHomeModule.onFileItemEventListener
 import com.foxit.uiextensions.home.local.LocalModule
-import com.foxit.uiextensions.modules.connectpdf.account.AccountModule
+import com.foxit.uiextensions.modules.scan.IPDFScanManagerListener
+import com.foxit.uiextensions.modules.scan.PDFScanManager
+import com.foxit.uiextensions.utils.AppResource
+import com.foxit.uiextensions.utils.AppUtil
+import com.foxit.uiextensions.utils.UIToast
+
 
 class HomeFragment : Fragment() {
 
     private var mRootView: ViewGroup? = null
     private var mOnFileItemEventListener: IHomeModule.onFileItemEventListener? = null
+    private var mScanListener: IPDFScanManagerListener? = null
 
     private var filter: String? = App.FILTER_DEFAULT
 
@@ -51,9 +61,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
-        mOnFileItemEventListener = context as IHomeModule.onFileItemEventListener?
+        if (context is onFileItemEventListener) mOnFileItemEventListener = context
+        if (context is IPDFScanManagerListener) mScanListener = context
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,7 +83,6 @@ class HomeFragment : Fragment() {
             val compareListener = activity as LocalModule.ICompareListener?
             compareListener?.onCompareClicked(state, filePath)
         }
-        AccountModule.getInstance().onCreate(activity, savedInstanceState)
 
         val view = App.instance().getLocalModule(filter!!).getContentView(App.instance().applicationContext)
         val parent = view.parent as ViewGroup?
@@ -80,7 +90,65 @@ class HomeFragment : Fragment() {
         mRootView = RelativeLayout(App.instance().applicationContext)
         mRootView!!.addView(view, RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup
                 .LayoutParams.MATCH_PARENT))
+
+        val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+        val ivScan = ImageView(getContext())
+        ivScan.setImageResource(R.drawable.fx_floatbutton_scan);
+        ivScan.setOnClickListener{
+            if (!PDFScanManager.isInitializeScanner()) {
+                val framework1: Long = 0
+                val framework2: Long = 0
+                PDFScanManager.initializeScanner(activity!!.application, framework1, framework2)
+            }
+            if (!PDFScanManager.isInitializeCompression()) {
+                val compression1: Long = 0
+                val compression2: Long = 0
+                PDFScanManager.initializeCompression(activity!!.application, compression1, compression2)
+            }
+            if (PDFScanManager.isInitializeScanner() && PDFScanManager.isInitializeCompression()) {
+                showScannerList();
+            } else {
+                UIToast.getInstance(App.instance().applicationContext)
+                        .show(AppResource.getString(App.instance().applicationContext,R.string.rv_invalid_license));
+            }
+
+        }
+        PDFScanManager.registerManagerListener(mManagerListener);
+
+        layoutParams.bottomMargin = 80;
+        layoutParams.rightMargin = 50;
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        ivScan.setLayoutParams(layoutParams);
+        mRootView!!.addView(ivScan);
+
         return mRootView
+    }
+
+    private var mScannerList: DialogFragment? = null
+    private fun showScannerList() {
+        val fragmentManager = activity!!.supportFragmentManager
+        mScannerList = fragmentManager.findFragmentByTag("ScannerList") as DialogFragment?
+        if (mScannerList == null) mScannerList = PDFScanManager.createScannerFragment(null)
+        AppDialogManager.getInstance().showAllowManager(mScannerList, fragmentManager, "ScannerList", null)
+    }
+
+    private fun dismissScannerList() {
+        AppDialogManager.getInstance().dismiss(mScannerList)
+    }
+
+    private val mManagerListener = IPDFScanManagerListener { errorCode, path ->
+        if (mScanListener != null) {
+            dismissScannerList()
+            updateThumbnail(path)
+            mScanListener!!.onDocumentAdded(errorCode, path)
+        }
+    }
+
+    private fun updateThumbnail(path: String) {
+        if (!AppUtil.isEmpty(path)) {
+            App.instance().getLocalModule(filter!!).updateThumbnail(path)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -102,7 +170,7 @@ class HomeFragment : Fragment() {
     override fun onDestroy() {
         App.instance().getLocalModule(filter!!).unregisterFinishEditListener(mFinishEditListener)
         App.instance().unloadLocalModule(filter!!)
-        AccountModule.getInstance().onDestroy(activity)
+        PDFScanManager.unregisterManagerListener(mManagerListener)
         super.onDestroy()
     }
 
@@ -201,9 +269,9 @@ class HomeFragment : Fragment() {
         return false
     }
 
-    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent) {}
+    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {}
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         App.instance().getLocalModule(filter!!).onConfigurationChanged(newConfig)
     }

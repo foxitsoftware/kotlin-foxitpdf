@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -13,7 +13,7 @@
  */
 package com.foxit.pdfreader.fragment
 
-import android.support.v4.app.FragmentManager
+import androidx.fragment.app.FragmentManager
 
 import java.util.HashMap
 

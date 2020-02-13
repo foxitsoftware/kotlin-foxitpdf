@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2020, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -18,14 +18,14 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 
 import com.foxit.App
 import com.foxit.home.HomeFragment
@@ -324,7 +324,7 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val activity = activity ?: return
         if (isHidden)
@@ -343,7 +343,7 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
         }
     }
 
-    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val currentFrag = App.instance().getTabsManager(filter!!).currentFragment ?: return
         currentFrag.handleActivityResult(requestCode, resultCode, data)
