@@ -9,8 +9,8 @@ android {
         applicationId "com.foxit.pdf.function_demo"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 15
-        versionName "7.2.0"
+        versionCode 17
+        versionName "7.3.0"
     }
     buildTypes {
         release {
