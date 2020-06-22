@@ -47,7 +47,7 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
     private var mTabEventListener: MultiTabView.ITabEventListener? = object : MultiTabView.ITabEventListener {
         override fun onTabChanged(oldTabInfo: MultiTabView.TabInfo, newTabInfo: MultiTabView.TabInfo) {
             val fragment = App.instance().getTabsManager(filter!!).fragmentMap.get(oldTabInfo.tabTarget) as PDFReaderFragment
-            fragment.mUiExtensionsManager!!.stopHideToolbarsTimer()
+//            fragment.mUiExtensionsManager!!.stopHideToolbarsTimer()
             changeViewerState(fragment)
             filePath = newTabInfo.tabTarget
             App.instance().getTabsManager(filter!!).filePath = filePath
@@ -58,8 +58,8 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
             openMultiDocument(false)
             resetTabView(false)
 
-            newfragment.mUiExtensionsManager!!.mainFrame.showToolbars()
-            newfragment.mUiExtensionsManager!!.resetHideToolbarsTimer()
+//            newfragment.mUiExtensionsManager!!.mainFrame.showToolbars()
+//            newfragment.mUiExtensionsManager!!.resetHideToolbarsTimer()
         }
 
         override fun onTabRemoved(removedTab: MultiTabView.TabInfo, showTab: MultiTabView.TabInfo?) {
@@ -198,12 +198,12 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
             return
         }
         val oldPath = App.instance().getTabsManager(filter!!).filePath
-        if (oldPath != null) {
-            val oldFragment = App.instance().getTabsManager(filter!!).fragmentMap.get(oldPath) as PDFReaderFragment
-            if (oldFragment.isOpenSuccess) {
-                oldFragment.mUiExtensionsManager!!.stopHideToolbarsTimer()
-            }
-        }
+//        if (oldPath != null) {
+//            val oldFragment = App.instance().getTabsManager(filter!!).fragmentMap.get(oldPath) as PDFReaderFragment
+//            if (oldFragment.isOpenSuccess) {
+//                oldFragment.mUiExtensionsManager!!.stopHideToolbarsTimer()
+//            }
+//        }
 
         filePath = AppFileUtil.getFilePath(App.instance().applicationContext, intent, IHomeModule.FILE_EXTRA)
         App.instance().getTabsManager(filter!!).filePath = filePath

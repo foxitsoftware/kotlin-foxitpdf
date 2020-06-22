@@ -19,6 +19,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,9 +27,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.foxit.App
 import com.foxit.pdfreader.fragment.PDFReaderTabsFragment
+import com.foxit.pdfscan.IPDFScanManagerListener
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.local.LocalModule
-import com.foxit.uiextensions.modules.scan.IPDFScanManagerListener
 import com.foxit.uiextensions.utils.AppFileUtil
 import com.foxit.uiextensions.utils.AppTheme
 
@@ -181,6 +182,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     fun changeReaderState(state: Int) {
+        showSystemUI()
         mReaderState = state
         val fm = supportFragmentManager
         val ft = fm.beginTransaction()
@@ -225,6 +227,14 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onDocumentAdded(errorCode: Int, path: String?) {
         if (errorCode == IPDFScanManagerListener.e_ErrSuccess) {
             onFileItemClicked(IHomeModule.FILE_EXTRA, path!!)
+        }
+    }
+
+    private fun showSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
         }
     }
 

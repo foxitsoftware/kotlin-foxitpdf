@@ -15,6 +15,14 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep class com.google.android.material.** {*;}
+-keep class androidx.** {*;}
+-keep public class * extends androidx.**
+-keep interface androidx.** {*;}
+-dontwarn com.google.android.material.**
+-dontnote com.google.android.material.**
+-dontwarn androidx.**
+
 -dontwarn com.foxit.sdk.**
 -keep class com.foxit.sdk.**{ *;}
 
@@ -33,3 +41,7 @@
 
 -dontwarn org.bouncycastle.**
 -keep class org.bouncycastle.** {*;}
+
+-dontwarn com.foxitsoftware.mobile.**
+-keep class com.foxitsoftware.mobile.** {*;}
+-keep class com.luratech.** {*;}

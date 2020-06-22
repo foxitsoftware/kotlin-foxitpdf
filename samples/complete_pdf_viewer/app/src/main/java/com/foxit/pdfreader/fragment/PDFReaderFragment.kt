@@ -14,6 +14,7 @@
 package com.foxit.pdfreader.fragment
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
@@ -23,13 +24,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
-
 import com.foxit.App
 import com.foxit.home.HomeFragment
 import com.foxit.home.MainActivity
 import com.foxit.home.R
 import com.foxit.sdk.PDFViewCtrl
 import com.foxit.sdk.common.Constants
+import com.foxit.sdk.common.Constants.e_ErrSuccess
 import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.uiextensions.IPDFReader
 import com.foxit.uiextensions.Module
@@ -42,15 +43,8 @@ import com.foxit.uiextensions.controls.dialog.fileselect.UIFolderSelectDialog
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.local.LocalModule
 import com.foxit.uiextensions.modules.dynamicxfa.DynamicXFAModule
-import com.foxit.uiextensions.utils.AppDmUtil
-import com.foxit.uiextensions.utils.AppFileUtil
-import com.foxit.uiextensions.utils.AppResource
-import com.foxit.uiextensions.utils.AppUtil
-import com.foxit.uiextensions.utils.UIToast
-
+import com.foxit.uiextensions.utils.*
 import java.io.File
-
-import com.foxit.sdk.common.Constants.e_ErrSuccess
 
 class PDFReaderFragment : BaseFragment() {
     var pdfViewCtrl: PDFViewCtrl? = null
@@ -260,6 +254,10 @@ class PDFReaderFragment : BaseFragment() {
         }
 
         val hideSave = !pdfViewCtrl!!.isDynamicXFA && !mUiExtensionsManager!!.canModifyContents()
+        if (!hideSave && mUiExtensionsManager!!.isAutoSaveDoc) {
+            context?.let { saveToOriginalFile(it, callback) }
+            return
+        }
         val builder = AlertDialog.Builder(activity!!)
         val items: Array<String>
         if (hideSave) {
@@ -277,26 +275,7 @@ class PDFReaderFragment : BaseFragment() {
                 when (nWhich) {
                     0 // save
                     -> {
-                        isCloseDocAfterSaving = true
-                        val userSavePath = mUiExtensionsManager!!.savePath
-                        if (userSavePath != null && userSavePath.length > 0 && !userSavePath.equals(mDocPath!!, ignoreCase = true)) {
-                            val userSaveFile = File(userSavePath)
-                            val defaultSaveFile = File(mDocPath!!)
-                            if (userSaveFile.parent.equals(defaultSaveFile.parent, ignoreCase = true)) {
-                                isSaveDocInCurPath = true
-                                mSavePath = userSavePath
-                            } else {
-                                isSaveDocInCurPath = false
-                            }
-                            pdfViewCtrl!!.saveDoc(userSavePath, mUiExtensionsManager!!.saveDocFlag)
-                        } else {
-                            isSaveDocInCurPath = true
-                            pdfViewCtrl!!.saveDoc(cacheFile, mUiExtensionsManager!!.saveDocFlag)
-                        }
-                        isSaveDocInCurPath = true
-                        mProgressMsg = getString(R.string.fx_string_saving)
-                        mFragmentEvent = callback
-                        showProgressDialog()
+                        context?.let { saveToOriginalFile(it, callback) }
                     }
                     1 // save as
                     -> {
@@ -398,6 +377,29 @@ class PDFReaderFragment : BaseFragment() {
         mSaveAlertDlg = builder.create()
         mSaveAlertDlg!!.setCanceledOnTouchOutside(true)
         mSaveAlertDlg!!.show()
+    }
+
+    private fun saveToOriginalFile(context: Context, callback: IFragmentEvent) {
+        isCloseDocAfterSaving = true
+        val userSavePath = mUiExtensionsManager!!.savePath
+        if (userSavePath != null && userSavePath.length > 0 && !userSavePath.equals(mDocPath, ignoreCase = true)) {
+            val userSaveFile = File(userSavePath)
+            val defaultSaveFile = File(mDocPath)
+            if (userSaveFile.parent.equals(defaultSaveFile.parent, ignoreCase = true)) {
+                isSaveDocInCurPath = true
+                mSavePath = userSavePath
+            } else {
+                isSaveDocInCurPath = false
+            }
+            pdfViewCtrl!!.saveDoc(userSavePath, mUiExtensionsManager!!.saveDocFlag)
+        } else {
+            isSaveDocInCurPath = true
+            pdfViewCtrl!!.saveDoc(cacheFile, mUiExtensionsManager!!.saveDocFlag)
+        }
+        isSaveDocInCurPath = true
+        mProgressMsg = context.getString(R.string.fx_string_saving)
+        mFragmentEvent = callback
+        showProgressDialog()
     }
 
     private fun showProgressDialog() {

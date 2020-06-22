@@ -34,14 +34,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 
 import com.foxit.App
+import com.foxit.pdfscan.IPDFScanManagerListener
+import com.foxit.pdfscan.PDFScanManager
 import com.foxit.uiextensions.controls.dialog.AppDialogManager
 import com.foxit.uiextensions.controls.toolbar.BaseBar
 import com.foxit.uiextensions.controls.toolbar.impl.BaseItemImpl
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.IHomeModule.onFileItemEventListener
 import com.foxit.uiextensions.home.local.LocalModule
-import com.foxit.uiextensions.modules.scan.IPDFScanManagerListener
-import com.foxit.uiextensions.modules.scan.PDFScanManager
 import com.foxit.uiextensions.utils.AppResource
 import com.foxit.uiextensions.utils.AppUtil
 import com.foxit.uiextensions.utils.UIToast
