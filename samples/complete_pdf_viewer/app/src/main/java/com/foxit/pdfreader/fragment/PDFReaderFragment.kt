@@ -104,8 +104,8 @@ class PDFReaderFragment : BaseFragment() {
                 val h = mUiExtensionsManager!!.mainFrame.topToolbar.contentView.height
                 val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2 * h / 3)
                 params.topMargin = -10
-                val parent = App.instance().getMultiTabView(filter).tabView!!.getParent() as ViewGroup
-                parent.removeView(App.instance().getMultiTabView(filter).tabView)
+                val parent = App.instance().getMultiTabView(filter).tabView!!.getParent() as? ViewGroup
+                parent?.removeView(App.instance().getMultiTabView(filter).tabView)
                 mUiExtensionsManager!!.mainFrame.addSubViewToTopBar(App.instance().getMultiTabView(filter).tabView, 1, params)
             }
         }
@@ -114,7 +114,7 @@ class PDFReaderFragment : BaseFragment() {
 
         }
 
-        override fun onDocClosed(document: PDFDoc, errCode: Int) {
+        override fun onDocClosed(document: PDFDoc?, errCode: Int) {
             if (isSaveDocInCurPath) {
                 val file = File(currentFileCachePath!!)
                 val docFile = File(mDocPath!!)
@@ -133,9 +133,7 @@ class PDFReaderFragment : BaseFragment() {
                 updateThumbnail(mSavePath)
             }
 
-            if (mFragmentEvent != null) {
-                mFragmentEvent!!.onRemove()
-            }
+            mFragmentEvent?.onRemove()
         }
 
         override fun onDocWillSave(document: PDFDoc) {
@@ -159,9 +157,9 @@ class PDFReaderFragment : BaseFragment() {
             val fragmentManager = App.instance().getTabsManager(filter).fragmentManager
             val fragmentTransaction = fragmentManager!!.beginTransaction()
             val currentFrag = App.instance().getTabsManager(filter).currentFragment
-            fragmentTransaction.hide(currentFrag!!).commitAllowingStateLoss()
+            fragmentTransaction.hide(currentFrag!!).commit()
 
-            (activity as MainActivity).changeReaderState(MainActivity.READER_STATE_HOME)
+            (activity!! as MainActivity).changeReaderState(MainActivity.READER_STATE_HOME)
             return@BackEventListener true
         }
         false
@@ -225,10 +223,7 @@ class PDFReaderFragment : BaseFragment() {
         super.onDestroy()
         if (App.instance().isMultiTab) {
             mUiExtensionsManager!!.mainFrame.removeSubViewFromTopBar(App.instance().getMultiTabView(filter).tabView)
-            if (pdfViewCtrl != null) {
-                pdfViewCtrl!!.unregisterDocEventListener(mDocEventListener)
-            }
-
+            pdfViewCtrl?.unregisterDocEventListener(mDocEventListener)
             mUiExtensionsManager!!.backEventListener = null
         }
 

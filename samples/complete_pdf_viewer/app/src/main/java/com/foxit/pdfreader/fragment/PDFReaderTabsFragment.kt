@@ -168,13 +168,13 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
     }
 
     private fun changeReaderState(state: Int) {
-        (activity as MainActivity).changeReaderState(state)
+        (activity!! as MainActivity).changeReaderState(state)
     }
 
     private fun hideFragment(fragment: Fragment) {
         if (fragment.isVisible) {
             val fragmentTransaction = mFragmentManager!!.beginTransaction()
-            fragmentTransaction.hide(fragment).commitAllowingStateLoss()
+            fragmentTransaction.hide(fragment).commit()
         }
     }
 
@@ -240,7 +240,7 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
             fragmentTransaction.add(R.id.reader_container, fragment, SINGLE_DOC_TAG)
         }
 
-        fragmentTransaction.show(fragment).commitAllowingStateLoss()
+        fragmentTransaction.show(fragment).commit()
         App.instance().getTabsManager(filter!!).addFragment(filePath!!, fragment)
         App.instance().getTabsManager(filter!!).currentFragment = fragment
     }
@@ -284,7 +284,7 @@ class PDFReaderTabsFragment : Fragment(), UIExtensionsManager.OnFinishListener {
             }
         }
 
-        fragmentTransaction.show(fragment).commitAllowingStateLoss()
+        fragmentTransaction.show(fragment).commit()
         App.instance().getTabsManager(filter!!).currentFragment = fragment
     }
 

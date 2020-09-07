@@ -59,10 +59,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             }
         }
 
-        val intent = intent
-        if (intent != null) {
-            filter = intent.action
-        }
+        filter = intent?.action
         val fm = supportFragmentManager
         val ft = fm.beginTransaction()
         var homeFragment = getHomeFragment(fm)
@@ -162,7 +159,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             readerFragment.openDocument(intent)
             ft.show(readerFragment)
         }
-        ft.commitAllowingStateLoss()
+        ft.commit()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -205,7 +202,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 ft.show(readerFragment)
             }
         }
-        ft.commitAllowingStateLoss()
+        ft.commit()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

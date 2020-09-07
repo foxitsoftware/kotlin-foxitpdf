@@ -38,45 +38,34 @@ open class BaseFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onStart(activity)
-        }
+        mUiExtensionsManager?.onStart(activity)
+
     }
 
     override fun onStop() {
         super.onStop()
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onStop(activity)
-        }
+        mUiExtensionsManager?.onStop(activity)
     }
 
     override fun onPause() {
         super.onPause()
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onPause(activity)
-        }
+        mUiExtensionsManager?.onPause(activity)
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onHiddenChanged(hidden)
-        }
+        mUiExtensionsManager?.onHiddenChanged(hidden)
     }
 
     override fun onResume() {
         super.onResume()
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onResume(activity)
-        }
+        mUiExtensionsManager?.onResume(activity)
     }
 
     override fun onDetach() {
         super.onDetach()
         onFinishListener = null
-        if (mUiExtensionsManager != null) {
-            mUiExtensionsManager!!.onDestroy(activity)
-        }
+        mUiExtensionsManager?.onDestroy(activity)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
