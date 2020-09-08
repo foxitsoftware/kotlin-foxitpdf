@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.foxit.pdf.pdfviewer"
         minSdkVersion 16
-        targetSdkVersion 28
-        versionCode 17
-        versionName "7.3.0"
+        targetSdkVersion 29
+        versionCode 18
+        versionName "7.4.0"
         multiDexEnabled true
     }
     buildTypes {
@@ -30,8 +30,8 @@ repositories{
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation (name: 'FoxitRDK', ext: 'aar')
     implementation(name:'FoxitRDKUIExtensions', ext:'aar')

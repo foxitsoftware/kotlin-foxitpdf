@@ -109,8 +109,7 @@ class MainActivity : FragmentActivity() {
 
             when (itemId) {
                 R.id.Outline -> {
-                    if (outlineModule != null)
-                        outlineModule!!.show()
+                    outlineModule?.show()
                 }
                 R.id.ChangeLayout -> {
                     pdfViewCtrl!!.pageLayoutMode = PDFViewCtrl.PAGELAYOUTMODE_SINGLE
@@ -118,7 +117,6 @@ class MainActivity : FragmentActivity() {
                 }
                 R.id.Search -> {
                     if (searchModule == null) {
-
                         searchModule = uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_SEARCH) as SearchModule
                         if (searchModule == null) {
                             searchModule = SearchModule(mContext!!, uiExtensionsManager!!.rootView, pdfViewCtrl!!, uiExtensionsManager)
@@ -166,14 +164,10 @@ class MainActivity : FragmentActivity() {
                     uiExtensionsManager!!.currentToolHandler = squigglyModule!!.toolHandler
                 }
                 R.id.Annotations -> {
-                    if (annotPanelModule != null) {
-                        annotPanelModule!!.show()
-                    }
+                    annotPanelModule?.show()
                 }
                 R.id.Thumbnail -> {
-                    if (thumbnailModule != null) {
-                        thumbnailModule!!.show()
-                    }
+                    thumbnailModule?.show()
                 }
             }
             mode.finish()
@@ -289,45 +283,33 @@ class MainActivity : FragmentActivity() {
     }
 
     public override fun onStart() {
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onStart(this)
-        }
+        uiExtensionsManager?.onStart(this)
         super.onStart()
     }
 
     public override fun onStop() {
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onStop(this)
-        }
+        uiExtensionsManager?.onStop(this)
         super.onStop()
     }
 
     public override fun onPause() {
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onPause(this)
-        }
+        uiExtensionsManager?.onPause(this)
         super.onPause()
     }
 
     public override fun onResume() {
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onResume(this)
-        }
+        uiExtensionsManager?.onResume(this)
         super.onResume()
     }
 
     override fun onDestroy() {
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onDestroy(this)
-        }
+        uiExtensionsManager?.onDestroy(this)
         super.onDestroy()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (uiExtensionsManager != null) {
-            uiExtensionsManager!!.onConfigurationChanged(this, newConfig)
-        }
+        uiExtensionsManager?.onConfigurationChanged(this, newConfig)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -336,7 +318,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        pdfViewCtrl!!.handleActivityResult(requestCode, resultCode, data);
+        pdfViewCtrl?.handleActivityResult(requestCode, resultCode, data);
     }
 
     // Shows the system bars by removing all the flags
@@ -347,10 +329,8 @@ class MainActivity : FragmentActivity() {
         }
     }
     companion object {
-
-        private val sn = "XmE4UnLG/IaLL6QwTqHtLVMGcBiJTeRm4fPIWPmzcWt3+hhXfbW5vg=="
-        private val key = "ezJvjl3GtGh397voL2Xkb3kutv9oSAOWRQ7cbJfN3y7VglVhz0T2xqzpSWcuWyR+pNaUYD3bs8Es82uVUUh2hXdnXA5MhQD0zlTI5AEgPxpHT7x+TEiQKeeTPfdOfea8Sw9sPPuasmPH8XtcKkdbgcgQQGgcz3CCZIAQdC9YKlNdKtIUTHp9VOeRKXFHWulsn3GyYQ+b2c8V1BjQJHFR+AXpQj1sxykcFQrbCrGGzZtupm2Sn9uxotXtJIpUOokx1y+XZeJ1ZeY72C/3/LlJvZ7EVtyx6agWuyjOqOLTah+Y0KC0quoBrJbTgvebddnygxHXwbBI8oyCNSaTzI4f41KxFnYA0YqfvLOAVOra434F4xQSXeGT2EPwRU279QBDFDxrDa8X0QD8HJ+wUN/+/+OMTZ7GXVeBZNFbUFTt4H5P7cTvdBxTxFCXJdaO54QvW5PLQ6tAUIh3ojOxalTNsBSM8KzTdHX774Q+uD6HWysE2rP0WW3qkjBDXRSniT2H5N32CcUXKa/M/avpHV6AXAOW7hi7fFQWRuV8Bz74wYU/oACWx1TteyVd0ukcd/LnTqoSPDILBftp35KdMYIJmqiCeFSqGdKfoQ6SRe1B9PA77ZFqzQWuzWVtrn9owEnb6Z8yEFHxmHucggf8veSsCWOY6JBvUpHhR/QabOI2GJ6xfb4NFojBdrSZwQrUVvwdb3ThYyx4+Kv2c0SpyQiv9dp1i+bqa//g5xX3p+wsyWKr3k9HXoGSicgDv9ShIgv8t6ekr264EeLvp0muL42ulEsRATz+8I2/rZcfCnLNv4lIgvgLTIQYalV3BIumgRvAoiXWCOBFpjUhpg8nL5IAZdjI5cWkn/x86+380oc8p86IKCCvIx7xBEesYxBg/7EO0123iDbDONxxI2MSM0AJ7Y/HgNiORyPNBWfcgV78pH8A6/dFwUq/Lz7igqpLHy2npaPCVg9+SSciQn7NtfULusJXRpJ9uqzHU2und1t3vZgaEm6o7yeaw/s5NwGWg8J92P0kOV/JyZHhsI5T69Ht0wyPjKLDDSAwOEfnKaHvSx7gx+X42uUGg8e5MLu6BWlCJk2qru5+V4pt7SvYLKP3JbG5XSY9PKjt8wilb6qFHCnRTaI4bZNT7uPI35/rVu0ts7AWlNCbA/3lVK+qNcF8LvUHQlP60QNOPVO6jzsR0g5bGdUTmec2pdW66G0CffmcvC57K9RldfHl1w4bo8sxNFhmi/SpnDDydG/XRzI6D/LE81pZ"
-
+        private val sn = "l5uLRkyIIDIyKJQZBChK2tXW/BikAnJozYEi1ApEyOR7i8W3U0ZlKQ=="
+        private val key = "ezJvjl8mvB539NviuavWvpsxZwdMWZ2hvkmJNQZ8S/CwnxmS4c9F6U69I385uOe2wT4Fg2fJksQtXtnFsJ6lZR6RmsquC9T+GuC1YcZfAx/DRZivPTAkOaYoOwHQhGkkeTytiGg4KlolOVjyyRy5ZjzBBuwgODp1AcJAdTSvFlZnl+iCoYbPEKxUo/2+grZrhLICAXhrEioM4AwgIp1FxhQGlTLdv6OmuczqP0jt4IAEEJ1VhL5rh8X1fTGpx8fR8i0o0Ez/X307CCLaHBYLVXWMaZRn0XCsA1cOtcnD7XME1T4rHm4e4F+leLLPeylUoAMA/x1LwHj2yky9b2IclJxYcXRVdZOjCZsNPLpUDZS/UvAdTNrbkDl8fS/Vx75QOW+2z8//pjK4UR23WMi9yuvhXpfyi5Etv0aZDe969Pmc1vt2zK2Ddz2EAO5BslqcPDw2eBfCMBQL+iz3p9xg0XI9pAI6DnRDuqHkqHh6EVZ6zN20BupuDOdTg+PemU739fedBXY7TQz7ORE6BtzvPIlpyG1mNKC7A3bOIzyTDbVfSq3bPj5qoas7brtGTce1j0EHfzF3rzyFsKbvxcTcBRKzV+bAvtNofD4qPtqz7edHNbJKVcugoARzikVFW3dD7d14p7QUV+d6QkQf12KvzocGRfY1cHC/+Cey25k0+UtFQ/KdhaU/EVOfprWqeJLUyqX/GV9WX7I3A3OF8nTqeh7UpaOin8pA3T5k3tzAcnzFf9jFXjZeT1cRhClLSbWR4fGn+rxeLr2lwTOa9kBR1BY/iwItyY7uxCj1LcxtLKNC+BFRK4tXTsFlCjQPJOreF0oBxAhSp8dTmeXsdb/QVJMlR1iuJwqIWoxfg9+zHBNPUHpK33weRQ/j2gRPGBV2eW3+Wqcx+5VyB3PtCxaheJ3jMgXD2/1UBh24JVUVwgL0oQ3fi7EhleoALwQaulCWP5TTCOioPJFjVGBMo5BfH4o4rU1JNDse/QIauw1EkQQHlzfazCpU9gHnP4nBNKAgn+fNc+hwDBEP0dmlIEeHvy4kGEQQCwtMuV6Ezam1BAUwjKp8Lw5d2B/8d65mUCj1kZl2cXLEAnrwFCyZ8+RHe4XK+DZGCbwjzcyzJdQ+3qUrVgf9iseJm9XpOZp1azqo5nfOThl4lJAcEty7lsbXRpldNiFb8VE/hMkm/cFR9PNj40N4Zq+EvdiSO1ZwaEyM67OHwgo6i0QtGhp1SNA6Enq6OVNEy9J0QF5e2XT4UoZNN7roRKkP1ADvQA=="
 
         val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
