@@ -21,6 +21,7 @@ import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.fxcrt.PointF
 import com.foxit.sdk.common.fxcrt.RectF
 import com.foxit.sdk.pdf.PDFDoc
+import com.foxit.sdk.pdf.TextPage
 import com.foxit.sdk.pdf.TextSearch
 import com.foxit.sdk.pdf.annots.Annot
 import com.foxit.sdk.pdf.annots.Note
@@ -90,7 +91,7 @@ class Annotation(var context: Context, var pdfFilePath: String) {
         var textMarkupAnnot: TextMarkup? = null
         try {
             //Firstly, search the text.
-            textSearch = TextSearch(doc, null)
+            textSearch = TextSearch(doc, null, TextPage.e_ParseTextUseStreamOrder)
             if (textSearch == null || textSearch.isEmpty) {
                 Toast.makeText(context, context.getString(R.string.fx_create_text_search_error), Toast.LENGTH_LONG).show()
                 return null
