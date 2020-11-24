@@ -15,6 +15,8 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.function.Common.getFixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
 import com.foxit.pdf.main.R
 
 import com.foxit.sdk.pdf.Metadata
@@ -22,14 +24,14 @@ import com.foxit.sdk.pdf.Metadata
 import java.io.File
 import java.io.FileWriter
 
-class DocInfo(var context: Context, var path: String) {
+class DocInfo(var context: Context) {
 
     fun outputDocInfo() {
-        val doc = Common.loadPDFDoc(context, path, null) ?: return
+        val inputPath = getFixFolder() + "FoxitBigPreview.pdf"
+        val outputPath = getOutputFilesFolder(Common.DOCINFO) + "FoxitBigPreview_docinfo.txt"
+        val doc = Common.loadPDFDoc(context, inputPath, null) ?: return
 
-        val filenameWithoutPdf = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."))
-        val outputFilePath = Common.getOutputFilesFolder(Common.docInfoModuleName) + filenameWithoutPdf + "_docinfo.txt"
-        val txtFile = File(outputFilePath)
+        val txtFile = File(outputPath)
         try {
             val fileWriter = FileWriter(txtFile)
 
@@ -42,9 +44,10 @@ class DocInfo(var context: Context, var path: String) {
 
             var title: String? = String.format("Title :%s\r\n", metadata.getValues("Title").getAt(0))
             //If there is no title info in the document, it uses the file name instead.
-            if (title == null && title == "") {
-                title = filenameWithoutPdf
+            if (title.equals("")) {
+                title = Common.getFileNameWithoutExt(inputPath);
             }
+
             fileWriter.write(title!!)
 
             //author
@@ -57,10 +60,10 @@ class DocInfo(var context: Context, var path: String) {
             fileWriter.flush()
             fileWriter.close()
         } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.fx_failed_to_export_doc_error, path), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.fx_failed_to_export_doc_error, inputPath), Toast.LENGTH_LONG).show()
             return
         }
 
-        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputPath), Toast.LENGTH_LONG).show()
     }
 }

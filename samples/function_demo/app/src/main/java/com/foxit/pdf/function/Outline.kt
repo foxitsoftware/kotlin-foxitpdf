@@ -15,23 +15,23 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.function.Common.getFixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
+import com.foxit.pdf.function.Common.loadPDFDoc
 import com.foxit.pdf.main.R
 
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.Bookmark
 import com.foxit.sdk.pdf.PDFDoc
 
-class Outline(var context: Context, var pdfFilePath: String) {
+class Outline(var context: Context) {
 
     fun modifyOutline() {
-        val indexPdf = pdfFilePath.lastIndexOf(".")
-        val indexSep = pdfFilePath.lastIndexOf("/")
+        val inputPath = getFixFolder() + "Outline.pdf"
+        val outputPath = getOutputFilesFolder(Common.OUTLINE) + "Outline_edit.pdf"
 
-        val filenameWithoutPdf = pdfFilePath.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.getOutputFilesFolder(Common.outlineModuleName) + filenameWithoutPdf + "_edit.pdf"
+        val doc = loadPDFDoc(context, inputPath, null)
 
-        var doc: PDFDoc? = null
-        doc = Common.loadPDFDoc(context, pdfFilePath, null)
         if (doc == null || doc.isEmpty) {
             return
         }
@@ -41,7 +41,7 @@ class Outline(var context: Context, var pdfFilePath: String) {
             val firstChild = bookmarkRoot.firstChild
             modifyOutline(firstChild)
 
-            if (!doc.saveAs(outputFilePath, PDFDoc.e_SaveFlagNormal)) {
+            if (!doc.saveAs(outputPath, PDFDoc.e_SaveFlagNormal)) {
                 Toast.makeText(context, context.getString(R.string.fx_save_doc_error), Toast.LENGTH_LONG).show()
                 return
             }
@@ -49,7 +49,7 @@ class Outline(var context: Context, var pdfFilePath: String) {
             Toast.makeText(context, context.getString(R.string.fx_outline_run_error, e.message), Toast.LENGTH_LONG).show()
             return
         }
-        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputPath), Toast.LENGTH_LONG).show()
     }
 
     private fun modifyOutline(bookmark: Bookmark) {

@@ -15,43 +15,41 @@ package com.foxit.pdf.function
 
 import android.content.Context
 import android.widget.Toast
+import com.foxit.pdf.function.Common.getFixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
+import com.foxit.pdf.function.Common.loadPDFDoc
 import com.foxit.pdf.main.R
-
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.pdf.PDFPage
 import com.foxit.sdk.pdf.TextPage
-
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-class Pdf2text(var context: Context, var pdfFilePath: String) {
+
+class Pdf2text(var context: Context) {
 
     fun doPdfToText() {
-        val indexPdf = pdfFilePath.lastIndexOf(".")
-        val indexSep = pdfFilePath.lastIndexOf("/")
+        val inputPath = getFixFolder() + "FoxitBigPreview.pdf"
+        val outputPath = getOutputFilesFolder(Common.PDF_TO_TXT) + "FoxitBigPreview.txt"
 
-        val filenameWithoutPdf = pdfFilePath.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.getOutputFilesFolder(Common.pdf2textModuleName) + filenameWithoutPdf + ".txt"
-        var strText = ""
+        val strText = StringBuilder()
+        val doc = loadPDFDoc(context, inputPath, null)  ?: return
 
-        val doc = Common.loadPDFDoc(context, pdfFilePath, null) ?: return
-
-        var page: PDFPage? = null
         try {
             val pageCount = doc.pageCount
 
             //Traverse pages and get the text string.
             for (i in 0 until pageCount) {
-                page = Common.loadPage(context, doc, i, PDFPage.e_ParsePageNormal)
+                val page = Common.loadPage(context, doc, i, PDFPage.e_ParsePageNormal)
                 if (page == null || page.isEmpty) {
                     continue
                 }
 
                 val textSelect = TextPage(page, TextPage.e_ParseTextNormal)
-                if (textSelect == null || textSelect.isEmpty) continue
+                if (textSelect.isEmpty) continue
 
-                strText += textSelect.getChars(0, textSelect.charCount) + "\r\n"
+                strText.append(textSelect.getChars(0, textSelect.charCount) + "\r\n")
                 page.delete()
             }
         } catch (e: PDFException) {
@@ -62,9 +60,9 @@ class Pdf2text(var context: Context, var pdfFilePath: String) {
         //Output the text string to the TXT file.
         var fileWriter: FileWriter? = null
         try {
-            val fileTxt = File(outputFilePath)
+            val fileTxt = File(outputPath)
             fileWriter = FileWriter(fileTxt)
-            fileWriter.write(strText)
+            fileWriter.write(strText.toString())
             fileWriter.flush()
             fileWriter.close()
         } catch (e: IOException) {
@@ -72,6 +70,6 @@ class Pdf2text(var context: Context, var pdfFilePath: String) {
             return
         }
 
-        Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, Common.getSuccessInfo(context, outputPath), Toast.LENGTH_LONG).show()
     }
 }

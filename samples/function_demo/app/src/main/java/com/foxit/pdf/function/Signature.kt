@@ -17,24 +17,27 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
+import com.foxit.pdf.function.Common.getFixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
+import com.foxit.pdf.function.Common.loadPDFDoc
 import com.foxit.pdf.main.R
-
-import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.PDFException
+import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.common.fxcrt.RectF
 import com.foxit.sdk.pdf.PDFPage
+import java.util.*
 
-import java.util.Calendar
 
-class Signature(var context: Context, var docPath: String, var certPath: String, var certPassword: String) {
+class Signature(var context: Context) {
 
     fun addSignature(pageIndex: Int) {
-        val indexPdf = docPath.lastIndexOf(".")
-        val indexSep = docPath.lastIndexOf("/")
-        val filenameWithoutPdf = docPath.substring(indexSep + 1, indexPdf)
-        val outputFilePath = Common.getOutputFilesFolder(Common.signatureModuleName) + filenameWithoutPdf + "_add.pdf"
-        val doc = Common.loadPDFDoc(context, docPath, null) ?: return
+        val inputPath = getFixFolder() + "AboutFoxit.pdf"
+        val certPath = getFixFolder() + "foxit_all.pfx"
+        val certPassword = "123456"
+
+        val outputPath = getOutputFilesFolder(Common.SIGNATURE) + "Sample_addSign.pdf"
+        val doc = loadPDFDoc(context, inputPath, null) ?: return
 
         try {
             val filter = "Adobe.PPKLite"
@@ -97,7 +100,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
 
             signature.appearanceFlags = flags
 
-            var progressive = signature.startSign(certPath, certPassword.toByteArray(), com.foxit.sdk.pdf.Signature.e_DigestSHA1, outputFilePath, null, null)
+            var progressive = signature.startSign(certPath, certPassword.toByteArray(), com.foxit.sdk.pdf.Signature.e_DigestSHA1, outputPath, null, null)
             var progress = Progressive.e_ToBeContinued
             while (progress == Progressive.e_ToBeContinued) {
                 progress = progressive.resume()
@@ -109,7 +112,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
                 return
             }
 
-            val signedDoc = Common.loadPDFDoc(context, outputFilePath, null)
+            val signedDoc = Common.loadPDFDoc(context, outputPath, null)
             val count = signedDoc!!.signatureCount
             if (count <= 0)
                 return
@@ -132,7 +135,7 @@ class Signature(var context: Context, var docPath: String, var certPath: String,
                 Toast.makeText(context, context.getString(R.string.fx_verify_failed), Toast.LENGTH_LONG).show()
                 return
             }
-            Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.getSuccessInfo(context, outputPath), Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
             Toast.makeText(context, context.getString(R.string.fx_failed_to_sign_the_page, pageIndex, e.message), Toast.LENGTH_LONG).show()
         }

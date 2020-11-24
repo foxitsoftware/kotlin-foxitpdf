@@ -17,19 +17,24 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
+import com.foxit.pdf.function.Common.getFixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
+import com.foxit.pdf.function.Common.loadPDFDoc
 import com.foxit.pdf.main.R
-
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Progressive
-import com.foxit.sdk.pdf.PDFPage
 import com.foxit.sdk.common.Renderer
+import com.foxit.sdk.pdf.PDFPage
 
-class Render(var context: Context, var path: String) {
+
+class Render(var context: Context) {
 
     fun renderPage(index: Int) {
-        val doc = Common.loadPDFDoc(context, path, null) ?: return
+        val inputPath = getFixFolder() + "FoxitBigPreview.pdf"
+        val outputPath = java.lang.String.format("%s_index_%d.jpg", getOutputFilesFolder(Common.PDF_TO_IMAGE) + "FoxitBigPreview", index)
 
+        val doc = loadPDFDoc(context, inputPath, null) ?: return
         try {
             val pageCount = doc.pageCount
             if (index > pageCount || index < 0) {
@@ -37,8 +42,6 @@ class Render(var context: Context, var path: String) {
                 return
             }
 
-            val name = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."))
-            val outputFilePath = String.format("%s_index_%d.jpg", Common.getOutputFilesFolder(Common.renderModuleName) + name, index)
             val pdfPage = Common.loadPage(context, doc, index, PDFPage.e_ParsePageNormal)
             if (pdfPage == null || pdfPage.isEmpty) {
                 return
@@ -66,12 +69,12 @@ class Render(var context: Context, var path: String) {
             }
 
             //Save the render result to the jpeg image.
-            if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
+            if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputPath)) {
                 Toast.makeText(context, context.getString(R.string.fx_failed_to_save_image_file), Toast.LENGTH_LONG).show()
                 return
             }
 
-            Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Common.getSuccessInfo(context, outputPath), Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
             Toast.makeText(context, context.getString(R.string.fx_failed_to_render_the_page, index, e.message), Toast.LENGTH_LONG).show()
         }

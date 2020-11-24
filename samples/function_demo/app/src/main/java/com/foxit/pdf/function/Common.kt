@@ -19,34 +19,42 @@ import android.os.Environment
 import android.text.format.Time
 import android.widget.Toast
 import com.foxit.pdf.main.R
-
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.pdf.PDFPage
+import java.io.*
+import java.util.*
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
-import java.util.TimeZone
-import java.util.UUID
 
 object Common {
 
-    val pdf2textModuleName = "pdf2text"
-    val outlineModuleName = "outline"
-    val docInfoModuleName = "docInfo"
-    val renderModuleName = "render"
-    val annotationModuleName = "annotation"
-    val signatureModuleName = "signature"
+    const val ANNOTATION = 0
+    const val OUTLINE = 1
+    const val DOCINFO = 2
+    const val PDF_TO_TXT = 3
+    const val PDF_TO_IMAGE = 4
+    const val IMAGE_TO_PDF = 5
+    const val SIGNATURE = 6
+    const val WATERMARK = 7
+    const val SEARCH = 8
+    const val GRAPHICS_OBJECTS = 9
 
-    val testInputFile = "FoxitBigPreview.pdf"
-    val outlineInputFile = "Outline.pdf"
-    val anotationInputFile = "Annotation.pdf"
-    val signatureInputFile = "Sample.pdf"
-    val signatureCertification = "foxit_all.pfx"
+    private const val inputFiles = "input_files.txt"
+
+//    val pdf2textModuleName = "pdf2text"
+//    val outlineModuleName = "outline"
+//    val docInfoModuleName = "docInfo"
+//    val renderModuleName = "render"
+//    val annotationModuleName = "annotation"
+//    val signatureModuleName = "signature"
+//
+//    val testInputFile = "FoxitBigPreview.pdf"
+//    val outlineInputFile = "Outline.pdf"
+//    val anotationInputFile = "Annotation.pdf"
+//    val signatureInputFile = "Sample.pdf"
+//    val signatureCertification = "foxit_all.pfx"
 
     fun getSuccessInfo(context: Context, path: String): String {
         return context.getString(R.string.fx_file_saved_successd, path)
@@ -88,7 +96,7 @@ object Common {
         val sdExist = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
         if (sdExist) {
             val sddir = Environment.getExternalStorageDirectory()
-            externalPath = sddir.toString()
+            externalPath = sddir.path
         } else {
             externalPath = null
         }
@@ -113,11 +121,12 @@ object Common {
         return true
     }
 
-    fun getOutputFilesFolder(moduleName: String): String? {
+    fun getOutputFilesFolder(type: Int): String? {
         //Combine the current external path, outputting files path (fixed) and example module name together
         var outputPath = externalPath
         outputPath += "/output_files/"
-        outputPath += "$moduleName/"
+        val moduleName = getModuleName(type)
+        if (moduleName != null && moduleName.trim { it <= ' ' }.length > 1) outputPath += "$moduleName/"
         createFolder(outputPath)
         return outputPath
     }
@@ -189,6 +198,21 @@ object Common {
         return page
     }
 
+    fun saveDFDoc(context: Context, doc: PDFDoc, save_path: String?): Boolean {
+        try {
+            val ret = doc.saveAs(save_path, PDFDoc.e_SaveFlagNoOriginal)
+            if (ret) {
+                Toast.makeText(context, getSuccessInfo(context, save_path!!), Toast.LENGTH_LONG).show()
+                return true
+            }
+        } catch (e: PDFException) {
+            e.printStackTrace()
+        }
+        Toast.makeText(context, context.getString(R.string.fx_save_doc_error), Toast.LENGTH_LONG).show()
+        return false
+    }
+
+
     fun randomUUID(separator: String?): String {
         val uuid = UUID.randomUUID().toString()
         if (separator != null) {
@@ -199,16 +223,18 @@ object Common {
 
     private fun exist(path: String): Boolean {
         val file = File(path)
-        return file != null && file.exists()
+        return file.exists()
     }
 
-    private fun mergeFiles(context: Context, outDir: String?, files: Array<String>): Boolean {
+    private fun mergeFiles(context: Context, outDir: String?, files: List<String>): Boolean {
         var success = false
         var os: OutputStream? = null
         try {
 
             val buffer = ByteArray(1 shl 13)
             for (f in files) {
+                val outFile = File(outDir + f)
+                createParentPath(outFile)
                 if (exist(getFixFolder() + f))
                     continue
                 os = FileOutputStream(outDir + f)
@@ -236,14 +262,69 @@ object Common {
         return success
     }
 
-    fun copyTestFiles(context: Context) {
-        val testFiles = arrayOf(anotationInputFile, testInputFile, outlineInputFile, signatureInputFile, signatureCertification)
-        if (Common.isSDAvailable) {
-            val file = File(sdPath + File.separator + "input_files")
-            if (!file.exists())
-                file.mkdirs()
+    private fun createParentPath(file: File) {
+        val parentFile = file.parentFile
+        if (null != parentFile && !parentFile.exists()) {
+            parentFile.mkdirs()
+            createParentPath(parentFile)
+        }
+    }
+
+    fun copyTestFiles(context: Context?) {
+        if (isSDAvailable) {
+            val testFiles = getAssetsList(context!!)
             mergeFiles(context, getFixFolder(), testFiles)
         }
+    }
+
+    private fun getAssetsList(context: Context): List<String> {
+        val files: MutableList<String> = ArrayList()
+        var inputStream: InputStream? = null
+        var br: BufferedReader? = null
+        try {
+            inputStream = context.assets.open(File(inputFiles).path)
+            br = BufferedReader(InputStreamReader(inputStream))
+            br.forEachLine { files.add(it) }
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            try {
+                if (inputStream != null) inputStream.close()
+                if (br != null) br.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return files
+    }
+
+    fun getFileNameWithoutExt(filePath: String): String? {
+        var index = filePath.lastIndexOf('/')
+        var name = filePath.substring(index + 1)
+        index = name.lastIndexOf('.')
+        if (index > 0) {
+            name = name.substring(0, index)
+        }
+        return name
+    }
+
+    private fun getModuleName(type: Int): String? {
+        var name: String? = ""
+        name = when (type) {
+            ANNOTATION -> "annotation"
+            OUTLINE -> "outline"
+            DOCINFO -> "docInfo"
+            PDF_TO_TXT -> "pdf2text"
+            PDF_TO_IMAGE -> "render"
+            IMAGE_TO_PDF -> "image2pdf"
+            SIGNATURE -> "signature"
+            WATERMARK -> "watermark"
+            SEARCH -> "search"
+            GRAPHICS_OBJECTS -> "graphics_objects"
+            else -> null
+        }
+        return name
     }
 }
 
