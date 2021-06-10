@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2020, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -14,18 +14,14 @@
 package com.foxit.pdfreader.fragment
 
 import androidx.fragment.app.FragmentManager
-
 import java.util.HashMap
+import com.foxit.pdfreader.fragment.BaseFragment
 
 class AppTabsManager {
     var fragmentManager: FragmentManager? = null
-
     var filePath: String? = null
-
     val fragmentMap = HashMap<String, BaseFragment>()
-
     var currentFragment: BaseFragment? = null
-
     fun addFragment(key: String, value: BaseFragment) {
         fragmentMap[key] = value
     }

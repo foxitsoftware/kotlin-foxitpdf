@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -17,15 +17,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.foxit.home.R
 
 class EmptyViewFragment : BaseFragment() {
 
-    override var name: String
+    override var name: String?
         get() = "Error page."
-        set(value: String) {
-            super.name = value
+        set(name) {
+            super.name = name
         }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -33,7 +32,6 @@ class EmptyViewFragment : BaseFragment() {
     }
 
     companion object {
-
         private val TAG = EmptyViewFragment::class.java.simpleName
     }
 }

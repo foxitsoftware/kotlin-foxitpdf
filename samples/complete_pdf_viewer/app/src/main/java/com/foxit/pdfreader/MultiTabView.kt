@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -14,47 +14,32 @@
 package com.foxit.pdfreader
 
 import android.content.Context
-import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-
 import com.foxit.App
 import com.foxit.home.R
-
-import java.util.ArrayList
-
+import com.foxit.uiextensions.utils.AppResource
+import java.util.*
 
 class MultiTabView {
-
-    private val mTabEventListeners = ArrayList<ITabEventListener>()
-
-
-    private var mContext: Context? = null
-    var tabView: View? = null
-        private set
-    private var mRelativeLayout: RelativeLayout? = null
-    private var mLinearLayout: LinearLayout? = null
-
-    val historyFileNames = ArrayList<String>()
-
     inner class TabInfo {
-        var tabIndex: Int = 0
+        var tabIndex = 0
         var tabTitle: String? = null
-        var tabTarget: String? = null
-        //        public boolean isDel;
+        var tabTarget: String? = null //        public boolean isDel;
     }
 
     interface ITabEventListener {
-        fun onTabChanged(oldTabInfo: TabInfo, newTabInfo: TabInfo)
-        fun onTabRemoved(removedTab: TabInfo, showTab: TabInfo?)
+        fun onTabChanged(oldTabInfo: TabInfo?, newTabInfo: TabInfo?)
+        fun onTabRemoved(removedTab: TabInfo?, showTab: TabInfo?)
     }
 
+    private val mTabEventListeners = ArrayList<ITabEventListener>()
     fun registerTabEventListener(listener: ITabEventListener) {
-        if (!mTabEventListeners.contains(listener)){
-            mTabEventListeners.add(listener);
+        if (!mTabEventListeners.contains(listener)) {
+            mTabEventListeners.add(listener)
         }
     }
 
@@ -74,9 +59,14 @@ class MultiTabView {
         }
     }
 
+    private var mContext: Context? = null
+    var tabView: View? = null
+        private set
+    private var mRelativeLayout: RelativeLayout? = null
+    private var mLinearLayout: LinearLayout? = null
+    val historyFileNames = ArrayList<String?>()
     fun initialize(): Boolean {
         mContext = App.instance().applicationContext
-
         tabView = View.inflate(mContext, R.layout.multiple_tabview_father, null)
         mRelativeLayout = tabView!!.findViewById<View>(R.id._feature_rd_multiple_scroll) as RelativeLayout
         mLinearLayout = mRelativeLayout!!.findViewById<View>(R.id._feature_rd_multiple_rl) as LinearLayout
@@ -84,17 +74,22 @@ class MultiTabView {
         return true
     }
 
-
     fun resetData(): Boolean {
         historyFileNames.clear()
         return true
+    }
+
+    fun removeTab(path: String?) {
+        val tabInfo = TabInfo()
+        tabInfo.tabTarget = path
+        onTabRemoved(tabInfo, null)
     }
 
     fun removeTab(tabInfo: TabInfo) {
         historyFileNames.remove(tabInfo.tabTarget)
     }
 
-    fun refreshTopBar(docPath: String) {
+    fun refreshTopBar(docPath: String?) {
         var mTabCloseImageView: ImageView
         var mTabCloseRelativeLayout: RelativeLayout
         var mRelativeLayoutSignalTab: RelativeLayout
@@ -103,11 +98,9 @@ class MultiTabView {
         var mTextView: TextView
         var mTextView1: TextView
         var mTextView2: TextView
-
         if (!historyFileNames.contains(docPath)) {
             historyFileNames.add(docPath)
         }
-
         mLinearLayout!!.removeAllViews()
         val count = historyFileNames.size
         for (j in 0 until count) {
@@ -125,31 +118,31 @@ class MultiTabView {
             mTextView2 = mView.findViewById<View>(R.id.multiple_tabview_tv2) as TextView
             mRelativeLayoutSignalTab = mView.findViewById<View>(R.id._feature_rd_multiple_tab_rl) as RelativeLayout
             mRelativeLayoutSignalTab1 = mView.findViewById<View>(R.id._feature_rd_multiple_tab_rl1) as RelativeLayout
-            var changeColorDocName = String()
-            changeColorDocName = docPath
+            val changeColorDocName = docPath
             if (name == changeColorDocName && count > 1) {
-                mTabCloseImageView.setImageDrawable(mContext!!.resources.getDrawable(R.drawable._feature_rd_multiple_tab_close))
-                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#C3C3C3"))
-                mTabNameTextView.setBackgroundColor(Color.parseColor("#E5E5E5"))
-                mTabCloseImageView.setBackgroundColor(Color.parseColor("#E5E5E5"))
-                mTabCloseRelativeLayout.setBackgroundColor(Color.parseColor("#E5E5E5"))
-                mTextView.setBackgroundColor(Color.parseColor("#E5E5E5"))
-                mTextView1.setBackgroundColor(Color.parseColor("#E5E5E5"))
-                mTextView2.setBackgroundColor(Color.parseColor("#E5E5E5"))
+                mTabCloseImageView.setImageDrawable(AppResource.getDrawable(mContext, R.drawable._feature_rd_multiple_tab_close))
+                //                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#C3C3C3"));
+                val selectColor = AppResource.getColor(mContext, R.color.ux_color_select_tab)
+                mTabNameTextView.setBackgroundColor(selectColor)
+                mTabCloseImageView.setBackgroundColor(selectColor)
+                mTabCloseRelativeLayout.setBackgroundColor(selectColor)
+                mTextView.setBackgroundColor(selectColor)
+                mTextView1.setBackgroundColor(selectColor)
+                mTextView2.setBackgroundColor(selectColor)
             }
             if (count == 1) {
-                //                mTabCloseImageView.setImageDrawable(null);
-                mTabCloseImageView.setImageDrawable(mContext!!.resources.getDrawable(R.drawable._feature_rd_multiple_tab_close))
-                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTabNameTextView.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTabCloseImageView.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTabCloseRelativeLayout.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTextView.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTextView1.setBackgroundColor(Color.parseColor("#FAFAFA"))
-                mTextView2.setBackgroundColor(Color.parseColor("#FAFAFA"))
+//                mTabCloseImageView.setImageDrawable(null);
+                mTabCloseImageView.setImageDrawable(AppResource.getDrawable(mContext, R.drawable._feature_rd_multiple_tab_close))
+                //                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#FAFAFA"));
+                val unSelectColor = AppResource.getColor(mContext, R.color.ux_color_select_tab)
+                mTabNameTextView.setBackgroundColor(unSelectColor)
+                mTabCloseImageView.setBackgroundColor(unSelectColor)
+                mTabCloseRelativeLayout.setBackgroundColor(unSelectColor)
+                mTextView.setBackgroundColor(unSelectColor)
+                mTextView1.setBackgroundColor(unSelectColor)
+                mTextView2.setBackgroundColor(unSelectColor)
             }
-
-            if (j == 0/*(count - 1)*/) {
+            if (j == 0 /*(count - 1)*/) {
                 rlParams.setMargins(2, 2, 2, 0)
                 mRelativeLayoutSignalTab.layoutParams = rlParams
             }
@@ -158,21 +151,16 @@ class MultiTabView {
             mTabCloseRelativeLayout.isEnabled = true
             mTabCloseRelativeLayout.setOnClickListener(View.OnClickListener {
                 if (historyFileNames.size == 1) {
-                    //                        mHistoryFileNames.remove(name); // do after close doc
-
+//                        mHistoryFileNames.remove(name); // do after close doc
                     val tabInfo = TabInfo()
                     tabInfo.tabTarget = name
-
                     onTabRemoved(tabInfo, null)
                     return@OnClickListener
                 }
-
                 if (name != docPath) {
-                    //                        mHistoryFileNames.remove(name);// do after close doc
-
+//                        mHistoryFileNames.remove(name);// do after close doc
                     val tabInfo = TabInfo()
                     tabInfo.tabTarget = name
-
                     val showTab = TabInfo()
                     showTab.tabTarget = docPath
                     onTabRemoved(tabInfo, showTab)
@@ -189,16 +177,15 @@ class MultiTabView {
                         break
                     }
                 }
-                var path = ""
-                if (curTabIndex == 0 || curTabIndex < historyFileNames.size - 1) {
-                    path = historyFileNames[curTabIndex + 1] // get the previous tab
+                var path: String? = ""
+                path = if (curTabIndex == 0 || curTabIndex < historyFileNames.size - 1) {
+                    historyFileNames[curTabIndex + 1] // get the previous tab
                 } else {
-                    path = historyFileNames[curTabIndex - 1] // get the previous tab
+                    historyFileNames[curTabIndex - 1] // get the previous tab
                 }
                 //                    mHistoryFileNames.remove(name); // do after close doc
                 val oldTabInfo = TabInfo()
                 oldTabInfo.tabTarget = name
-
                 val newTabInfo = TabInfo()
                 newTabInfo.tabTarget = path
                 onTabRemoved(oldTabInfo, newTabInfo)
@@ -206,20 +193,16 @@ class MultiTabView {
             })
             mTabCloseImageView.setOnClickListener(View.OnClickListener {
                 if (historyFileNames.size == 1) {
-                    //                        mHistoryFileNames.remove(name);// do after close doc
-
+//                        mHistoryFileNames.remove(name);// do after close doc
                     val tabInfo = TabInfo()
                     tabInfo.tabTarget = name
-
                     onTabRemoved(tabInfo, null)
                     return@OnClickListener
                 }
-
                 if (name != docPath) {
-                    //                        mHistoryFileNames.remove(name);// do after close doc
+//                        mHistoryFileNames.remove(name);// do after close doc
                     val tabInfo = TabInfo()
                     tabInfo.tabTarget = name
-
                     val showTab = TabInfo()
                     showTab.tabTarget = docPath
                     onTabRemoved(tabInfo, showTab)
@@ -236,24 +219,21 @@ class MultiTabView {
                         break
                     }
                 }
-                var path = ""
-                if (curTabIndex == 0 || curTabIndex < historyFileNames.size - 1) {
-                    path = historyFileNames[curTabIndex + 1] // get the previous tab
+                var path: String? = ""
+                path = if (curTabIndex == 0 || curTabIndex < historyFileNames.size - 1) {
+                    historyFileNames[curTabIndex + 1] // get the previous tab
                 } else {
-                    path = historyFileNames[curTabIndex - 1] // get the previous tab
+                    historyFileNames[curTabIndex - 1] // get the previous tab
                 }
                 //                    mHistoryFileNames.remove(name); // do after close doc
-
                 val oldTabInfo = TabInfo()
                 oldTabInfo.tabTarget = name
-
                 val newTabInfo = TabInfo()
                 newTabInfo.tabTarget = path
                 onTabRemoved(oldTabInfo, newTabInfo)
 
-                //                    refreshTopBar(path);
+//                    refreshTopBar(path);
             })
-
             mTabNameTextView.isEnabled = true
             mTabNameTextView.setOnClickListener(View.OnClickListener {
                 if (name == docPath) return@OnClickListener
@@ -262,22 +242,15 @@ class MultiTabView {
                     if (name == historyFileNames[h]) {
                         val oldTabInfo = TabInfo()
                         oldTabInfo.tabTarget = docPath
-
                         val newTabInfo = TabInfo()
                         newTabInfo.tabTarget = name
                         onTabChanged(oldTabInfo, newTabInfo)
                     }
                 }
-
                 refreshTopBar(name)
             })
-            mTabNameTextView.text = name.substring(name.lastIndexOf("/") + 1, name.length)
+            mTabNameTextView.text = name!!.substring(name.lastIndexOf("/") + 1, name.length)
         }
     }
 
-    companion object {
-
-        val MAX_NUM_TABS_PHONE = 3
-        val MAX_NUM_TABS_PAD = 5
-    }
 }

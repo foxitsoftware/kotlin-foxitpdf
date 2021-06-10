@@ -1,4 +1,11 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
+
+    <style name="fx_app_theme" parent="Theme.AppCompat.DayNight">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+<!--        <item name="android:windowBackground">@color/colorPrimary</item>-->
+<!--        <item name="android:colorBackground">@color/colorPrimaryDark</item>-->
+    </style>
 </resources>

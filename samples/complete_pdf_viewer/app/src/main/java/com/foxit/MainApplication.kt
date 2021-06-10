@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2020, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -13,18 +13,17 @@
  */
 package com.foxit
 
-import android.app.Application
-import android.content.Context
 import android.content.res.Configuration
-import androidx.multidex.MultiDex
+import com.foxit.App.Companion.instance
+import androidx.multidex.MultiDexApplication
 import com.foxit.sdk.Localization
 
-class MainApplication : Application() {
+class MainApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
-        App.instance().applicationContext = this
+        instance().applicationContext = this
         Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this))
-        if (!App.instance().checkLicense()) {
+        if (!instance().checkLicense()) {
             return
         }
     }
@@ -32,10 +31,5 @@ class MainApplication : Application() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Localization.setCurrentLanguage(this, Localization.getCurrentLanguage(this))
-    }
-
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        MultiDex.install(this)
     }
 }

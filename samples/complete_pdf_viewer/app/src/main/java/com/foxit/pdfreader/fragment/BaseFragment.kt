@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2019, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -13,70 +13,84 @@
  */
 package com.foxit.pdfreader.fragment
 
-import android.os.Bundle
+import com.foxit.uiextensions.UIExtensionsManager.OnFinishListener
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-
-import com.foxit.uiextensions.UIExtensionsManager
+import android.os.Bundle
+import android.view.View
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.fragment.app.Fragment
+import com.foxit.uiextensions.UIExtensionsManager
 
 open class BaseFragment : Fragment() {
-
-    open var name: String = ""
-
+    open var name: String? = null
     var path: String? = null
-
     var fId: Long = 0
-
+    @JvmField
     var isOpenSuccess = false
-    var onFinishListener: UIExtensionsManager.OnFinishListener? = null
-
+    var onFinishListener: OnFinishListener? = null
+    @JvmField
     var mUiExtensionsManager: UIExtensionsManager? = null
-    var filter: String = ""
-
+    @JvmField
+    var filter: String? = null
     override fun onStart() {
         super.onStart()
-        mUiExtensionsManager?.onStart(activity)
-
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onStart(activity)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        mUiExtensionsManager?.onStop(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onStop(activity)
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        mUiExtensionsManager?.onPause(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onPause(activity)
+        }
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        mUiExtensionsManager?.onHiddenChanged(hidden)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onHiddenChanged(hidden)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        mUiExtensionsManager?.onResume(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onResume(activity)
+        }
     }
 
     override fun onDetach() {
         super.onDetach()
         onFinishListener = null
-        mUiExtensionsManager?.onDestroy(activity)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onDestroy(activity)
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (mUiExtensionsManager != null) {
+            mUiExtensionsManager!!.onConfigurationChanged(activity, newConfig)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    open fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-    }
-
     interface IFragmentEvent {
         fun onRemove()
     }
+
+    open fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {}
 }
