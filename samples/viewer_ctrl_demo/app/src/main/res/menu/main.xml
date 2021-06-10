@@ -29,7 +29,7 @@
 
 	<item
 		android:id="@+id/Annotations"
-		android:title="@string/rv_panel_annot_title"/>
+		android:title="@string/rv_panel_annots_title"/>
 	<item
 		android:id="@+id/Thumbnail"
 		android:title="@string/rv_page_present_thumbnail"/>
