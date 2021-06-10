@@ -37,6 +37,15 @@
     <string name="fx_sign_failed">This document sign failed !!!</string>
     <string name="fx_doc_not_signed">This document isn\'t signed !!!</string>
 
+    <!-- image2pdf -->
+    <string name="fx_image_to_pdf_failed">Image to pdf failed. %1$s</string>
+
+    <!-- watermark -->
+    <string name="fx_add_watermark_failed">Failed to add watermark. %1$s</string>
+
+    <!-- watermark -->
+    <string name="fx_add_graphics_failed">Failed to add graphics object.</string>
+
     <string name="fx_permission_denied">Permission Denied</string>
     <string name="fx_the_license_is_invalid">The license is invalid!</string>
     <string name="fx_failed_to_initalize">Failed to initialize the library!</string>

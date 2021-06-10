@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2020, Foxit Software Inc..
+ * Copyright (C) 2003-2021, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -17,63 +17,84 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.Toast
+import com.foxit.pdf.function.Common.fixFolder
+import com.foxit.pdf.function.Common.getOutputFilesFolder
+import com.foxit.pdf.function.Common.getSuccessInfo
+import com.foxit.pdf.function.Common.loadPDFDoc
+import com.foxit.pdf.function.Common.loadPage
+import com.foxit.pdf.function.Common.saveImageFile
 import com.foxit.pdf.main.R
-
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Progressive
-import com.foxit.sdk.pdf.PDFPage
 import com.foxit.sdk.common.Renderer
+import com.foxit.sdk.pdf.PDFPage
 
-class Render(var context: Context, var path: String) {
-
+class Render(private val mContext: Context) {
     fun renderPage(index: Int) {
-        val doc = Common.loadPDFDoc(context, path, null) ?: return
-
+        val inputPath = fixFolder + "FoxitBigPreview.pdf"
+        val outputPath = String.format(
+            "%s_index_%d.jpg",
+            getOutputFilesFolder(Common.PDF_TO_IMAGE) + "FoxitBigPreview",
+            index
+        )
+        val doc = loadPDFDoc(mContext, inputPath, null) ?: return
         try {
             val pageCount = doc.pageCount
             if (index > pageCount || index < 0) {
-                Toast.makeText(context, context.getString(R.string.fx_the_page_index_out_of_range), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    mContext,
+                    mContext.getString(R.string.fx_the_page_index_out_of_range),
+                    Toast.LENGTH_LONG
+                ).show()
                 return
             }
-
-            val name = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."))
-            val outputFilePath = String.format("%s_index_%d.jpg", Common.getOutputFilesFolder(Common.renderModuleName) + name, index)
-            val pdfPage = Common.loadPage(context, doc, index, PDFPage.e_ParsePageNormal)
+            val pdfPage = loadPage(mContext, doc, index, PDFPage.e_ParsePageNormal)
             if (pdfPage == null || pdfPage.isEmpty) {
                 return
             }
 
             //Create the bitmap and erase its background.
-            val bitmap = Bitmap.createBitmap(pdfPage.width.toInt(), pdfPage.height.toInt(), Bitmap.Config.RGB_565)
+            val bitmap = Bitmap.createBitmap(
+                pdfPage.width.toInt(), pdfPage.height.toInt(), Bitmap.Config.RGB_565
+            )
             bitmap.eraseColor(Color.WHITE)
-
-
-            val matrix = pdfPage.getDisplayMatrix(0, 0, pdfPage.width.toInt(), pdfPage.height.toInt(), Constants.e_Rotation0)
-
+            val matrix = pdfPage.getDisplayMatrix(
+                0, 0, pdfPage.width.toInt(), pdfPage.height
+                    .toInt(), Constants.e_Rotation0
+            )
             val renderer = Renderer(bitmap, true)
-
             //Render the page to bitmap.
             val progressive = renderer.startRender(pdfPage, matrix, null)
             var state = Progressive.e_ToBeContinued
             while (state == Progressive.e_ToBeContinued) {
                 state = progressive.resume()
             }
-
             if (state == Progressive.e_Error) {
-                Toast.makeText(context, context.getString(R.string.fx_failed_to_render_the_page, index, ""), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    mContext,
+                    mContext.getString(R.string.fx_failed_to_render_the_page, index, ""),
+                    Toast.LENGTH_LONG
+                ).show()
                 return
             }
 
             //Save the render result to the jpeg image.
-            if (!Common.saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputFilePath)) {
-                Toast.makeText(context, context.getString(R.string.fx_failed_to_save_image_file), Toast.LENGTH_LONG).show()
+            if (!saveImageFile(bitmap, Bitmap.CompressFormat.JPEG, outputPath)) {
+                Toast.makeText(
+                    mContext,
+                    mContext.getString(R.string.fx_failed_to_save_image_file),
+                    Toast.LENGTH_LONG
+                ).show()
                 return
             }
-
-            Toast.makeText(context, Common.getSuccessInfo(context, outputFilePath), Toast.LENGTH_LONG).show()
+            Toast.makeText(mContext, getSuccessInfo(mContext, outputPath), Toast.LENGTH_LONG).show()
         } catch (e: PDFException) {
-            Toast.makeText(context, context.getString(R.string.fx_failed_to_render_the_page, index, e.message), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                mContext,
+                mContext.getString(R.string.fx_failed_to_render_the_page, index, e.message),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }

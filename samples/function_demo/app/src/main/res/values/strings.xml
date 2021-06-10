@@ -13,4 +13,12 @@
     <string name="renderInfo">Render a specified page to Bitmap.</string>
     <string name="signature">signature</string>
     <string name="signatureInfo">Add a signature to PDF, sign PDF and verify the signature.</string>
+    <string name="image2pdf">image2pdf</string>
+    <string name="image2pdfInfo">Convert images to PDF files.</string>
+    <string name="watermark">watermark</string>
+    <string name="watermarkInfo">Add text, image and PDF-page watermarks to PDF files.</string>
+    <string name="search">search</string>
+    <string name="searchInfo">Search PDF files.</string>
+    <string name="graphics">graphics_objects</string>
+    <string name="graphicsInfo">Create a PDF Doc with graphics objects.</string>
 </resources>

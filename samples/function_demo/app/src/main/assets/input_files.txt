@@ -1,0 +1,11 @@
+image/image005.gif
+image/image_samples.jpg
+image/sdk.png
+image/TIF2Pages.tif
+image/watermark.bmp
+annotation_input.pdf
+foxit_all.pfx
+FoxitBigPreview.pdf
+graphics_objects.pdf
+Outline.pdf
+AboutFoxit.pdf
