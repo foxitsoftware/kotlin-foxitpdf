@@ -33,6 +33,7 @@ import com.foxit.pdfscan.IPDFScanManagerListener
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.IHomeModule.onFileItemEventListener
 import com.foxit.uiextensions.home.local.LocalModule.ICompareListener
+import com.foxit.uiextensions.utils.AppDevice
 import com.foxit.uiextensions.utils.AppFileUtil
 import com.foxit.uiextensions.utils.AppStorageManager
 import com.foxit.uiextensions.utils.AppTheme
@@ -47,7 +48,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
         if (!mLicenseValid) {
             return
         }
-        AppTheme.setThemeFullScreen(this)
+        if (!AppDevice.isChromeOs(this))
+            AppTheme.setThemeFullScreen(this)
         AppTheme.setThemeNeedMenuKey(this)
         setContentView(R.layout.activity_reader)
         if (Build.VERSION.SDK_INT >= 30 && !AppFileUtil.isExternalStorageLegacy()) {
@@ -239,13 +241,13 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+                            or View.SYSTEM_UI_FLAG_VISIBLE)
         }
     }
 
     companion object {
-        const val REQUEST_EXTERNAL_STORAGE_MANAGER = 1
-        const val REQUEST_EXTERNAL_STORAGE = 2
+        const val REQUEST_EXTERNAL_STORAGE_MANAGER = 111
+        const val REQUEST_EXTERNAL_STORAGE = 222
         const val READER_STATE_HOME = 1
         const val READER_STATE_READ = 2
         private val PERMISSIONS_STORAGE = arrayOf(

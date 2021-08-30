@@ -36,9 +36,14 @@
         tools:replace="android:theme"
         android:theme="@style/fx_app_theme">
         <activity android:name=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale|layoutDirection|screenLayout|uiMode"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale|layoutDirection|screenLayout|uiMode|smallestScreenSize"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan">
+            <layout
+                android:minHeight="700dp"
+                android:minWidth="520dp"
+                android:gravity="center" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

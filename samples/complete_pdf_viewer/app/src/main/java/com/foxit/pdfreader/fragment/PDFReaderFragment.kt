@@ -445,7 +445,7 @@ class PDFReaderFragment : BaseFragment() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (mFolderSelectDialog != null && mFolderSelectDialog!!.isShowing) {
-            mFolderSelectDialog!!.setHeight(mFolderSelectDialog!!.dialogHeight)
+            mFolderSelectDialog!!.resetWH()
             mFolderSelectDialog!!.showDialog()
         }
     }

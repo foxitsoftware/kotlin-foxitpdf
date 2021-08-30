@@ -9,8 +9,8 @@ android {
         applicationId "com.foxit.home"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 22
-        versionName "8.0.0"
+        versionCode 24
+        versionName "8.1.0"
         multiDexEnabled true
     }
     signingConfigs {
@@ -52,7 +52,7 @@ dependencies {
     implementation(name: 'FoxitRDKUIExtensions', ext: 'aar')
     implementation 'com.edmodo:cropper:1.0.1'
     //RMS
-    implementation('com.microsoft.aad:adal:1.16.3') {}
+    implementation 'com.microsoft.identity.client:msal:2.+'
     implementation(name: 'RMSSDK-4.2-release', ext: 'aar')
     implementation(name: 'rms-sdk-ui', ext: 'aar')
     //Scanning
