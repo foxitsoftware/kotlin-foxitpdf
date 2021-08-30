@@ -16,6 +16,7 @@ package com.foxit.pdf.function.annotation
 import android.content.Context
 import android.widget.Toast
 import com.foxit.pdf.function.Common
+import com.foxit.pdf.function.json.*
 import com.foxit.pdf.main.R
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.Constants
@@ -31,14 +32,21 @@ import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.pdf.actions.Action
 import com.foxit.sdk.pdf.actions.URIAction
 import com.foxit.sdk.pdf.annots.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 
 class Annotation(private val mContext: Context) {
     private val inputFile: String
     private val outputFile: String
+    private val outputJsonFile: String
     fun addAnnotation() {
         val doc = Common.loadPDFDoc(mContext, inputFile, null) ?: return
         addAnnotation(doc)
         Common.saveDFDoc(mContext, doc, outputFile)
+        exportToJSON(doc)
     }
 
     private fun addAnnotation(doc: PDFDoc) {
@@ -468,8 +476,65 @@ class Annotation(private val mContext: Context) {
         }
     }
 
+    private fun exportToJSON(doc: PDFDoc?) {
+        if (doc == null) return
+        try {
+            val pageCount = doc.pageCount
+            val jsonArray = JSONArray()
+            for (i in 0 until pageCount) {
+                val page = doc.getPage(i)
+                val annotCount = page.annotCount
+                for (j in 0 until annotCount) {
+                    val annot = page.getAnnot(j)
+                    if (annot == null || annot.isEmpty) continue
+                    val jsonObject = exportAnnotToJSON(doc, annot)
+                    if (jsonObject != null) {
+                        jsonArray.put(jsonObject)
+                    }
+                }
+            }
+            val annotJson = jsonArray.toString().replace("\\/", "/")
+            val txtFile = File(outputJsonFile)
+            val fileWriter = FileWriter(txtFile)
+            fileWriter.write(annotJson)
+            fileWriter.flush()
+            fileWriter.close()
+        } catch (e: PDFException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun exportAnnotToJSON(doc: PDFDoc, annot: Annot): JSONObject? {
+        try {
+            val type = annot.type
+            return if (type == Annot.e_Widget || type == Annot.e_Popup || type == Annot.e_Watermark) null else when (type) {
+                Annot.e_Caret -> JSCaret.exportToJSON(doc, annot)
+                Annot.e_Circle -> JSCircle.exportToJSON(doc, annot)
+                Annot.e_FileAttachment -> JSFileAttachment.exportToJSON(doc, annot)
+                Annot.e_FreeText -> JSFreeText.exportToJSON(doc, annot)
+                Annot.e_Ink -> JSInk.exportToJSON(doc, annot)
+                Annot.e_Line -> JSLine.exportToJSON(doc, annot)
+                Annot.e_Note -> JSNote.exportToJSON(doc, annot)
+                Annot.e_Polygon -> JSPolygon.exportToJSON(doc, annot)
+                Annot.e_PolyLine -> JSPolyLine.exportToJSON(doc, annot)
+                Annot.e_Redact -> JSRedact.exportToJSON(doc, annot)
+                Annot.e_Sound -> JSSound.exportToJSON(doc, annot)
+                Annot.e_Square -> JSSquare.exportToJSON(doc, annot)
+                Annot.e_Stamp -> JSStamp.exportToJSON(doc, annot)
+                Annot.e_Highlight, Annot.e_Underline, Annot.e_StrikeOut, Annot.e_Squiggly -> JSTextMarkupAnnot.exportToJSON(doc, annot)
+                else -> if (annot.isMarkup) JSMarkupAnnot.exportToJSON(doc, annot) else JSAnnot.exportToJSON(annot)
+            }
+        } catch (e: PDFException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     init {
         inputFile = Common.fixFolder + "annotation_input.pdf"
         outputFile = Common.getOutputFilesFolder(Common.ANNOTATION) + "annotation_add.pdf"
+        outputJsonFile = Common.getOutputFilesFolder(Common.ANNOTATION) + "annotation_add.json"
     }
 }

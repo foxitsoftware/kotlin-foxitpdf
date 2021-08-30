@@ -6,7 +6,7 @@
     <string name="outline">outline</string>
     <string name="outlineInfo">Edit outline (aka bookmark) appearances and titles.</string>
     <string name="addAnnotation">annotation</string>
-    <string name="addAnnotationInfo">Add annotations.</string>
+    <string name="addAnnotationInfo">Add annotations and export annotations to a JSON file.</string>
     <string name="docInfo">docinfo</string>
     <string name="docInfoDemoInfo">Export document info to a TXT file.</string>
     <string name="render">render</string>

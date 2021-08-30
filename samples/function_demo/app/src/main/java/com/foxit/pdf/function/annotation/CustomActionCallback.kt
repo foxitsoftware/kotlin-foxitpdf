@@ -129,7 +129,11 @@ internal class CustomActionCallback : ActionCallback() {
             "foxitsoftware",
             "simple_demo@foxitsoftware.cn",
             "simple demo",
-            "Simple"
+            "Simple",
+                "",
+                "",
+                "",
+                ""
         )
     }
 
