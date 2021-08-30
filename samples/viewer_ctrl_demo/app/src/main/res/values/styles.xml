@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Title.isOverlay" parent="AppTheme">
+    <style name="Theme.Title.isOverlay" parent="Theme.AppCompat.DayNight">
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowActionModeOverlay">true</item>
         <item name="windowNoTitle">true</item>

@@ -53,6 +53,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Environment
+import android.util.TypedValue
 import android.view.*
 import com.foxit.sdk.common.Constants
 import com.foxit.uiextensions.UIExtensionsManager
@@ -260,6 +261,18 @@ class MainActivity : FragmentActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (uiExtensionsManager != null) {
+            if (mActionMode == null) {
+                pdfViewCtrl!!.offsetScrollBoundary(0, 0, 0, 0)
+                pdfViewCtrl!!.postPageContainer()
+            } else {
+                val tv = TypedValue()
+                val actionBarHeight: Int
+                if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+                    pdfViewCtrl!!.offsetScrollBoundary(0, actionBarHeight, 0, 0)
+                    pdfViewCtrl!!.postPageContainer()
+                }
+            }
             uiExtensionsManager!!.onConfigurationChanged(this, newConfig)
         }
     }
@@ -375,6 +388,8 @@ class MainActivity : FragmentActivity() {
 
         override fun onDestroyActionMode(mode: ActionMode) {
             if (mActionMode != null) mActionMode = null
+            pdfViewCtrl!!.offsetScrollBoundary(0, 0, 0, 0)
+            pdfViewCtrl!!.postPageContainer()
         }
     }
 
@@ -404,6 +419,13 @@ class MainActivity : FragmentActivity() {
         MenuEventListener { if (mActionMode != null) mActionMode!!.finish() }
 
     private fun createActionMode() {
+        val tv = TypedValue()
+        val actionBarHeight: Int
+        if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+            pdfViewCtrl!!.offsetScrollBoundary(0, actionBarHeight, 0, 0)
+            pdfViewCtrl!!.postPageContainer()
+        }
         mActionMode = (mContext as Activity?)!!.startActionMode(mActionModeCallback)
         val doneButtonId =
             Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android")
