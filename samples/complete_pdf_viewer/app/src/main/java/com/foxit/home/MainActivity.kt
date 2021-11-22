@@ -33,10 +33,8 @@ import com.foxit.pdfscan.IPDFScanManagerListener
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.IHomeModule.onFileItemEventListener
 import com.foxit.uiextensions.home.local.LocalModule.ICompareListener
-import com.foxit.uiextensions.utils.AppDevice
-import com.foxit.uiextensions.utils.AppFileUtil
-import com.foxit.uiextensions.utils.AppStorageManager
-import com.foxit.uiextensions.utils.AppTheme
+import com.foxit.uiextensions.theme.ThemeConfig
+import com.foxit.uiextensions.utils.*
 
 class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, onFileItemEventListener, ICompareListener, IPDFScanManagerListener {
     private var mReaderState = READER_STATE_HOME
@@ -88,6 +86,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
             ft.show(readerFragment!!)
         }
         ft.commit()
+        SystemUiHelper.getInstance()
+            .setStatusBarColor(window, ThemeConfig.getInstance(this).primaryColor)
     }
 
     fun checkStorageState() {
