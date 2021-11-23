@@ -71,6 +71,7 @@ class Image2Pdf(private val mContext: Context) {
 
     @Throws(PDFException::class)
     private fun image2PDF(input_file: String, output_file: String) {
+        Common.checkDirectoryAvailable(output_file.substring(0, output_file.lastIndexOf("/")))
         val image = Image(input_file)
         val count = image.frameCount
         val doc = PDFDoc()

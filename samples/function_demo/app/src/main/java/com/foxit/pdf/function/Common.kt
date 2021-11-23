@@ -21,6 +21,7 @@ import android.text.format.Time
 import android.widget.Toast
 import com.foxit.pdf.main.R
 import com.foxit.sdk.PDFException
+import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.common.Progressive
 import com.foxit.sdk.pdf.PDFDoc
@@ -329,4 +330,19 @@ object Common {
         }
         return name
     }
+
+    @Throws(PDFException::class)
+    fun checkDirectoryAvailable(path: String?) {
+        if (path == null) {
+            throw PDFException(Constants.e_ErrFile, "The output directory can't be null!")
+        }
+        val file = File(path)
+        if (!file.exists() && !file.mkdirs() || file.exists() && !file.canWrite()) {
+            throw PDFException(
+                Constants.e_ErrFile, "The output directory is unavailable, " +
+                        "please check write permission to it!"
+            )
+        }
+    }
+
 }

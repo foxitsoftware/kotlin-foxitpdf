@@ -9,8 +9,8 @@ android {
         applicationId "com.foxit.pdf.function_demo"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 24
-        versionName "8.1.0"
+        versionCode 25
+        versionName "8.2.0"
     }
     buildTypes {
         release {
@@ -21,6 +21,10 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
