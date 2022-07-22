@@ -14,12 +14,14 @@
 package com.foxit.pdf.function.annotation
 
 import com.foxit.sdk.ActionCallback
+import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.IdentityProperties
 import com.foxit.sdk.MenuListArray
+import com.foxit.sdk.MenuItemExArray
+import com.foxit.sdk.MenuItemEx
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Range
 import com.foxit.sdk.common.fxcrt.RectF
-import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.pdf.Signature
 
 internal class CustomActionCallback : ActionCallback() {
@@ -104,7 +106,12 @@ internal class CustomActionCallback : ActionCallback() {
         return false
     }
 
-    override fun submitForm(document: PDFDoc, form_data: ByteArray, url: String): Boolean {
+    override fun submitForm(
+        document: PDFDoc,
+        form_data: ByteArray,
+        url: String,
+        file_format_type: Int
+    ): Boolean {
         return false
     }
 
@@ -130,14 +137,18 @@ internal class CustomActionCallback : ActionCallback() {
             "simple_demo@foxitsoftware.cn",
             "simple demo",
             "Simple",
-                "",
-                "",
-                "",
-                ""
+            "",
+            "",
+            "",
+            ""
         )
     }
 
-    override fun popupMenu(menus: MenuListArray): String? {
+    override fun popupMenu(menus: MenuListArray, is_selected_item: Boolean): String? {
+        return null
+    }
+
+    override fun popupMenuEx(menus: MenuItemExArray, is_selected_item: Boolean): MenuItemEx? {
         return null
     }
 

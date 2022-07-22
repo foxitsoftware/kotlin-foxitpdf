@@ -1,4 +1,4 @@
-2022/**
+/**
  * Copyright (C) 2003-2022, Foxit Software Inc..
  * All Rights Reserved.
  *
