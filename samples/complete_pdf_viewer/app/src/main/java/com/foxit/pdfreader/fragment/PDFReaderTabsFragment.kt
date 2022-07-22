@@ -39,7 +39,11 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
     private var mFragmentManager: FragmentManager? = null
     private var filter: String? = App.FILTER_DEFAULT
     private var filePath: String? = null
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.activity_reader, container, false)
     }
 
@@ -56,7 +60,11 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
 
     private fun handleIntent(intent: Intent?) {
         if (intent != null) {
-            val path = AppFileUtil.getFilePath(App.instance().applicationContext, intent, IHomeModule.FILE_EXTRA)
+            val path = AppFileUtil.getFilePath(
+                App.instance().applicationContext,
+                intent,
+                IHomeModule.FILE_EXTRA
+            )
             if (path != null) {
                 changeReaderState(MainActivity.READER_STATE_READ)
                 openDocument(intent)
@@ -70,7 +78,8 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
                 val uiExtensionsManager = currentFrag!!.mUiExtensionsManager
                 if (uiExtensionsManager != null
-                        && uiExtensionsManager.backToNormalState()) {
+                    && uiExtensionsManager.backToNormalState()
+                ) {
                     true
                 } else {
                     if (uiExtensionsManager != null && uiExtensionsManager.state == ReadStateConfig.STATE_COMPARE) {
@@ -85,7 +94,11 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
             } else {
                 false
             }
-        } else currentFrag != null && currentFrag.mUiExtensionsManager != null && currentFrag.mUiExtensionsManager!!.onKeyDown(getActivity(), keyCode, event)
+        } else currentFrag != null && currentFrag.mUiExtensionsManager != null && currentFrag.mUiExtensionsManager!!.onKeyDown(
+            getActivity(),
+            keyCode,
+            event
+        )
     }
 
     override fun onFinish() {
@@ -125,6 +138,7 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
         if (App.instance().isMultiTab) {
             App.instance().getMultiTabView(filter!!).unregisterTabEventListener(mTabEventListener!!)
         }
+        App.instance().onBack()
         mTabEventListener = null
     }
 
@@ -134,10 +148,16 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
             return
         }
         val oldPath = App.instance().getTabsManager(filter!!).filePath
-        filePath = AppFileUtil.getFilePath(App.instance().applicationContext, intent, IHomeModule.FILE_EXTRA)
+        filePath = AppFileUtil.getFilePath(
+            App.instance().applicationContext,
+            intent,
+            IHomeModule.FILE_EXTRA
+        )
         App.instance().getTabsManager(filter!!).filePath = filePath
-        val fragment = App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
-        val needReset = oldPath != null && filePath != oldPath && fragment != null && fragment.isOpenSuccess
+        val fragment =
+            App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
+        val needReset =
+            oldPath != null && filePath != oldPath && fragment != null && fragment.isOpenSuccess
         if (App.instance().isMultiTab) {
             openMultiDocument(false)
         } else {
@@ -175,7 +195,8 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
         App.instance().getMultiTabView(filter!!).registerTabEventListener(mTabEventListener!!)
         filePath = App.instance().getTabsManager(filter!!).filePath
         val fragmentTransaction = mFragmentManager!!.beginTransaction()
-        var fragment = App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
+        var fragment =
+            App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
         if (fragment == null) {
             fragment = PDFReaderFragment()
             App.instance().getTabsManager(filter!!).addFragment(filePath!!, fragment)
@@ -218,19 +239,28 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
     }
 
     private var mTabEventListener: ITabEventListener? = object : ITabEventListener {
-        override fun onTabChanged(oldTabInfo: MultiTabView.TabInfo?, newTabInfo: MultiTabView.TabInfo?) {
-            val fragment = App.instance().getTabsManager(filter!!).fragmentMap[oldTabInfo!!.tabTarget] as PDFReaderFragment?
+        override fun onTabChanged(
+            oldTabInfo: MultiTabView.TabInfo?,
+            newTabInfo: MultiTabView.TabInfo?
+        ) {
+            val fragment = App.instance()
+                .getTabsManager(filter!!).fragmentMap[oldTabInfo!!.tabTarget] as PDFReaderFragment?
             changeViewerState(fragment)
             filePath = newTabInfo!!.tabTarget
             App.instance().getTabsManager(filter!!).filePath = filePath
-            val newfragment = App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
+            val newfragment =
+                App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
             newfragment!!.mUiExtensionsManager!!.documentManager.resetActionCallback()
             openMultiDocument(false)
             resetTabView(false)
         }
 
-        override fun onTabRemoved(removedTab: MultiTabView.TabInfo?, showTab: MultiTabView.TabInfo?) {
-            val fragment = App.instance().getTabsManager(filter!!).fragmentMap[removedTab!!.tabTarget] as PDFReaderFragment?
+        override fun onTabRemoved(
+            removedTab: MultiTabView.TabInfo?,
+            showTab: MultiTabView.TabInfo?
+        ) {
+            val fragment = App.instance()
+                .getTabsManager(filter!!).fragmentMap[removedTab!!.tabTarget] as PDFReaderFragment?
             if (removedTab.tabTarget == App.instance().getTabsManager(filter!!).filePath) {
                 changeViewerState(fragment)
                 fragment!!.doClose(object : IFragmentEvent {
@@ -239,12 +269,15 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
                         if (showTab != null) {
                             filePath = showTab.tabTarget
                             App.instance().getTabsManager(filter!!).filePath = filePath
-                            val newfragment = App.instance().getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
+                            val newfragment = App.instance()
+                                .getTabsManager(filter!!).fragmentMap[filePath] as PDFReaderFragment?
                             newfragment!!.mUiExtensionsManager!!.documentManager.resetActionCallback()
                             openMultiDocument(true)
                             resetTabView(false)
-                            App.instance().getTabsManager(filter!!).fragmentMap.remove(removedTab.tabTarget)
-                            App.instance().getMultiTabView(filter!!).refreshTopBar(showTab.tabTarget)
+                            App.instance()
+                                .getTabsManager(filter!!).fragmentMap.remove(removedTab.tabTarget)
+                            App.instance().getMultiTabView(filter!!)
+                                .refreshTopBar(showTab.tabTarget)
                         } else {
                             App.instance().getTabsManager(filter!!).filePath = null
 
@@ -261,7 +294,8 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
                     override fun onRemove() {
                         App.instance().getMultiTabView(filter!!).removeTab(removedTab)
                         removeFragment(fragment)
-                        App.instance().getTabsManager(filter!!).fragmentMap.remove(removedTab.tabTarget)
+                        App.instance()
+                            .getTabsManager(filter!!).fragmentMap.remove(removedTab.tabTarget)
                         App.instance().getMultiTabView(filter!!).refreshTopBar(showTab!!.tabTarget)
                     }
                 })
@@ -271,19 +305,24 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
 
     private fun resetTabView(needRefresh: Boolean) {
         if (needRefresh) {
-            App.instance().getMultiTabView(filter!!).refreshTopBar(App.instance().getTabsManager(filter!!).filePath)
+            App.instance().getMultiTabView(filter!!)
+                .refreshTopBar(App.instance().getTabsManager(filter!!).filePath)
         }
-        val fragment = App.instance().getTabsManager(filter!!).fragmentMap[App.instance().getTabsManager(filter!!).filePath] as PDFReaderFragment?
+        val fragment = App.instance().getTabsManager(filter!!).fragmentMap[App.instance()
+            .getTabsManager(filter!!).filePath] as PDFReaderFragment?
         val h = fragment!!.mUiExtensionsManager!!.mainFrame.topToolbar.contentView.height
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2 * h / 3)
         params.topMargin = -10
         val parent = App.instance().getMultiTabView(filter!!).tabView!!.parent as ViewGroup
         parent?.removeView(App.instance().getMultiTabView(filter!!).tabView)
-        fragment.mUiExtensionsManager!!.mainFrame.topActionView.addView(App.instance().getMultiTabView(filter!!).tabView, params)
+        fragment.mUiExtensionsManager!!.mainFrame.topActionView.addView(
+            App.instance().getMultiTabView(filter!!).tabView, params
+        )
     }
 
     private fun changeViewerState(fragment: PDFReaderFragment?) {
-        val uiExtensionsManager = fragment!!.pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager
+        val uiExtensionsManager =
+            fragment!!.pdfViewCtrl!!.uiExtensionsManager as UIExtensionsManager
         uiExtensionsManager.triggerDismissMenuEvent()
         uiExtensionsManager.documentManager.currentAnnot = null
         uiExtensionsManager.exitPanZoomMode()
@@ -311,6 +350,16 @@ class PDFReaderTabsFragment : Fragment(), OnFinishListener {
         super.onActivityResult(requestCode, resultCode, data)
         val currentFrag = App.instance().getTabsManager(filter!!).currentFragment ?: return
         currentFrag.handleActivityResult(requestCode, resultCode, data)
+    }
+
+    fun handleRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val currentFrag = App.instance().getTabsManager(filter!!).currentFragment ?: return
+        currentFrag.handleRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     companion object {

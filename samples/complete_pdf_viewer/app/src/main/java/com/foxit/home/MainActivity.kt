@@ -36,7 +36,8 @@ import com.foxit.uiextensions.home.local.LocalModule.ICompareListener
 import com.foxit.uiextensions.theme.ThemeConfig
 import com.foxit.uiextensions.utils.*
 
-class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, onFileItemEventListener, ICompareListener, IPDFScanManagerListener {
+class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
+    onFileItemEventListener, ICompareListener, IPDFScanManagerListener {
     private var mReaderState = READER_STATE_HOME
     private var mLicenseValid = false
     private var filter: String? = App.FILTER_DEFAULT
@@ -79,11 +80,11 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
             ft.add(R.id.reader_container, readerFragment, PDFReaderTabsFragment.FRAGMENT_NAME)
         }
         if (mReaderState == READER_STATE_HOME) {
-            ft.hide(readerFragment!!)
+            ft.hide(readerFragment)
             ft.show(homeFragment)
         } else {
             ft.hide(homeFragment)
-            ft.show(readerFragment!!)
+            ft.show(readerFragment)
         }
         ft.commit()
         SystemUiHelper.getInstance()
@@ -91,7 +92,10 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
     }
 
     fun checkStorageState() {
-        val permission = ContextCompat.checkSelfPermission(this.applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val permission = ContextCompat.checkSelfPermission(
+            this.applicationContext,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
         } else {
@@ -124,21 +128,43 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
 
     private fun handleIntent(intent: Intent?) {
         if (intent != null) {
-            val path = AppFileUtil.getFilePath(App.instance().applicationContext, intent, IHomeModule.FILE_EXTRA)
+            val path = AppFileUtil.getFilePath(
+                App.instance().applicationContext,
+                intent,
+                IHomeModule.FILE_EXTRA
+            )
             if (path != null) {
                 onFileItemClicked(IHomeModule.FILE_EXTRA, path)
             }
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (mLicenseValid && requestCode == REQUEST_EXTERNAL_STORAGE) {
-            if (verifyPermissions(grantResults)) {
-                val fragment = supportFragmentManager.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
-                (fragment as? HomeFragment)?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (mLicenseValid) {
+            if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+                if (verifyPermissions(grantResults)) {
+                    val fragment =
+                        supportFragmentManager.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
+                    (fragment as? HomeFragment)?.onRequestPermissionsResult(
+                        requestCode,
+                        permissions,
+                        grantResults
+                    )
+                }
+            } else {
+                val fm = supportFragmentManager
+                val readerFragment = getReaderFragment(fm)
+                readerFragment?.handleRequestPermissionsResult(
+                    requestCode,
+                    permissions,
+                    grantResults
+                )
             }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
@@ -251,8 +277,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, on
         const val READER_STATE_HOME = 1
         const val READER_STATE_READ = 2
         private val PERMISSIONS_STORAGE = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
     }
 }

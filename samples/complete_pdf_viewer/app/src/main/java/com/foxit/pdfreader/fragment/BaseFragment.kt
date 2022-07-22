@@ -13,26 +13,23 @@
  */
 package com.foxit.pdfreader.fragment
 
-import com.foxit.uiextensions.UIExtensionsManager.OnFinishListener
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import android.view.View
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.foxit.uiextensions.UIExtensionsManager
+import com.foxit.uiextensions.UIExtensionsManager.OnFinishListener
 
 open class BaseFragment : Fragment() {
     open var name: String? = null
     var path: String? = null
     var fId: Long = 0
-    @JvmField
     var isOpenSuccess = false
     var onFinishListener: OnFinishListener? = null
-    @JvmField
     var mUiExtensionsManager: UIExtensionsManager? = null
-    @JvmField
     var filter: String? = null
     override fun onStart() {
         super.onStart()
@@ -84,7 +81,11 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
@@ -93,4 +94,10 @@ open class BaseFragment : Fragment() {
     }
 
     open fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {}
+    open fun handleRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+    }
 }

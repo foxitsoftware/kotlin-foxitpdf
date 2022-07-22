@@ -29,7 +29,6 @@ import com.foxit.App
 import com.foxit.home.HomeFragment
 import com.foxit.home.MainActivity
 import com.foxit.home.R
-import com.foxit.pdfreader.fragment.PDFReaderFragment
 import com.foxit.sdk.PDFViewCtrl
 import com.foxit.sdk.PDFViewCtrl.IDocEventListener
 import com.foxit.sdk.common.Constants
@@ -39,7 +38,7 @@ import com.foxit.uiextensions.Module
 import com.foxit.uiextensions.UIExtensionsManager
 import com.foxit.uiextensions.config.Config
 import com.foxit.uiextensions.controls.dialog.AppDialogManager
-import com.foxit.uiextensions.controls.dialog.MatchDialog.DialogListener
+import com.foxit.uiextensions.controls.dialog.MatchDialog
 import com.foxit.uiextensions.controls.dialog.UIDialog
 import com.foxit.uiextensions.controls.dialog.UITextEditDialog
 import com.foxit.uiextensions.controls.dialog.fileselect.UIFolderSelectDialog
@@ -226,7 +225,11 @@ class PDFReaderFragment : BaseFragment() {
                 tabView.removeTab(path)
                 return@BackEventListener true
             }
-            val fragmentManager = App.instance().getTabsManager(filter!!).fragmentManager
+            if (mUiExtensionsManager!!.currentToolHandler != null) mUiExtensionsManager!!.currentToolHandler =
+                null
+            val fragmentManager = App.instance().getTabsManager(
+                filter!!
+            ).fragmentManager
             val fragmentTransaction = fragmentManager!!.beginTransaction()
             val currentFrag = App.instance().getTabsManager(filter!!).currentFragment
             fragmentTransaction.hide(currentFrag!!).commit()
@@ -352,7 +355,7 @@ class PDFReaderFragment : BaseFragment() {
                         pathname
                     ))
                 }
-                mFolderSelectDialog!!.setListener(object : DialogListener {
+                mFolderSelectDialog!!.setListener(object : MatchDialog.DialogListener {
                     override fun onResult(btType: Long) {}
                     override fun onBackClick() {}
                     override fun onTitleRightButtonClick() {
@@ -440,6 +443,18 @@ class PDFReaderFragment : BaseFragment() {
 
     override fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         mUiExtensionsManager!!.handleActivityResult(activity, requestCode, resultCode, data)
+    }
+
+    override fun handleRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        mUiExtensionsManager!!.handleRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
