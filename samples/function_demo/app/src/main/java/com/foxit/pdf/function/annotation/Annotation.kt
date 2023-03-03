@@ -458,7 +458,7 @@ class Annotation(private val mContext: Context) {
             static_stamp.resetAppearanceStream()
 
             // Add dynamic stamp annotation.
-            val action_callback = CustomActionCallback()
+            val action_callback = CustomActionCallback(mContext)
             Library.setActionCallback(action_callback)
             icon_provider.setUseDynamicStamp(true)
             annot = page.addAnnot(Annot.e_Stamp, RectF(10f, 150f, 100f, 250f))
