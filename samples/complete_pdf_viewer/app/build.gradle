@@ -9,8 +9,8 @@ android {
         applicationId "com.foxit.home"
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 26
-        versionName "8.3.0"
+        versionCode 27
+        versionName "8.4.0"
         multiDexEnabled true
     }
     signingConfigs {
