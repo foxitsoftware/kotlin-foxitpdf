@@ -176,6 +176,7 @@ class PDFReaderFragment : BaseFragment() {
 
         override fun onDocWillClose(document: PDFDoc) {}
         override fun onDocClosed(document: PDFDoc?, errCode: Int) {
+            dismissProgressDlg()
             if (isSaveDocInCurPath) {
                 val file = File(currentFileCachePath!!)
                 val docFile = File(mDocPath!!)
@@ -199,6 +200,7 @@ class PDFReaderFragment : BaseFragment() {
 
         override fun onDocWillSave(document: PDFDoc) {}
         override fun onDocSaved(document: PDFDoc, errCode: Int) {
+            dismissProgressDlg()
             if (errCode == Constants.e_ErrSuccess) {
                 val activity: Activity? = activity
                 if (activity != null) {
@@ -425,6 +427,13 @@ class PDFReaderFragment : BaseFragment() {
             mProgressDlg!!.isIndeterminate = false
             mProgressDlg!!.setMessage(mProgressMsg)
             AppDialogManager.getInstance().showAllowManager(mProgressDlg, null)
+        }
+    }
+
+    private fun dismissProgressDlg() {
+        if (mProgressDlg != null && mProgressDlg!!.isShowing) {
+            AppDialogManager.getInstance().dismiss(mProgressDlg)
+            mProgressDlg = null
         }
     }
 

@@ -80,9 +80,31 @@ class MultiTabView {
     }
 
     fun removeTab(path: String?) {
-        val tabInfo = TabInfo()
-        tabInfo.tabTarget = path
-        onTabRemoved(tabInfo, null)
+        if (historyFileNames.size == 1) {
+            val tabInfo: TabInfo = TabInfo()
+            tabInfo.tabTarget = path
+            onTabRemoved(tabInfo, null)
+            return
+        }
+        var curTabIndex = 0
+        for (i in historyFileNames.indices) {
+            val tabName = historyFileNames[i]
+            if (tabName == path) {
+                curTabIndex = i
+                break
+            }
+        }
+        var newPath: String? = ""
+        newPath = if (curTabIndex == 0 || curTabIndex < historyFileNames.size - 1) {
+            historyFileNames[curTabIndex + 1] // get the next tab
+        } else {
+            historyFileNames[curTabIndex - 1] // get the previous tab
+        }
+        val oldTabInfo = TabInfo()
+        oldTabInfo.tabTarget = path
+        val newTabInfo = TabInfo()
+        newTabInfo.tabTarget = newPath
+        onTabRemoved(oldTabInfo, newTabInfo)
     }
 
     fun removeTab(tabInfo: TabInfo) {
