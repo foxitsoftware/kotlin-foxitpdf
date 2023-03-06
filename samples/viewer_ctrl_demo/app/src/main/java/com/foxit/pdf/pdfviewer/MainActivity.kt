@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2022, Foxit Software Inc..
+ * Copyright (C) 2003-2023, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -52,7 +52,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Environment
+import android.provider.Settings
 import android.util.TypedValue
 import android.view.*
 import android.widget.RelativeLayout
@@ -145,40 +147,7 @@ class MainActivity : FragmentActivity() {
         pdfViewCtrl!!.uiExtensionsManager = uiExtensionsManager
         uiExtensionsManager!!.registerMenuEventListener(mMenuEventListener)
         uiExtensionsManager!!.registerStateChangeListener(mStateChangeListener)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val permission = ContextCompat.checkSelfPermission(
-                this.applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-                )
-            } else {
-                openDocument()
-            }
-        } else {
-            openDocument()
-        }
-        outlineModule =
-            uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule
-        if (outlineModule == null) {
-            outlineModule = OutlineModule(
-                this,
-                uiExtensionsManager!!.rootView,
-                pdfViewCtrl,
-                uiExtensionsManager
-            )
-            outlineModule!!.loadModule()
-        }
-        annotPanelModule =
-            uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_ANNOTPANEL) as AnnotPanelModule
-        if (annotPanelModule == null) {
-            annotPanelModule = AnnotPanelModule(mContext, pdfViewCtrl, uiExtensionsManager)
-            annotPanelModule!!.loadModule()
-        }
+
         thumbnailModule =
             uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_THUMBNAIL) as ThumbnailModule
         if (thumbnailModule == null) {
@@ -195,6 +164,29 @@ class MainActivity : FragmentActivity() {
             panelView.layoutParams = panelView.layoutParams
         }
         setContentView(uiExtensionsManager!!.contentView)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                intent.data = Uri.parse("package:" + applicationContext.packageName)
+                startActivityForResult(intent, REQUEST_ALL_FILES_ACCESS_PERMISSION)
+                return
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val permission = ContextCompat.checkSelfPermission(
+                this.applicationContext,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+                )
+                return
+            }
+        }
+        openDocument()
     }
 
     override fun onRequestPermissionsResult(
@@ -327,6 +319,20 @@ class MainActivity : FragmentActivity() {
                 }
             }
             if (itemId == R.id.Outline) {
+                if (outlineModule == null) {
+                    outlineModule =
+                        uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_OUTLINE) as OutlineModule?
+                }
+                if (outlineModule == null) {
+                    outlineModule = OutlineModule(
+                        mContext,
+                        uiExtensionsManager!!.rootView,
+                        pdfViewCtrl,
+                        uiExtensionsManager
+                    )
+                    outlineModule!!.loadModule()
+                }
+
                 if (outlineModule != null) uiExtensionsManager!!.panelManager.showPanel(PanelSpec.OUTLINE)
             } else if (itemId == R.id.ChangeLayout) {
                 pdfViewCtrl!!.isContinuous = !pdfViewCtrl!!.isContinuous
@@ -386,6 +392,16 @@ class MainActivity : FragmentActivity() {
                 }
                 uiExtensionsManager!!.currentToolHandler = squigglyModule!!.toolHandler
             } else if (itemId == R.id.Annotations) {
+                if (annotPanelModule == null) {
+                    annotPanelModule =
+                        uiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_ANNOTPANEL) as AnnotPanelModule
+                }
+
+                if (annotPanelModule == null) {
+                    annotPanelModule = AnnotPanelModule(mContext, pdfViewCtrl, uiExtensionsManager)
+                    annotPanelModule!!.loadModule()
+                }
+
                 if (annotPanelModule != null) uiExtensionsManager!!.panelManager.showPanel(PanelSpec.ANNOTATIONS)
             } else if (itemId == R.id.Thumbnail) {
                 if (thumbnailModule != null) {
@@ -405,8 +421,16 @@ class MainActivity : FragmentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (pdfViewCtrl != null) {
-            pdfViewCtrl!!.handleActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_ALL_FILES_ACCESS_PERMISSION) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    openDocument()
+                }
+            }
+        } else {
+            if (pdfViewCtrl != null) {
+                pdfViewCtrl!!.handleActivityResult(requestCode, resultCode, data)
+            }
         }
     }
 
@@ -461,8 +485,9 @@ class MainActivity : FragmentActivity() {
         private val sn = "l5uLRkyIIDIyKJQZBChK2tXW/BikAnJozYEi1ApEyOR7i8W3U0ZlKQ=="
         private val key =
             "ezJvjl8mvB539NviuavWvpsxZwdMWZ2hvkmJNQZ8S/CwnxmS4c9F6U69I385uOe2wT4Fg2fJksQtXtnFsJ6lZR6RmsquC9T+GuC1YcZfAx/DRZivPTAkOaYoOwHQhGkkeTytiGg4KlolOVjyyRy5ZjzBBuwgODp1AcJAdTSvFlZnl+iCoYbPEKxUo/2+grZrhLICAXhrEioM4AwgIp1FxhQGlTLdv6OmuczqP0jt4IAEEJ1VhL5rh8X1fTGpx8fR8i0o0Ez/X307CCLaHBYLVXWMaZRn0XCsA1cOtcnD7XME1T4rHm4e4F+leLLPeylUoAMA/x1LwHj2yky9b2IclJxYcXRVdZOjCZsNPLpUDZS/UvAdTNrbkDl8fS/Vx75QOW+2z8//pjK4UR23WMi9yuvhXpfyi5Etv0aZDe969Pmc1vt2zK2Ddz2EAO5BslqcPDw2eBfCMBQL+iz3p9xg0XI9pAI6DnRDuqHkqHh6EVZ6zN20BupuDOdTg+PemU739fedBXY7TQz7ORE6BtzvPIlpyG1mNKC7A3bOIzyTDbVfSq3bPj5qoas7brtGTce1j0EHfzF3rzyFsKbvxcTcBRKzV+bAvtNofD4qPtqz7edHNbJKVcugoARzikVFW3dD7d14p7QUV+d6QkQf12KvzocGRfY1cHC/+Cey25k0+UtFQ/KdhaU/EVOfprWqeJLUyqX/GV9WX7I3A3OF8nTqeh7UpaOin8pA3T5k3tzAcnzFf9jFXjZeT1cRhClLSbWR4fGn+rxeLr2lwTOa9kBR1BY/iwItyY7uxCj1LcxtLKNC+BFRK4tXTsFlCjQPJOreF0oBxAhSp8dTmeXsdb/QVJMlR1iuJwqIWoxfg9+zHBNPUHpK33weRQ/j2gRPGBV2eW3+Wqcx+5VyB3PtCxaheJ3jMgXD2/1UBh24JVUVwgL0oQ3fi7EhleoALwQaulCWP5TTCOioPJFjVGBMo5BfH4o4rU1JNDse/QIauw1EkQQHlzfazCpU9gHnP4nBNKAgn+fNc+hwDBEP0dmlIEeHvy4kGEQQCwtMuV6Ezam1BAUwjKp8Lw5d2B/8d65mUCj1kZl2cXLEAnrwFCyZ8+RHe4XK+DZGCbwjzcyzJdQ+3qUrVgf9iseJm9XpOZp1azqo5nfOThl4lJAcEty7lsbXRpldNiFb8VE/hMkm/cFR9PNj40N4Zq+EvdiSO1ZwaEyM67OHwgo6i0QtGhp1SNA6Enq6OVNEy9J0QF5e2XT4UoZNN7roRKkP1ADvQA=="
-        const val REQUEST_EXTERNAL_STORAGE = 1
-        private val PERMISSIONS_STORAGE = arrayOf(
+        const val REQUEST_EXTERNAL_STORAGE = 111
+        const val REQUEST_ALL_FILES_ACCESS_PERMISSION = 222
+        val PERMISSIONS_STORAGE = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
