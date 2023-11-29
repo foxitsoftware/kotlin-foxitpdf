@@ -123,6 +123,9 @@ class PDFReaderFragment : BaseFragment() {
     }
 
     var mDocEventListener: IDocEventListener? = object : IDocEventListener {
+
+        override fun onDocLoading(document: PDFDoc, progress: Int) {}
+
         override fun onDocWillOpen() {}
         override fun onDocOpened(document: PDFDoc, errCode: Int) {
             isOpenSuccess = errCode == Constants.e_ErrSuccess

@@ -307,7 +307,6 @@ class HomeFragment : Fragment(), IThemeChangeObserver {
         super.onConfigurationChanged(newConfig)
         val newNightMode = newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK
         if (AppDarkUtil.getInstance(context).isSystemModified(newNightMode)) {
-            App.instance().getTabsButton(filter!!)!!.setImageTintList(ThemeUtil.getEnableIconColor(context))
             if (singleMultiBtn != null) {
                 val disabled = ThemeConfig.getInstance(context).i2
                 val normal = ThemeConfig.getInstance(context).i1

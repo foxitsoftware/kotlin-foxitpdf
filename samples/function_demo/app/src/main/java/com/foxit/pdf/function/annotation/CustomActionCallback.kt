@@ -15,18 +15,39 @@ package com.foxit.pdf.function.annotation
 
 import android.content.Context
 import android.content.pm.PackageManager
-import com.foxit.sdk.*
-import com.foxit.sdk.pdf.PDFDoc
+import com.foxit.sdk.ActionCallback
+import com.foxit.sdk.ButtonItem
+import com.foxit.sdk.DialogDescriptionConfig
+import com.foxit.sdk.IdentityProperties
+import com.foxit.sdk.MediaPlayerCallback
+import com.foxit.sdk.MenuItemConfig
+import com.foxit.sdk.MenuItemEx
+import com.foxit.sdk.MenuItemExArray
+import com.foxit.sdk.MenuListArray
+import com.foxit.sdk.PlayerArgs
+import com.foxit.sdk.PrintParams
+import com.foxit.sdk.SOAPRequestProperties
+import com.foxit.sdk.SOAPResponseInfo
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Range
 import com.foxit.sdk.common.WStringArray
 import com.foxit.sdk.common.fxcrt.PointF
 import com.foxit.sdk.common.fxcrt.RectF
+import com.foxit.sdk.pdf.PDFDoc
 import com.foxit.sdk.pdf.Signature
 import com.foxit.sdk.pdf.actions.Destination
 
 internal class CustomActionCallback(context: Context) : ActionCallback() {
     private var mVersion: String? = null
+
+    init {
+        try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            mVersion = pInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+    }
 
     override fun release() {}
     override fun invalidateRect(document: PDFDoc, page_index: Int, pdf_rect: RectF): Boolean {
@@ -76,8 +97,8 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
     }
 
     override fun closeDoc(document: PDFDoc, is_prompt_to_save: Boolean) {}
-    override fun openDoc(file_path: String, password: String): Boolean {
-        return false
+    override fun openDoc(file_path: String, password: String): PDFDoc? {
+        return null
     }
 
     override fun beep(type: Int): Boolean {
@@ -193,8 +214,7 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
             e_AppInfoTypeViewerVariation -> info = "Full"
             e_AppInfoTypeViewerVersion -> info = "11.007"
             e_AppInfoTypeAppVersion -> info = mVersion!!
-            else -> {
-            }
+            else -> {}
         }
         return info
     }
@@ -209,6 +229,10 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         message: String
     ): Boolean {
         return false
+    }
+
+    override fun verifySignature(document: PDFDoc, pdf_signature: Signature): Int {
+        return Signature.e_StateUnknown
     }
 
     override fun getUntitledBookmarkName(): String {
@@ -282,7 +306,14 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
     }
 
     override fun scroll(point: PointF) {}
-    override fun selectPageNthWord(page_index: Int, word_index: Int, is_show_selection: Boolean) {}
+    override fun selectPageNthWord(
+        page_index: Int,
+        start_offset: Int,
+        end_offset: Int,
+        is_show_selection: Boolean
+    ) {
+    }
+
     override fun getMousePosition(): PointF {
         return PointF()
     }
@@ -305,16 +336,19 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return Destination.e_ZoomFitBHorz
     }
 
-    override fun verifySignature(document: PDFDoc, pdf_signature: Signature): Int {
-        return Signature.e_StateUnknown
+    override fun soapRequest(request_params: SOAPRequestProperties): SOAPResponseInfo? {
+        return null
     }
 
-    init {
-        try {
-            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            mVersion = pInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
+    override fun enablePageLoop(is_loop: Boolean) {}
+    override fun isPageLoop(): Boolean {
+        return false
     }
+
+    override fun setDefaultPageTransitionMode(trans_type: String, trans_di: String) {}
+    override fun isCurrentDocOpenedInBrowser(): Boolean {
+        return false
+    }
+
+    override fun postMessageToHtml(message: WStringArray) {}
 }

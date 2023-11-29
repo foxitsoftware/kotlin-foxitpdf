@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '29.0.3'
+    compileSdkVersion 33
+//    buildToolsVersion '33.0.2'
 
     defaultConfig {
         applicationId "com.foxit.pdf.function_demo"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 27
-        versionName "8.4.0"
+        targetSdkVersion 33
+        versionCode 28
+        versionName "9.0.0"
     }
     buildTypes {
         release {

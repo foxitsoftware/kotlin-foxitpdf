@@ -87,8 +87,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
             ft.show(readerFragment)
         }
         ft.commit()
-        SystemUiHelper.getInstance()
-            .setStatusBarColor(window, ThemeConfig.getInstance(this).primaryColor)
+        SystemUiHelper.getInstance().setStatusBarColor(window, getResources().getColor(R.color.ui_color_top_bar_main, null));
     }
 
     fun checkStorageState() {
