@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -161,7 +161,7 @@ class MainActivity : FragmentActivity() {
             val builder = VmPolicy.Builder()
             StrictMode.setVmPolicy(builder.build())
         }
-        val panelView = uiExtensionsManager!!.rootView.findViewById<View>(R.id.read_panel_view_ly)
+        val panelView = uiExtensionsManager!!.rootView.findViewById<View>(com.foxit.uiextensions.R.id.read_panel_view_ly)
         if (AppDisplay.isPad() && panelView != null && panelView.layoutParams is RelativeLayout.LayoutParams) {
             (panelView.layoutParams as RelativeLayout.LayoutParams).removeRule(RelativeLayout.BELOW)
             panelView.layoutParams = panelView.layoutParams
@@ -203,7 +203,7 @@ class MainActivity : FragmentActivity() {
                 openDocument()
             } else {
                 UIToast.getInstance(applicationContext)
-                    .show(getString(R.string.fx_permission_denied))
+                    .show("Permission Denied")
                 finish()
             }
         }
