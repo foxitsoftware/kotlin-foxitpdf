@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -144,7 +144,7 @@ class MultiTabView {
             if (name == changeColorDocName && count > 1) {
                 mTabCloseImageView.setImageDrawable(AppResource.getDrawable(mContext, R.drawable._feature_rd_multiple_tab_close))
                 //                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#C3C3C3"));
-                val selectColor = AppResource.getColor(mContext, R.color.ux_color_select_tab)
+                val selectColor = AppResource.getColor(mContext, com.foxit.uiextensions.R.color.ux_color_select_tab)
                 mTabNameTextView.setBackgroundColor(selectColor)
                 mTabCloseImageView.setBackgroundColor(selectColor)
                 mTabCloseRelativeLayout.setBackgroundColor(selectColor)
@@ -156,7 +156,7 @@ class MultiTabView {
 //                mTabCloseImageView.setImageDrawable(null);
                 mTabCloseImageView.setImageDrawable(AppResource.getDrawable(mContext, R.drawable._feature_rd_multiple_tab_close))
                 //                mRelativeLayoutSignalTab1.setBackgroundColor(Color.parseColor("#FAFAFA"));
-                val unSelectColor = AppResource.getColor(mContext, R.color.ux_color_select_tab)
+                val unSelectColor = AppResource.getColor(mContext, com.foxit.uiextensions.R.color.ux_color_select_tab)
                 mTabNameTextView.setBackgroundColor(unSelectColor)
                 mTabCloseImageView.setBackgroundColor(unSelectColor)
                 mTabCloseRelativeLayout.setBackgroundColor(unSelectColor)

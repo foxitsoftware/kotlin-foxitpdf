@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -38,7 +38,7 @@ import com.foxit.uiextensions.Module
 import com.foxit.uiextensions.UIExtensionsManager
 import com.foxit.uiextensions.config.Config
 import com.foxit.uiextensions.controls.dialog.AppDialogManager
-import com.foxit.uiextensions.controls.dialog.MatchDialog
+import com.foxit.uiextensions.controls.dialog.MatchDialog.DialogListener
 import com.foxit.uiextensions.controls.dialog.UIDialog
 import com.foxit.uiextensions.controls.dialog.UITextEditDialog
 import com.foxit.uiextensions.controls.dialog.fileselect.UIFolderSelectDialog
@@ -46,7 +46,12 @@ import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.local.LocalModule
 import com.foxit.uiextensions.modules.dynamicxfa.DynamicXFAModule
 import com.foxit.uiextensions.pdfreader.config.ReadStateConfig
-import com.foxit.uiextensions.utils.*
+import com.foxit.uiextensions.utils.AppDmUtil
+import com.foxit.uiextensions.utils.AppFileUtil
+import com.foxit.uiextensions.utils.AppResource
+import com.foxit.uiextensions.utils.AppStorageManager
+import com.foxit.uiextensions.utils.AppUtil
+import com.foxit.uiextensions.utils.UIToast
 import java.io.File
 
 class PDFReaderFragment : BaseFragment() {
@@ -56,12 +61,14 @@ class PDFReaderFragment : BaseFragment() {
     private var mProgressDlg: ProgressDialog? = null
     private var mFragmentEvent: IFragmentEvent? = null
     private var mFolderSelectDialog: UIFolderSelectDialog? = null
+
     private var mSavePath: String? = null
     private var mProgressMsg: String? = null
     private var mDocPath: String? = null
     private var currentFileCachePath: String? = null
     private var isSaveDocInCurPath = false
     private var isCloseDocAfterSaving = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,16 +90,17 @@ class PDFReaderFragment : BaseFragment() {
         if (App.instance().isMultiTab) {
             pdfViewCtrl!!.registerDocEventListener(mDocEventListener)
         }
+
         pdfViewCtrl!!.uiExtensionsManager = mUiExtensionsManager
         pdfViewCtrl!!.attachedActivity = activity
         mUiExtensionsManager!!.attachedActivity = activity
-        mUiExtensionsManager!!.registerModule(
-            App.instance().getLocalModule(filter!!)
-        ) // use to refresh file list
+        mUiExtensionsManager!!.registerModule(App.instance().getLocalModule(filter!!)) // use to refresh file list
+
         mUiExtensionsManager!!.onCreate(activity, pdfViewCtrl, savedInstanceState)
         mUiExtensionsManager!!.openDocument(path, null)
         mUiExtensionsManager!!.setOnFinishListener(onFinishListener)
         name = ""
+
         mUiExtensionsManager!!.backEventListener = mBackEventListener
         return mUiExtensionsManager!!.contentView
     }
@@ -111,26 +119,44 @@ class PDFReaderFragment : BaseFragment() {
         super.onDestroy()
         if (App.instance().isMultiTab) {
             mUiExtensionsManager!!.mainFrame.topActionView.removeView(
-                App.instance().getMultiTabView(filter!!).tabView
+                App.instance().getMultiTabView(
+                    filter!!
+                ).tabView
             )
             if (pdfViewCtrl != null) {
                 pdfViewCtrl!!.unregisterDocEventListener(mDocEventListener)
             }
+
             mUiExtensionsManager!!.backEventListener = null
         }
+
         mDocEventListener = null
         mBackEventListener = null
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        if (App.instance().isMultiTab) {
+            val current = App.instance().getTabsManager(filter!!).filePath
+            val currentFrag = App.instance().getTabsManager(filter!!).fragmentMap[current]
+            if (currentFrag != null) {
+                currentFrag.mUiExtensionsManager!!.documentManager.resetActionCallback()
+            }
+        }
+    }
+
     var mDocEventListener: IDocEventListener? = object : IDocEventListener {
+        override fun onDocWillOpen() {
+        }
 
-        override fun onDocLoading(document: PDFDoc, progress: Int) {}
+        override fun onDocLoading(document: PDFDoc, progress: Int) {
+        }
 
-        override fun onDocWillOpen() {}
         override fun onDocOpened(document: PDFDoc, errCode: Int) {
             isOpenSuccess = errCode == Constants.e_ErrSuccess
             if (App.instance().isMultiTab && errCode == Constants.e_ErrSuccess) {
                 mDocPath = pdfViewCtrl!!.filePath
+
                 val fragment = App.instance()
                     .getTabsManager(filter!!).fragmentMap[mDocPath] as PDFReaderFragment?
                 if (!AppStorageManager.getInstance(context)
@@ -139,25 +165,32 @@ class PDFReaderFragment : BaseFragment() {
                     //Remove the same file that has been opened
                     if (fragment != null) {
                         App.instance().getMultiTabView(filter!!).historyFileNames.remove(mDocPath)
-                        val mFragmentManager =
-                            App.instance().getTabsManager(filter!!).fragmentManager
+
+                        val mFragmentManager = App.instance().getTabsManager(
+                            filter!!
+                        ).fragmentManager
                         val fragmentTransaction = mFragmentManager!!.beginTransaction()
                         fragmentTransaction.remove(fragment).commitAllowingStateLoss()
+
                         App.instance().getTabsManager(filter!!).fragmentMap.remove(mDocPath)
                     }
+
                     App.instance().getTabsManager(filter!!).fragmentMap.remove(path)
                     App.instance().getTabsManager(filter!!)
                         .addFragment(mDocPath!!, this@PDFReaderFragment)
                     App.instance().getTabsManager(filter!!).filePath = mDocPath
-                    val index =
-                        App.instance().getMultiTabView(filter!!).historyFileNames.indexOf(path)
-                    App.instance().getMultiTabView(filter!!).historyFileNames[index] = mDocPath
+
+                    val index = App.instance().getMultiTabView(filter!!).historyFileNames.indexOf(path)
+                    App.instance().getMultiTabView(filter!!).historyFileNames[index] =
+                        mDocPath
+
                     path = mDocPath
                     App.instance().getMultiTabView(filter!!).refreshTopBar(mDocPath)
                 } else {
                     if (fragment != null && fragment !== this@PDFReaderFragment) {
-                        val mFragmentManager =
-                            App.instance().getTabsManager(filter!!).fragmentManager
+                        val mFragmentManager = App.instance().getTabsManager(
+                            filter!!
+                        ).fragmentManager
                         val fragmentTransaction = mFragmentManager!!.beginTransaction()
                         fragmentTransaction.remove(fragment).commitAllowingStateLoss()
                         App.instance().getTabsManager(filter!!)
@@ -165,43 +198,53 @@ class PDFReaderFragment : BaseFragment() {
                     }
                     App.instance().getMultiTabView(filter!!).refreshTopBar(path)
                 }
+
                 val h = mUiExtensionsManager!!.mainFrame.topToolbar.contentView.height
                 val params =
                     LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2 * h / 3)
                 params.topMargin = -10
-                val parent = App.instance().getMultiTabView(filter!!).tabView!!.parent as ViewGroup?
+                val parent = App.instance()
+                    .getMultiTabView(filter!!).tabView!!.parent as ViewGroup
                 parent?.removeView(App.instance().getMultiTabView(filter!!).tabView)
                 mUiExtensionsManager!!.mainFrame.topActionView.addView(
-                    App.instance().getMultiTabView(filter!!).tabView, params
+                    App.instance().getMultiTabView(
+                        filter!!
+                    ).tabView, params
                 )
             }
         }
 
-        override fun onDocWillClose(document: PDFDoc) {}
-        override fun onDocClosed(document: PDFDoc?, errCode: Int) {
+        override fun onDocWillClose(document: PDFDoc) {
+        }
+
+        override fun onDocClosed(document: PDFDoc, errCode: Int) {
             dismissProgressDlg()
             if (isSaveDocInCurPath) {
-                val file = File(currentFileCachePath!!)
-                val docFile = File(mDocPath!!)
+                val file = File(currentFileCachePath)
+                val docFile = File(mDocPath)
                 val context = App.instance().applicationContext
                 if (file.exists()) {
                     docFile.delete()
                     if (!file.renameTo(docFile)) UIToast.getInstance(context)
-                        .show(AppResource.getString(context, R.string.fx_save_file_failed))
+                        .show(context!!.getString(com.foxit.uiextensions.R.string.fx_save_file_failed))
                 } else {
                     UIToast.getInstance(context)
-                        .show(AppResource.getString(context, R.string.fx_save_file_failed))
+                        .show(context!!.getString(com.foxit.uiextensions.R.string.fx_save_file_failed))
                 }
             }
+
             if (errCode == Constants.e_ErrSuccess && isSaveDocInCurPath) {
                 updateThumbnail(mSavePath)
             }
+
             if (mFragmentEvent != null) {
                 mFragmentEvent!!.onRemove()
             }
         }
 
-        override fun onDocWillSave(document: PDFDoc) {}
+        override fun onDocWillSave(document: PDFDoc) {
+        }
+
         override fun onDocSaved(document: PDFDoc, errCode: Int) {
             dismissProgressDlg()
             if (errCode == Constants.e_ErrSuccess) {
@@ -218,11 +261,14 @@ class PDFReaderFragment : BaseFragment() {
                     }
                 }
             }
+
             if (isCloseDocAfterSaving) {
                 closeAndSaveDoc(mFragmentEvent)
             }
         }
     }
+
+
     private var mBackEventListener: BackEventListener? = BackEventListener {
         if (App.instance().isMultiTab) {
             if (mUiExtensionsManager!!.state == ReadStateConfig.STATE_COMPARE) {
@@ -232,13 +278,14 @@ class PDFReaderFragment : BaseFragment() {
             }
             if (mUiExtensionsManager!!.currentToolHandler != null) mUiExtensionsManager!!.currentToolHandler =
                 null
+
             val fragmentManager = App.instance().getTabsManager(
                 filter!!
             ).fragmentManager
             val fragmentTransaction = fragmentManager!!.beginTransaction()
             val currentFrag = App.instance().getTabsManager(filter!!).currentFragment
             fragmentTransaction.hide(currentFrag!!).commit()
-            if (activity != null) (activity as MainActivity?)!!.changeReaderState(MainActivity.READER_STATE_HOME)
+            if (activity != null) (activity as MainActivity).changeReaderState(MainActivity.READER_STATE_HOME)
             return@BackEventListener true
         }
         false
@@ -246,60 +293,77 @@ class PDFReaderFragment : BaseFragment() {
 
     fun doClose(callback: IFragmentEvent?) {
         if (pdfViewCtrl == null) return
+
         if (pdfViewCtrl!!.isDynamicXFA) {
             val dynamicXFAModule =
                 mUiExtensionsManager!!.getModuleByName(Module.MODULE_NAME_DYNAMICXFA) as DynamicXFAModule
-            if (dynamicXFAModule != null && dynamicXFAModule.currentXFAWidget != null) {
+            if (dynamicXFAModule?.currentXFAWidget != null) {
                 dynamicXFAModule.currentXFAWidget = null
             }
         }
+
         val context = App.instance().applicationContext
         if (pdfViewCtrl!!.doc == null || !mUiExtensionsManager!!.documentManager.isDocModified) {
-            mProgressMsg = AppResource.getString(context, R.string.fx_string_closing)
+            mProgressMsg = context!!.getString(com.foxit.uiextensions.R.string.fx_string_closing)
             closeAndSaveDoc(callback)
             return
         }
+
         if (mUiExtensionsManager!!.isAutoSaveDoc) {
             saveToOriginalFile(context!!, callback)
             return
         }
+
         val builder = AlertDialog.Builder(requireActivity())
         val items = arrayOf(
-            AppResource.getString(context, R.string.rv_back_save_to_original_file),
-            AppResource.getString(context, R.string.rv_back_save_to_new_file),
-            AppResource.getString(context, R.string.rv_back_discard_modify)
+            context!!.getString(com.foxit.uiextensions.R.string.rv_back_save_to_original_file),
+            context.getString(com.foxit.uiextensions.R.string.rv_back_save_to_new_file),
+            context.getString(com.foxit.uiextensions.R.string.rv_back_discard_modify),
         )
+
         builder.setItems(items, object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface, which: Int) {
                 when (which) {
-                    0 -> saveToOriginalFile(context!!, callback)
+                    0 -> saveToOriginalFile(context, callback)
                     1 -> {
-                        mProgressMsg = AppResource.getString(context, R.string.fx_string_saving)
+                        mProgressMsg =
+                            context.getString(com.foxit.uiextensions.R.string.fx_string_saving)
                         onSaveAsClicked()
                     }
+
                     2 -> {
-                        mProgressMsg = AppResource.getString(context, R.string.fx_string_closing)
+                        mProgressMsg =
+                            context.getString(com.foxit.uiextensions.R.string.fx_string_closing)
                         closeAndSaveDoc(callback)
                     }
-                    else -> {
-                    }
+
+                    else -> {}
                 }
                 dialog.dismiss()
                 mSaveAlertDlg = null
             }
 
             fun showInputFileNameDialog(fileFolder: String) {
-                val newFilePath = fileFolder + "/" + AppFileUtil.getFileName(pdfViewCtrl!!.filePath)
+                val newFilePath = "$fileFolder/" + AppFileUtil.getFileName(
+                    pdfViewCtrl!!.filePath
+                )
                 val filePath = AppFileUtil.getFileDuplicateName(newFilePath)
                 val fileName = AppFileUtil.getFileNameWithoutExt(filePath)
+
                 val rmDialog = UITextEditDialog(activity)
                 rmDialog.setPattern("[/\\:*?<>|\"\n\t]")
-                rmDialog.setTitle(AppResource.getString(context, R.string.fx_string_saveas))
+                rmDialog.setTitle(
+                    AppResource.getString(
+                        context,
+                        com.foxit.uiextensions.R.string.fx_string_saveas
+                    )
+                )
                 rmDialog.promptTextView.visibility = View.GONE
                 rmDialog.inputEditText.setText(fileName)
                 rmDialog.inputEditText.selectAll()
                 rmDialog.show()
                 AppUtil.showSoftInput(rmDialog.inputEditText)
+
                 rmDialog.okButton.setOnClickListener { v ->
                     rmDialog.dismiss()
                     val inputName = rmDialog.inputEditText.text.toString()
@@ -322,10 +386,18 @@ class PDFReaderFragment : BaseFragment() {
 
             fun showAskReplaceDialog(fileFolder: String, newPath: String?) {
                 val rmDialog = UITextEditDialog(activity, UIDialog.NO_INPUT)
-                rmDialog.setTitle(AppResource.getString(context, R.string.fx_string_saveas))
-                rmDialog.promptTextView.text =
-                    AppResource.getString(context, R.string.fx_string_filereplace_warning)
+                rmDialog.setTitle(
+                    AppResource.getString(
+                        context,
+                        com.foxit.uiextensions.R.string.fx_string_saveas
+                    )
+                )
+                rmDialog.promptTextView.text = AppResource.getString(
+                    context,
+                    com.foxit.uiextensions.R.string.fx_string_filereplace_warning
+                )
                 rmDialog.show()
+
                 rmDialog.okButton.setOnClickListener {
                     rmDialog.dismiss()
                     isCloseDocAfterSaving = true
@@ -347,6 +419,7 @@ class PDFReaderFragment : BaseFragment() {
                     mFragmentEvent = callback
                     showProgressDialog()
                 }
+
                 rmDialog.cancelButton.setOnClickListener {
                     rmDialog.dismiss()
                     showInputFileNameDialog(fileFolder)
@@ -360,9 +433,13 @@ class PDFReaderFragment : BaseFragment() {
                         pathname
                     ))
                 }
-                mFolderSelectDialog!!.setListener(object : MatchDialog.DialogListener {
-                    override fun onResult(btType: Long) {}
-                    override fun onBackClick() {}
+                mFolderSelectDialog!!.setListener(object : DialogListener {
+                    override fun onResult(btType: Long) {
+                    }
+
+                    override fun onBackClick() {
+                    }
+
                     override fun onTitleRightButtonClick() {
                         val fileFolder = mFolderSelectDialog!!.currentPath
                         showInputFileNameDialog(fileFolder)
@@ -372,6 +449,7 @@ class PDFReaderFragment : BaseFragment() {
                 mFolderSelectDialog!!.showDialog()
             }
         })
+
         mSaveAlertDlg = builder.create()
         mSaveAlertDlg!!.setCanceledOnTouchOutside(true)
         mSaveAlertDlg!!.show()
@@ -406,7 +484,7 @@ class PDFReaderFragment : BaseFragment() {
             pdfViewCtrl!!.saveDoc(getCacheFile(null), mUiExtensionsManager!!.saveDocFlag)
         }
         isSaveDocInCurPath = true
-        mProgressMsg = context.getString(R.string.fx_string_saving)
+        mProgressMsg = context.getString(com.foxit.uiextensions.R.string.fx_string_saving)
         mFragmentEvent = callback
         showProgressDialog()
     }
@@ -478,6 +556,6 @@ class PDFReaderFragment : BaseFragment() {
     }
 
     companion object {
-        private val TAG = PDFReaderFragment::class.java.simpleName
+        private val TAG: String = PDFReaderFragment::class.java.simpleName
     }
 }

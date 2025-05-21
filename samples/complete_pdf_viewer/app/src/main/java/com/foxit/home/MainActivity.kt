@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -19,7 +19,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
@@ -33,24 +32,27 @@ import com.foxit.pdfscan.IPDFScanManagerListener
 import com.foxit.uiextensions.home.IHomeModule
 import com.foxit.uiextensions.home.IHomeModule.onFileItemEventListener
 import com.foxit.uiextensions.home.local.LocalModule.ICompareListener
-import com.foxit.uiextensions.theme.ThemeConfig
-import com.foxit.uiextensions.utils.*
+import com.foxit.uiextensions.utils.AppFileUtil
+import com.foxit.uiextensions.utils.AppStorageManager
+import com.foxit.uiextensions.utils.AppTheme
+import com.foxit.uiextensions.utils.SystemUiHelper
 
 class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
     onFileItemEventListener, ICompareListener, IPDFScanManagerListener {
     private var mReaderState = READER_STATE_HOME
     private var mLicenseValid = false
     private var filter: String? = App.FILTER_DEFAULT
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mLicenseValid = App.instance().checkLicense()
         if (!mLicenseValid) {
             return
         }
-        if (!AppDevice.isChromeOs(this))
-            AppTheme.setThemeFullScreen(this)
+
         AppTheme.setThemeNeedMenuKey(this)
         setContentView(R.layout.activity_reader)
+
         if (Build.VERSION.SDK_INT >= 30 && !AppFileUtil.isExternalStorageLegacy()) {
             val storageManager = AppStorageManager.getInstance(this)
             val needPermission = storageManager.needManageExternalStoragePermission()
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         } else if (Build.VERSION.SDK_INT >= 23) {
             checkStorageState()
         }
+
         val intent = intent
         if (intent != null) {
             filter = intent.action
@@ -70,6 +73,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         val ft = fm.beginTransaction()
         var homeFragment = getHomeFragment(fm)
         var readerFragment = getReaderFragment(fm)
+
         if (homeFragment == null) {
             homeFragment = newInstance(filter)
             AppStorageManager.setOpenTreeRequestCode(HomeFragment.REQUEST_OPEN_DOCUMENT_TREE)
@@ -87,7 +91,10 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
             ft.show(readerFragment)
         }
         ft.commit()
-        SystemUiHelper.getInstance().setStatusBarColor(window, getResources().getColor(R.color.ui_color_top_bar_main, null));
+        SystemUiHelper.getInstance().setStatusBarColor(
+            window,
+            resources.getColor(com.foxit.uiextensions.R.color.ui_color_top_bar_main)
+        )
     }
 
     fun checkStorageState() {
@@ -104,16 +111,18 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
 
     private fun getHomeFragment(fm: FragmentManager): HomeFragment? {
         val fragment = fm.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
-        return if (fragment != null) {
-            fragment as HomeFragment?
-        } else null
+        if (fragment != null) {
+            return fragment as HomeFragment
+        }
+        return null
     }
 
     private fun getReaderFragment(fm: FragmentManager): PDFReaderTabsFragment? {
         val fragment = fm.findFragmentByTag(PDFReaderTabsFragment.FRAGMENT_NAME)
-        return if (fragment != null) {
-            fragment as PDFReaderTabsFragment?
-        } else null
+        if (fragment != null) {
+            return fragment as PDFReaderTabsFragment
+        }
+        return null
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -144,16 +153,15 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         if (mLicenseValid) {
             if (requestCode == REQUEST_EXTERNAL_STORAGE) {
                 if (verifyPermissions(grantResults)) {
                     val fragment =
                         supportFragmentManager.findFragmentByTag(HomeFragment.FRAGMENT_NAME)
-                    (fragment as? HomeFragment)?.onRequestPermissionsResult(
-                        requestCode,
-                        permissions,
-                        grantResults
-                    )
+                    if (fragment is HomeFragment) {
+                        fragment.onRequestPermissionsResult(requestCode, permissions, grantResults)
+                    }
                 }
             } else {
                 val fm = supportFragmentManager
@@ -181,11 +189,13 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
 
     override fun onFileItemClicked(fileExtra: String, filePath: String) {
         mReaderState = READER_STATE_READ
+
         val fm = supportFragmentManager
         val ft = fm.beginTransaction()
         val homeFragment = getHomeFragment(fm)
         val readerFragment = getReaderFragment(fm)
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+
         val intent = Intent()
         intent.putExtra(fileExtra, filePath)
         intent.putExtra(HomeFragment.BUNDLE_KEY_FILTER, filter)
@@ -217,12 +227,14 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
 
     fun changeReaderState(state: Int) {
         showSystemUI()
+
         mReaderState = state
         val fm = supportFragmentManager
         val ft = fm.beginTransaction()
         val homeFragment = getHomeFragment(fm)
         val readerFragment = getReaderFragment(fm)
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+
         if (mReaderState == READER_STATE_HOME) {
             if (readerFragment != null) {
                 ft.hide(readerFragment)
@@ -263,18 +275,15 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
     }
 
     private fun showSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_VISIBLE)
-        }
+        SystemUiHelper.getInstance().showSystemUI(this)
     }
 
     companion object {
-        const val REQUEST_EXTERNAL_STORAGE_MANAGER = 111
-        const val REQUEST_EXTERNAL_STORAGE = 222
-        const val READER_STATE_HOME = 1
-        const val READER_STATE_READ = 2
+        const val REQUEST_EXTERNAL_STORAGE_MANAGER: Int = 111
+        const val REQUEST_EXTERNAL_STORAGE: Int = 222
+        const val READER_STATE_HOME: Int = 1
+        const val READER_STATE_READ: Int = 2
+
         private val PERMISSIONS_STORAGE = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE

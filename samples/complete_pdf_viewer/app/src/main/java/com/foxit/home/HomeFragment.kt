@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -111,7 +111,7 @@ class HomeFragment : Fragment(), IThemeChangeObserver {
                 pdfScanManager.showUI(activity)
             } else {
                 UIToast.getInstance(App.instance().applicationContext)
-                        .show(AppResource.getString(App.instance().applicationContext, R.string.rv_invalid_license))
+                        .show(AppResource.getString(App.instance().applicationContext, com.foxit.uiextensions.R.string.rv_invalid_license))
             }
         }
         PDFScanManager.registerManagerListener(mManagerListener)
@@ -189,7 +189,7 @@ class HomeFragment : Fragment(), IThemeChangeObserver {
             val title = ""
             val dialog: Dialog = AlertDialog.Builder(activity).setCancelable(true).setTitle(title)
                     .setMessage(msg)
-                    .setPositiveButton(getString(R.string.fx_string_yes)
+                    .setPositiveButton(getString(com.foxit.uiextensions.R.string.fx_string_yes)
                     ) { dialog, which ->
                         if (v.id == R.id.rd_single_tab) {
                             finalSingleMultiBtn!!.setImageResource(R.drawable.multi_tab_pressed)
@@ -212,7 +212,7 @@ class HomeFragment : Fragment(), IThemeChangeObserver {
                         App.instance().getTabsManager(filter!!).clearFragment()
                         App.instance().getMultiTabView(filter!!).resetData()
                         dialog.dismiss()
-                    }.setNegativeButton(getString(R.string.fx_string_no)
+                    }.setNegativeButton(getString(com.foxit.uiextensions.R.string.fx_string_no)
                     ) { dialog, which -> dialog.dismiss() }.create()
             dialog.show()
         }
