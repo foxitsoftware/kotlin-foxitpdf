@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -19,7 +19,7 @@ import android.graphics.Bitmap.CompressFormat
 import android.os.Environment
 import android.text.format.Time
 import android.widget.Toast
-import com.foxit.pdf.main.R
+import com.foxit.pdf.function_demo.R
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.DateTime
@@ -90,7 +90,7 @@ object Common {
     }
 
     @JvmStatic
-    fun saveImageFile(bitmap: Bitmap, picFormat: CompressFormat?, fileName: String?): Boolean {
+    fun saveImageFile(bitmap: Bitmap, picFormat: CompressFormat, fileName: String?): Boolean {
         val file = File(fileName)
         try {
             val fos = FileOutputStream(file)

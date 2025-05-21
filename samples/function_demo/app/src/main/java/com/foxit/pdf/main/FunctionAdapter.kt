@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -20,7 +20,7 @@ import com.foxit.pdf.main.FunctionAdapter.FunctionViewHolder
 import android.view.ViewGroup
 import android.view.View
 import android.view.LayoutInflater
-import com.foxit.pdf.main.R
+import com.foxit.pdf.function_demo.R
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import android.widget.TextView
 import android.widget.Button

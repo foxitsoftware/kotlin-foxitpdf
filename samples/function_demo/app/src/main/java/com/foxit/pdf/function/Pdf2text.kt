@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -26,7 +26,7 @@ import com.foxit.sdk.pdf.PDFPage
 import com.foxit.sdk.pdf.TextPage
 import com.foxit.sdk.PDFException
 import android.widget.Toast
-import com.foxit.pdf.main.R
+import com.foxit.pdf.function_demo.R
 import java.io.FileWriter
 import java.io.File
 import java.io.IOException

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -41,7 +41,7 @@ class Search(private val mContext: Context) {
             search.setStartPage(0)
             search.setEndPage(doc.pageCount - 1)
             val pattern = "Foxit"
-            search.setPattern(pattern)
+            search.setPattern(pattern, false)
             val flags = TextSearch.e_SearchNormal
             // If want to specify flags, you can do as followings:
             // flags |= TextSearch::e_SearchMatchCase;

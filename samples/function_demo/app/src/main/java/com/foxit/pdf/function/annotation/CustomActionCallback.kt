@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -49,7 +49,9 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         }
     }
 
-    override fun release() {}
+    override fun release() {
+    }
+
     override fun invalidateRect(document: PDFDoc, page_index: Int, pdf_rect: RectF): Boolean {
         return false
     }
@@ -58,8 +60,12 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return 0
     }
 
-    override fun setCurrentPage(document: PDFDoc, page_index: Int) {}
-    override fun setCurrentPage(document: PDFDoc, destination: Destination) {}
+    override fun setCurrentPage(document: PDFDoc, page_index: Int) {
+    }
+
+    override fun setCurrentPage(document: PDFDoc, destination: Destination) {
+    }
+
     override fun getPageRotation(document: PDFDoc, page_index: Int): Int {
         return Constants.e_Rotation0
     }
@@ -96,7 +102,9 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return null
     }
 
-    override fun closeDoc(document: PDFDoc, is_prompt_to_save: Boolean) {}
+    override fun closeDoc(document: PDFDoc, is_prompt_to_save: Boolean) {
+    }
+
     override fun openDoc(file_path: String, password: String): PDFDoc? {
         return null
     }
@@ -271,7 +279,9 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return false
     }
 
-    override fun setFullScreen(is_full_screen: Boolean) {}
+    override fun setFullScreen(is_full_screen: Boolean) {
+    }
+
     override fun onFieldValueChanged(
         field_name: String,
         type: Int,
@@ -280,7 +290,9 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
     ) {
     }
 
-    override fun updateLogicalLabel() {}
+    override fun updateLogicalLabel() {
+    }
+
     override fun mailDoc(
         document: PDFDoc,
         to_address: String,
@@ -305,7 +317,9 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return ""
     }
 
-    override fun scroll(point: PointF) {}
+    override fun scroll(point: PointF) {
+    }
+
     override fun selectPageNthWord(
         page_index: Int,
         start_offset: Int,
@@ -326,12 +340,16 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return e_LayoutModeContinuous
     }
 
-    override fun setLayoutMode(layout_mode: Int, is_cover_mode: Boolean) {}
+    override fun setLayoutMode(layout_mode: Int, is_cover_mode: Boolean) {
+    }
+
     override fun getPageScale(): Float {
         return 1.0f
     }
 
-    override fun setPageScale(zoom_mode: Int, dest: Destination) {}
+    override fun setPageScale(zoom_mode: Int, dest: Destination) {
+    }
+
     override fun getPageZoomMode(): Int {
         return Destination.e_ZoomFitBHorz
     }
@@ -340,15 +358,20 @@ internal class CustomActionCallback(context: Context) : ActionCallback() {
         return null
     }
 
-    override fun enablePageLoop(is_loop: Boolean) {}
+    override fun enablePageLoop(is_loop: Boolean) {
+    }
+
     override fun isPageLoop(): Boolean {
         return false
     }
 
-    override fun setDefaultPageTransitionMode(trans_type: String, trans_di: String) {}
+    override fun setDefaultPageTransitionMode(trans_type: String, trans_di: String) {
+    }
+
     override fun isCurrentDocOpenedInBrowser(): Boolean {
         return false
     }
 
-    override fun postMessageToHtml(message: WStringArray) {}
+    override fun postMessageToHtml(message: WStringArray) {
+    }
 }

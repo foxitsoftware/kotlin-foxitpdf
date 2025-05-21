@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -22,7 +22,7 @@ import com.foxit.pdf.function.Common.getOutputFilesFolder
 import com.foxit.pdf.function.Common.getSuccessInfo
 import com.foxit.pdf.function.Common.loadPDFDoc
 import com.foxit.pdf.function.Common.loadPage
-import com.foxit.pdf.main.R
+import com.foxit.pdf.function_demo.R
 import com.foxit.sdk.PDFException
 import com.foxit.sdk.common.DateTime
 import com.foxit.sdk.common.Progressive

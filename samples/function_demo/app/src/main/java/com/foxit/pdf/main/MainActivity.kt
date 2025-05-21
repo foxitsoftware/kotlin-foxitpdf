@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2003-2023, Foxit Software Inc..
+ * Copyright (C) 2003-2025, Foxit Software Inc..
  * All Rights Reserved.
  *
  *
@@ -14,9 +14,13 @@
 package com.foxit.pdf.main
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,19 +29,28 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.foxit.pdf.function.*
+import com.foxit.pdf.function.Common
 import com.foxit.pdf.function.Common.checkSD
 import com.foxit.pdf.function.Common.copyTestFiles
+import com.foxit.pdf.function.DocInfo
+import com.foxit.pdf.function.GraphicsObjects
+import com.foxit.pdf.function.Image2Pdf
+import com.foxit.pdf.function.Outline
+import com.foxit.pdf.function.Pdf2text
+import com.foxit.pdf.function.Render
+import com.foxit.pdf.function.Search
+import com.foxit.pdf.function.Signature
+import com.foxit.pdf.function.Watermark
 import com.foxit.pdf.function.annotation.Annotation
+import com.foxit.pdf.function_demo.R
 import com.foxit.pdf.main.FunctionAdapter.FunctionItemBean
-import com.foxit.pdf.main.MainActivity
 import com.foxit.sdk.common.Constants
 import com.foxit.sdk.common.Library
-import java.util.*
 
 class MainActivity : FragmentActivity() {
     private var initErrCode = Constants.e_ErrSuccess
     private var isPermissionDenied = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,13 +62,22 @@ class MainActivity : FragmentActivity() {
             ).show()
             return
         }
+
         checkPermission()
         initLibrary()
         initView()
     }
 
     private fun checkPermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                intent.setData(Uri.parse("package:" + applicationContext.packageName))
+                startActivityForResult(intent, REQUEST_ALL_FILES_ACCESS_PERMISSION)
+            } else {
+                onPermissionGranted()
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val permission = ContextCompat.checkSelfPermission(
                 this.applicationContext,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -67,18 +89,22 @@ class MainActivity : FragmentActivity() {
                     REQUEST_EXTERNAL_STORAGE
                 )
             } else {
-                isPermissionDenied = false
-                copyTestFiles(applicationContext)
+                onPermissionGranted()
             }
         } else {
-            isPermissionDenied = false
-            copyTestFiles(applicationContext)
+            onPermissionGranted()
         }
     }
 
     private fun initLibrary() {
         initErrCode = Library.initialize(sn, key)
         showLibraryErrorInfo()
+    }
+
+
+    private fun onPermissionGranted() {
+        isPermissionDenied = false
+        copyTestFiles(applicationContext)
     }
 
     private fun showLibraryErrorInfo() {
@@ -100,8 +126,11 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun initView() {
-        val recyclerView: RecyclerView = findViewById(R.id.function_list)
-        val adapter = FunctionAdapter(applicationContext, functionItems)
+        val recyclerView = findViewById<RecyclerView>(R.id.function_list)
+        val adapter = FunctionAdapter(
+            applicationContext,
+            functionItems
+        )
         recyclerView.adapter = adapter
         recyclerView.layoutManager =
             LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
@@ -118,6 +147,7 @@ class MainActivity : FragmentActivity() {
                     showLibraryErrorInfo()
                     return
                 }
+
                 if (isPermissionDenied) {
                     Toast.makeText(
                         applicationContext,
@@ -126,6 +156,7 @@ class MainActivity : FragmentActivity() {
                     ).show()
                     return
                 }
+
                 val type = itemBean!!.type
                 when (type) {
                     Common.ANNOTATION -> {
@@ -134,55 +165,70 @@ class MainActivity : FragmentActivity() {
                         )
                         annotation.addAnnotation()
                     }
+
                     Common.OUTLINE -> {
-                        val outline = Outline(applicationContext)
+                        val outline = Outline(
+                            applicationContext
+                        )
                         outline.modifyOutline()
                     }
+
                     Common.DOCINFO -> {
                         val info = DocInfo(applicationContext)
                         info.outputDocInfo()
                     }
+
                     Common.PDF_TO_TXT -> {
                         val pdf2text = Pdf2text(applicationContext)
                         pdf2text.doPdfToText()
                     }
+
                     Common.PDF_TO_IMAGE -> {
                         val render = Render(applicationContext)
                         render.renderPage(0)
                     }
+
                     Common.IMAGE_TO_PDF -> {
                         val image2Pdf = Image2Pdf(applicationContext)
                         image2Pdf.doImage2Pdf()
                     }
+
                     Common.SIGNATURE -> {
-                        val signature = Signature(applicationContext)
+                        val signature = Signature(
+                            applicationContext
+                        )
                         signature.addSignature(0)
                     }
+
                     Common.WATERMARK -> {
-                        val watermark = Watermark(applicationContext)
+                        val watermark = Watermark(
+                            applicationContext
+                        )
                         watermark.addWatermark()
                     }
+
                     Common.SEARCH -> {
                         val search = Search(applicationContext)
                         search.startSearch()
                     }
+
                     Common.GRAPHICS_OBJECTS -> {
                         val graphicsObjects = GraphicsObjects(
                             applicationContext
                         )
                         graphicsObjects.addGraphicsObjects()
                     }
-                    else -> {
-                    }
+
+                    else -> {}
                 }
             }
         })
     }
 
-    //pdf2txt
     private val functionItems: List<FunctionItemBean>
-        private get() {
-            val functions: MutableList<FunctionItemBean> = ArrayList()
+        get() {
+            val functions: MutableList<FunctionItemBean> =
+                ArrayList()
             //pdf2txt
             val pdf2txt = FunctionItemBean(
                 Common.PDF_TO_TXT,
@@ -266,18 +312,34 @@ class MainActivity : FragmentActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_EXTERNAL_STORAGE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            isPermissionDenied = false
-            copyTestFiles(applicationContext)
-        } else {
-            isPermissionDenied = true
+        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                onPermissionGranted()
+            } else {
+                isPermissionDenied = true
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_ALL_FILES_ACCESS_PERMISSION) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    onPermissionGranted()
+                } else {
+                    isPermissionDenied = true
+                }
+            }
         }
     }
 
     companion object {
         private val sn = "l5uLRkyIIDIyKJQZBChK2tXW/BikAnJozYEi1ApEyOR7i8W3U0ZlKQ=="
         private val key = "ezJvjl8mvB539NviuavWvpsxZwdMWZ2hvkmJNQZ8S/CwnxmS4c9F6U69I385uOe2wT4Fg2fJksQtXtnFsJ6lZR6RmsquC9T+GuC1YcZfAx/DRZivPTAkOaYoOwHQhGkkeTytiGg4KlolOVjyyRy5ZjzBBuwgODp1AcJAdTSvFlZnl+iCoYbPEKxUo/2+grZrhLICAXhrEioM4AwgIp1FxhQGlTLdv6OmuczqP0jt4IAEEJ1VhL5rh8X1fTGpx8fR8i0o0Ez/X307CCLaHBYLVXWMaZRn0XCsA1cOtcnD7XME1T4rHm4e4F+leLLPeylUoAMA/x1LwHj2yky9b2IclJxYcXRVdZOjCZsNPLpUDZS/UvAdTNrbkDl8fS/Vx75QOW+2z8//pjK4UR23WMi9yuvhXpfyi5Etv0aZDe969Pmc1vt2zK2Ddz2EAO5BslqcPDw2eBfCMBQL+iz3p9xg0XI9pAI6DnRDuqHkqHh6EVZ6zN20BupuDOdTg+PemU739fedBXY7TQz7ORE6BtzvPIlpyG1mNKC7A3bOIzyTDbVfSq3bPj5qoas7brtGTce1j0EHfzF3rzyFsKbvxcTcBRKzV+bAvtNofD4qPtqz7edHNbJKVcugoARzikVFW3dD7d14p7QUV+d6QkQf12KvzocGRfY1cHC/+Cey25k0+UtFQ/KdhaU/EVOfprWqeJLUyqX/GV9WX7I3A3OF8nTqeh7UpaOin8pA3T5k3tzAcnzFf9jFXjZeT1cRhClLSbWR4fGn+rxeLr2lwTOa9kBR1BY/iwItyY7uxCj1LcxtLKNC+BFRK4tXTsFlCjQPJOreF0oBxAhSp8dTmeXsdb/QVJMlR1iuJwqIWoxfg9+zHBNPUHpK33weRQ/j2gRPGBV2eW3+Wqcx+5VyB3PtCxaheJ3jMgXD2/1UBh24JVUVwgL0oQ3fi7EhleoALwQaulCWP5TTCOioPJFjVGBMo5BfH4o4rU1JNDse/QIauw1EkQQHlzfazCpU9gHnP4nBNKAgn+fNc+hwDBEP0dmlIEeHvy4kGEQQCwtMuV6Ezam1BAUwjKp8Lw5d2B/8d65mUCj1kZl2cXLEAnrwFCyZ8+RHe4XK+DZGCbwjzcyzJdQ+3qUrVgf9iseJm9XpOZp1azqo5nfOThl4lJAcEty7lsbXRpldNiFb8VE/hMkm/cFR9PNj40N4Zq+EvdiSO1ZwaEyM67OHwgo6i0QtGhp1SNA6Enq6OVNEy9J0QF5e2XT4UoZNN7roRKkP1ADvQA=="
-        private const val REQUEST_EXTERNAL_STORAGE = 1
+
+        private const val REQUEST_EXTERNAL_STORAGE = 1000
+        private const val REQUEST_ALL_FILES_ACCESS_PERMISSION = 2000
         private val PERMISSIONS_STORAGE = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
